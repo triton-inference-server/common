@@ -35,10 +35,11 @@
 #include <vector>
 
 // This header can be used both within Triton server and externally
-// (i.e. in source that interacts only via TRITONSERVER API). Status
-// is handled differently in these cases so the following macros must
-// be defined before including this header. As an example the defines
-// are shown here as returned by the TRITONSERVER API.
+// (i.e. in source that interacts only via TRITONSERVER or
+// TRITONBACKEND API). Status is handled differently in these cases so
+// the following macros must be defined before including this
+// header. As an example the defines are shown here as returned by the
+// TRITONSERVER API.
 //
 //   #define TRITONJSON_STATUSTYPE TRITONSERVER_Error*
 //   #define TRITONJSON_STATUSRETURN(M)
