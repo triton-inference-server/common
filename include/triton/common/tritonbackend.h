@@ -27,7 +27,7 @@
 
 #include <stddef.h>
 #include <stdint.h>
-#include "tritonserver.h"
+#include "triton/common/tritonserver.h"
 
 #ifdef __cplusplus
 extern "C" {

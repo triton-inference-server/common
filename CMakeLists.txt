@@ -42,7 +42,7 @@ add_library(
 target_include_directories(
   triton-common-serverapi
   INTERFACE
-    $<INSTALL_INTERFACE:include/triton/common>
+    $<INSTALL_INTERFACE:include>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
 )
 
@@ -60,7 +60,7 @@ add_library(
 target_include_directories(
   triton-common-backendapi
   INTERFACE
-    $<INSTALL_INTERFACE:include/triton/common>
+    $<INSTALL_INTERFACE:include>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
 )
 
@@ -78,7 +78,7 @@ add_library(
 target_include_directories(
   triton-common-json
   INTERFACE
-    $<INSTALL_INTERFACE:include/triton/common>
+    $<INSTALL_INTERFACE:include>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
 )
 
@@ -101,7 +101,7 @@ install(
 
 install(
   DIRECTORY include/
-  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/triton/common
+  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
 )
 
 install(
