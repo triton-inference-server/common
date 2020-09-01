@@ -437,6 +437,16 @@ TRITONSERVER_EXPORT TRITONSERVER_Error* TRITONSERVER_ResponseAllocatorDelete(
 /// Object representing a Triton Server message.
 ///
 
+/// Create a new message object from serialized JSON string.
+///
+/// \param message The message object.
+/// \param base The base of the serialized JSON.
+/// \param byte_size The size, in bytes, of the serialized message.
+/// \return a TRITONSERVER_Error indicating success or failure.
+TRITONSERVER_EXPORT TRITONSERVER_Error*
+TRITONSERVER_MessageNewFromSerializedJson(
+    TRITONSERVER_Message** message, const char* base, size_t byte_size);
+
 /// Delete a message object.
 ///
 /// \param message The message object.
@@ -1213,8 +1223,9 @@ TRITONSERVER_ServerOptionsSetStrictModelConfig(
     TRITONSERVER_ServerOptions* options, bool strict);
 
 /// Set the total pinned memory byte size that the server can allocate
-/// in a server options. This option will not affect the allocation conducted
-/// by the backend frameworks.
+/// in a server options. The pinned memory pool will be shared across
+/// Triton itself and the backends that use
+/// TRITONBACKEND_MemoryManager to allocate memory.
 ///
 /// \param options The server options object.
 /// \param size The pinned memory pool byte size.
@@ -1223,9 +1234,10 @@ TRITONSERVER_EXPORT TRITONSERVER_Error*
 TRITONSERVER_ServerOptionsSetPinnedMemoryPoolByteSize(
     TRITONSERVER_ServerOptions* options, uint64_t size);
 
-/// Set the total CUDA memory byte size that the server can allocate on given
-/// GPU device in a server options. This option will not affect the allocation
-/// conducted by the backend frameworks.
+/// Set the total CUDA memory byte size that the server can allocate
+/// on given GPU device in a server options. The pinned memory pool
+/// will be shared across Triton itself and the backends that use
+/// TRITONBACKEND_MemoryManager to allocate memory.
 ///
 /// \param options The server options object.
 /// \param gpu_device The GPU device to allocate the memory pool.

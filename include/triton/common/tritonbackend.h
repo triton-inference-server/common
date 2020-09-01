@@ -41,6 +41,7 @@ extern "C" {
 #define TRITONBACKEND_EXPORT
 #endif
 
+struct TRITONBACKEND_MemoryManager;
 struct TRITONBACKEND_Input;
 struct TRITONBACKEND_Output;
 struct TRITONBACKEND_Request;
@@ -76,7 +77,7 @@ struct TRITONBACKEND_ModelInstance;
 ///   }
 ///
 #define TRITONBACKEND_API_VERSION_MAJOR 0
-#define TRITONBACKEND_API_VERSION_MINOR 1
+#define TRITONBACKEND_API_VERSION_MINOR 4
 
 /// Get the TRITONBACKEND API version supported by Triton. This value
 /// can be compared against the TRITONBACKEND_API_VERSION_MAJOR and
@@ -90,6 +91,58 @@ struct TRITONBACKEND_ModelInstance;
 /// \return a TRITONSERVER_Error indicating success or failure.
 TRITONBACKEND_EXPORT TRITONSERVER_Error* TRITONBACKEND_ApiVersion(
     uint32_t* major, uint32_t* minor);
+
+///
+/// TRITONBACKEND_MemoryManager
+///
+/// Object representing an memory manager that is capable of
+/// allocating and otherwise managing different memory types. For
+/// improved performance Triton maintains pools for GPU and CPU-pinned
+/// memory and the memory manager allows backends to access those
+/// pools.
+///
+
+/// Allocate a contiguous block of memory of a specific type using a
+/// memory manager. Two error codes have specific interpretations for
+/// this function:
+///
+///   TRITONSERVER_ERROR_UNSUPPORTED: Indicates that Triton is
+///     incapable of allocating the requested memory type and memory
+///     type ID. Requests for the memory type and ID will always fail
+///     no matter 'byte_size' of the request.
+///
+///   TRITONSERVER_ERROR_UNAVAILABLE: Indicates that Triton can
+///      allocate the memory type and ID but that currently it cannot
+///      allocate a contiguous block of memory of the requested
+///      'byte_size'.
+///
+/// \param manager The memory manager.
+/// \param buffer Returns the allocated memory.
+/// \param memory_type The type of memory to allocate.
+/// \param memory_type_id The ID associated with the memory type to
+/// allocate. For GPU memory this indicates the device ID of the GPU
+/// to allocate from.
+/// \param byte_size The size of memory to allocate, in bytes.
+/// \return a TRITONSERVER_Error indicating success or failure.
+TRITONBACKEND_EXPORT TRITONSERVER_Error* TRITONBACKEND_MemoryManagerAllocate(
+    TRITONBACKEND_MemoryManager* manager, void** buffer,
+    const TRITONSERVER_MemoryType memory_type, const int64_t memory_type_id,
+    const uint64_t byte_size);
+
+/// Free a buffer that was previously allocated with
+/// TRITONBACKEND_MemoryManagerAllocate. The call must provide the
+/// same values for 'memory_type' and 'memory_type_id' as were used
+/// when the buffer was allocate or else the behavior is undefined.
+///
+/// \param manager The memory manager.
+/// \param buffer The allocated memory buffer to free.
+/// \param memory_type The type of memory of the buffer.
+/// \param memory_type_id The ID associated with the memory type of
+/// the buffer.
+/// \return a TRITONSERVER_Error indicating success or failure.
+TRITONBACKEND_EXPORT TRITONSERVER_Error* TRITONBACKEND_MemoryManagerFree(
+    TRITONBACKEND_MemoryManager* manager, void* buffer,
+    const TRITONSERVER_MemoryType memory_type, const int64_t memory_type_id);
 
 ///
 /// TRITONBACKEND_Input
@@ -107,7 +160,12 @@ TRITONBACKEND_EXPORT TRITONSERVER_Error* TRITONBACKEND_ApiVersion(
 /// \param shape If non-nullptr, returns the tensor shape.
 /// \param dim_count If non-nullptr, returns the number of dimensions
 /// in the tensor shape.
-/// \param byte_size If non-nullptr, returns the size of the tensor, in bytes.
+/// \param byte_size If non-nullptr, returns the size of the available
+/// data for the tensor, in bytes. This size reflects the actual data
+/// available, and does not necessarily match what is
+/// expected/required for the tensor given its shape and datatype. It
+/// is the responsibility of the backend to handle mismatches in these
+/// sizes appropriately.
 /// \param buffer_count If non-nullptr, returns the number of buffers
 /// holding the contents of the tensor. These buffers are accessed
 /// using TRITONBACKEND_InputBuffer.
@@ -221,9 +279,9 @@ TRITONBACKEND_EXPORT TRITONSERVER_Error* TRITONBACKEND_RequestInputName(
     TRITONBACKEND_Request* request, const uint32_t index,
     const char** input_name);
 
-/// Get a request input. The lifetime of the returned input object
-/// matches that of the request and so the input object should not be
-/// accessed after the request object is released.
+/// Get a named request input. The lifetime of the returned input
+/// object matches that of the request and so the input object should
+/// not be accessed after the request object is released.
 ///
 /// \param request The inference request.
 /// \param name The name of the input.
@@ -231,6 +289,26 @@ TRITONBACKEND_EXPORT TRITONSERVER_Error* TRITONBACKEND_RequestInputName(
 /// \return a TRITONSERVER_Error indicating success or failure.
 TRITONBACKEND_EXPORT TRITONSERVER_Error* TRITONBACKEND_RequestInput(
     TRITONBACKEND_Request* request, const char* name,
+    TRITONBACKEND_Input** input);
+
+/// Get a request input by index. The order of inputs in a given
+/// request is not necessarily consistent with other requests, even if
+/// the requests are in the same batch. As a result, you can not
+/// assume that an index obtained from one request will point to the
+/// same input in a different request.
+///
+/// The lifetime of the returned input object matches that of the
+/// request and so the input object should not be accessed after the
+/// request object is released.
+///
+/// \param request The inference request.
+/// \param index The index of the input tensor. Must be 0 <= index <
+/// count, where count is the value returned by
+/// TRITONBACKEND_RequestInputCount.
+/// \param input Returns the input corresponding to the index.
+/// \return a TRITONSERVER_Error indicating success or failure.
+TRITONBACKEND_EXPORT TRITONSERVER_Error* TRITONBACKEND_RequestInputByIndex(
+    TRITONBACKEND_Request* request, const uint32_t index,
     TRITONBACKEND_Input** input);
 
 /// Get the number of output tensors requested to be returned in the
@@ -489,7 +567,7 @@ TRITONBACKEND_EXPORT TRITONSERVER_Error* TRITONBACKEND_BackendExecutionPolicy(
 /// Set the execution policy for this backend. By default the
 /// execution policy is TRITONBACKEND_EXECUTION_BLOCKING. Triton reads
 /// the backend's execution policy after calling
-/// TRITONBACKEND_Initialize, so to be recognized, changes to the
+/// TRITONBACKEND_Initialize, so to be recognized changes to the
 /// execution policy must be made in TRITONBACKEND_Initialize.
 ///
 /// \param backend The backend.
@@ -498,6 +576,14 @@ TRITONBACKEND_EXPORT TRITONSERVER_Error* TRITONBACKEND_BackendExecutionPolicy(
 TRITONBACKEND_EXPORT TRITONSERVER_Error*
 TRITONBACKEND_BackendSetExecutionPolicy(
     TRITONBACKEND_Backend* backend, TRITONBACKEND_ExecutionPolicy policy);
+
+/// Get the memory manager associated with a backend.
+///
+/// \param backend The backend.
+/// \param manager Returns the memory manager.
+/// \return a TRITONSERVER_Error indicating success or failure.
+TRITONBACKEND_EXPORT TRITONSERVER_Error* TRITONBACKEND_BackendMemoryManager(
+    TRITONBACKEND_Backend* backend, TRITONBACKEND_MemoryManager** manager);
 
 /// Get the user-specified state associated with the backend. The
 /// state is completely owned and managed by the backend.
@@ -592,6 +678,37 @@ TRITONBACKEND_EXPORT TRITONSERVER_Error* TRITONBACKEND_ModelRepository(
 TRITONBACKEND_EXPORT TRITONSERVER_Error* TRITONBACKEND_ModelConfig(
     TRITONBACKEND_Model* model, const uint32_t config_version,
     TRITONSERVER_Message** model_config);
+
+/// Whether the backend should attempt to auto-complete the model configuration.
+/// If true, the model should fill the inputs, outputs, and max batch size in
+/// the model configuration if incomplete. If the model configuration is
+/// changed,  the new configuration must be reported to Triton using
+/// TRITONBACKEND_ModelSetConfig.
+///
+/// \param model The model.
+/// \param auto_complete_config Returns whether the backend should auto-complete
+/// the model configuration.
+/// \return a TRITONSERVER_Error indicating success or failure.
+TRITONBACKEND_EXPORT TRITONSERVER_Error* TRITONBACKEND_ModelAutoCompleteConfig(
+    TRITONBACKEND_Model* model, bool* auto_complete_config);
+
+/// Set the model configuration in Triton server. Only the inputs, outputs,
+/// and max batch size can be changed. Any other changes to the model
+/// configuration will be ignored by Triton. This function can only be called
+/// from TRITONBACKEND_ModelInitialize, calling in any other context will result
+/// in an error being returned. The function does not take ownership of the
+/// message object and so the caller should call TRITONSERVER_MessageDelete to
+/// release the object once the function returns.
+///
+/// \param model The model.
+/// \param config_version The format version of the model configuration.
+/// If the configuration is not represented in the version's format
+/// then an error will be returned. Currently only version 1 is supported.
+/// \param model_config The updated model configuration as a message.
+/// \return a TRITONSERVER_Error indicating success or failure.
+TRITONBACKEND_EXPORT TRITONSERVER_Error* TRITONBACKEND_ModelSetConfig(
+    TRITONBACKEND_Model* model, const uint32_t config_version,
+    TRITONSERVER_Message* model_config);
 
 /// Get the TRITONSERVER_Server object that this model is being served
 /// by.
