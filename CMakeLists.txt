@@ -28,6 +28,9 @@ cmake_minimum_required(VERSION 3.17)
 
 project(tritoncommon LANGUAGES C CXX)
 
+find_package(RapidJSON CONFIG REQUIRED)
+message(STATUS "RapidJSON found. Headers: ${RAPIDJSON_INCLUDE_DIRS}")
+
 #
 # Triton Server API
 #
@@ -79,7 +82,9 @@ target_include_directories(
   triton-common-json
   INTERFACE
     $<INSTALL_INTERFACE:include>
+    $<INSTALL_INTERFACE:${RapidJSON_INCLUDE_DIRS}>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<BUILD_INTERFACE:${RapidJSON_INCLUDE_DIRS}>
 )
 
 #
