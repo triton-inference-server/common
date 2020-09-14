@@ -32,42 +32,6 @@ find_package(RapidJSON CONFIG REQUIRED)
 message(STATUS "RapidJSON found. Headers: ${RAPIDJSON_INCLUDE_DIRS}")
 
 #
-# Triton Server API
-#
-add_library(
-  triton-common-serverapi INTERFACE
-)
-
-add_library(
-  TritonCommon::triton-common-serverapi ALIAS triton-common-serverapi
-)
-
-target_include_directories(
-  triton-common-serverapi
-  INTERFACE
-    $<INSTALL_INTERFACE:include>
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-)
-
-#
-# Triton Backend API
-#
-add_library(
-  triton-common-backendapi INTERFACE
-)
-
-add_library(
-  TritonCommon::triton-common-backendapi ALIAS triton-common-backendapi
-)
-
-target_include_directories(
-  triton-common-backendapi
-  INTERFACE
-    $<INSTALL_INTERFACE:include>
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-)
-
-#
 # JSON utilities
 #
 add_library(
@@ -96,8 +60,6 @@ set(INSTALL_CONFIGDIR ${CMAKE_INSTALL_LIBDIR}/cmake/TritonCommon)
 install(
   TARGETS
     triton-common-json
-    triton-common-backendapi
-    triton-common-serverapi
   EXPORT
     triton-common-targets
   LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
