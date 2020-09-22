@@ -42,6 +42,37 @@ add_library(
   TritonCommon::triton-common-json ALIAS triton-common-json
 )
 
+add_library(
+  triton-common-table-printer
+  src/table_printer.cc
+)
+
+add_library(
+  TritonBackend::triton-common-table-printer ALIAS triton-common-table-printer
+)
+
+target_include_directories(
+  triton-common-table-printer
+  PUBLIC
+    $<INSTALL_INTERFACE:include>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/src
+)
+
+target_compile_features(triton-common-table-printer PRIVATE cxx_std_11)
+target_compile_options(
+  triton-common-table-printer
+  PRIVATE
+    -Wall -Wextra -Wno-unused-parameter -Werror
+)
+
+set_target_properties(
+  triton-common-table-printer PROPERTIES
+  POSITION_INDEPENDENT_CODE ON
+  OUTPUT_NAME tritontableprinter
+)
+
 target_include_directories(
   triton-common-json
   INTERFACE
@@ -60,6 +91,7 @@ set(INSTALL_CONFIGDIR ${CMAKE_INSTALL_LIBDIR}/cmake/TritonCommon)
 install(
   TARGETS
     triton-common-json
+    triton-common-table-printer
   EXPORT
     triton-common-targets
   LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
