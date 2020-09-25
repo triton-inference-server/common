@@ -157,7 +157,7 @@ std::string TablePrinter::PrintTable() {
 TablePrinter::TablePrinter(const std::vector<std::string> &headers)
     : headers_(std::move(headers)) {
   int status = ioctl(STDOUT_FILENO, TIOCGWINSZ, &terminal_size_);
-  if (status != 0) {
+  if (status != 0 || terminal_size_.ws_col == 0) {
     // Failed to get output size
     // Set the column size to a default size
     terminal_size_.ws_col = 500;
