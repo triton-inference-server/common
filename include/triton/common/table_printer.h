@@ -31,8 +31,7 @@
 #include <sys/ioctl.h>
 #include <vector>
 
-namespace triton {
-namespace common {
+namespace triton { namespace common {
 
 //
 // An ASCII table printer.
@@ -42,37 +41,37 @@ public:
   // Insert a row at the end of the table
   void InsertRow(const std::vector<std::string> &row);
 
-  std::unique_ptr<std::string> PrintTable();
+  std::string PrintTable();
 
-  static void Create(std::unique_ptr<TablePrinter> *table_printer,
-                     const std::vector<std::string> &headers);
+  TablePrinter(const std::vector<std::string> &headers);
 
 private:
-  // Table headers
-  std::vector<std::string> headers_;
-  // Max lengths of the data items.
-  std::vector<size_t> max_lens_;
-  // A vector of vectors containing data items for every column
-  std::vector<std::vector<std::string>> data_;
-  // terminal size
-  struct winsize terminal_size_;
-  // Fair share of every column
-  std::vector<float> shares_;
-
   // Update the `shares_` such that all the excess
   // amount of space not used a column is fairly allocated
   // to the other columns
-  void calculate_fair_share_();
+  void FairShare();
 
   // Append a row to `table`. This function handles the cases where a wrapping
   // occurs.
-  void add_row_(std::stringstream &table, const std::vector<std::string> &row);
+  void AddRow(std::stringstream &table, const std::vector<std::string> &row);
 
   // Add a row divider
-  void add_row_divider_(std::stringstream &table);
+  void AddRowDivider(std::stringstream &table);
 
-  TablePrinter(const std::vector<std::string> &headers);
+  // Table headers
+  std::vector<std::string> headers_;
+
+  // Max lengths of the data items.
+  std::vector<size_t> max_lens_;
+
+  // A vector of vectors containing data items for every column
+  std::vector<std::vector<std::string>> data_;
+
+  // terminal size
+  struct winsize terminal_size_;
+
+  // Fair share of every column
+  std::vector<float> shares_;
 };
 
-} // namespace common
-} // namespace triton
+}} // namespace common::triton

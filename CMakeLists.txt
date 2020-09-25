@@ -42,6 +42,18 @@ add_library(
   TritonCommon::triton-common-json ALIAS triton-common-json
 )
 
+target_include_directories(
+  triton-common-json
+  INTERFACE
+    $<INSTALL_INTERFACE:include>
+    $<INSTALL_INTERFACE:${RapidJSON_INCLUDE_DIRS}>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<BUILD_INTERFACE:${RapidJSON_INCLUDE_DIRS}>
+)
+
+#
+# Table Printer
+#
 add_library(
   triton-common-table-printer
   src/table_printer.cc
@@ -71,15 +83,6 @@ set_target_properties(
   triton-common-table-printer PROPERTIES
   POSITION_INDEPENDENT_CODE ON
   OUTPUT_NAME tritontableprinter
-)
-
-target_include_directories(
-  triton-common-json
-  INTERFACE
-    $<INSTALL_INTERFACE:include>
-    $<INSTALL_INTERFACE:${RapidJSON_INCLUDE_DIRS}>
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-    $<BUILD_INTERFACE:${RapidJSON_INCLUDE_DIRS}>
 )
 
 #

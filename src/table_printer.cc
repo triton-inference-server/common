@@ -24,6 +24,8 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+#include "triton/common/table_printer.h"
+
 #include <algorithm>
 #include <iomanip>
 #include <memory>
@@ -34,10 +36,7 @@
 #include <unistd.h>
 #include <vector>
 
-#include "triton/common/table_printer.h"
-
-namespace triton {
-namespace common {
+namespace triton { namespace common {
 
 //
 // ASCII table printer.
@@ -51,7 +50,7 @@ void TablePrinter::InsertRow(const std::vector<std::string> &row) {
   data_.emplace_back(row);
 }
 
-void TablePrinter::calculate_fair_share_() {
+void TablePrinter::FairShare() {
   // initialize original index locations
   size_t array_size = max_lens_.size();
   std::vector<size_t> idx(array_size);
@@ -90,7 +89,7 @@ void TablePrinter::calculate_fair_share_() {
   }
 }
 
-void TablePrinter::add_row_(std::stringstream &table,
+void TablePrinter::AddRow(std::stringstream &table,
                             const std::vector<std::string> &row) {
   size_t max_rows = 0;
 
@@ -119,7 +118,7 @@ void TablePrinter::add_row_(std::stringstream &table,
   table << "\n";
 }
 
-void TablePrinter::add_row_divider_(std::stringstream &table) {
+void TablePrinter::AddRowDivider(std::stringstream &table) {
   table << "+";
   for (const auto &share : shares_) {
     for (size_t i = 0; i < share + 2; i++)
@@ -129,7 +128,7 @@ void TablePrinter::add_row_divider_(std::stringstream &table) {
   table << "\n";
 }
 
-std::unique_ptr<std::string> TablePrinter::PrintTable() {
+std::string TablePrinter::PrintTable() {
   std::stringstream table;
   table << "\n";
 
@@ -138,24 +137,19 @@ std::unique_ptr<std::string> TablePrinter::PrintTable() {
       max_lens_[i] = headers_[i].size();
   }
 
-  calculate_fair_share_();
+  FairShare();
 
-  add_row_divider_(table);
-  add_row_(table, headers_);
-  add_row_divider_(table);
+  AddRowDivider(table);
+  AddRow(table, headers_);
+  AddRowDivider(table);
 
   for (size_t j = 0; j < data_.size(); j++) {
-    add_row_(table, data_[j]);
+    AddRow(table, data_[j]);
   }
 
-  add_row_divider_(table);
+  AddRowDivider(table);
 
-  return std::unique_ptr<std::string>(new std::string(table.str()));
-}
-
-void TablePrinter::Create(std::unique_ptr<TablePrinter> *table_printer,
-                          const std::vector<std::string> &headers) {
-  *table_printer = std::unique_ptr<TablePrinter>(new TablePrinter(headers));
+  return std::move(table.str());
 }
 
 TablePrinter::TablePrinter(const std::vector<std::string> &headers)
