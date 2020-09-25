@@ -35,6 +35,7 @@
 #include <sys/ioctl.h>
 #include <unistd.h>
 #include <vector>
+#include <iostream>
 
 namespace triton { namespace common {
 
@@ -155,7 +156,12 @@ std::string TablePrinter::PrintTable() {
 // TablePrinter will take the ownership of `headers`.
 TablePrinter::TablePrinter(const std::vector<std::string> &headers)
     : headers_(std::move(headers)) {
-  ioctl(STDOUT_FILENO, TIOCGWINSZ, &terminal_size_);
+  int status = ioctl(STDOUT_FILENO, TIOCGWINSZ, &terminal_size_);
+  if (status != 0) {
+    // Failed to get output size
+    // Set the column size to a default size
+    terminal_size_.ws_col = 500;
+  }
 
   for (size_t i = 0; i < headers_.size(); ++i) {
     max_lens_.emplace_back(0);
