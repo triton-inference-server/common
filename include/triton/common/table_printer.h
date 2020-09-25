@@ -41,8 +41,10 @@ public:
   // Insert a row at the end of the table
   void InsertRow(const std::vector<std::string> &row);
 
+  // Print the table
   std::string PrintTable();
 
+  // TablePrinter will take the ownership of `headers`.
   TablePrinter(const std::vector<std::string> &headers);
 
 private:

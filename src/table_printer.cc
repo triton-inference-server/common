@@ -152,6 +152,7 @@ std::string TablePrinter::PrintTable() {
   return std::move(table.str());
 }
 
+// TablePrinter will take the ownership of `headers`.
 TablePrinter::TablePrinter(const std::vector<std::string> &headers)
     : headers_(std::move(headers)) {
   ioctl(STDOUT_FILENO, TIOCGWINSZ, &terminal_size_);
