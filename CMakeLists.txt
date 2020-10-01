@@ -54,36 +54,38 @@ target_include_directories(
 #
 # Table Printer
 #
-add_library(
-  triton-common-table-printer
-  src/table_printer.cc
-)
-
-add_library(
-  TritonBackend::triton-common-table-printer ALIAS triton-common-table-printer
-)
-
-target_include_directories(
-  triton-common-table-printer
-  PUBLIC
-    $<INSTALL_INTERFACE:include>
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-  PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}/src
-)
-
-target_compile_features(triton-common-table-printer PRIVATE cxx_std_11)
-target_compile_options(
-  triton-common-table-printer
-  PRIVATE
-    -Wall -Wextra -Wno-unused-parameter -Werror
-)
-
-set_target_properties(
-  triton-common-table-printer PROPERTIES
-  POSITION_INDEPENDENT_CODE ON
-  OUTPUT_NAME tritontableprinter
-)
+if(NOT WIN32)
+  add_library(
+    triton-common-table-printer
+    src/table_printer.cc
+  )
+  
+  add_library(
+    TritonBackend::triton-common-table-printer ALIAS triton-common-table-printer
+  )
+  
+  target_include_directories(
+    triton-common-table-printer
+    PUBLIC
+      $<INSTALL_INTERFACE:include>
+      $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    PRIVATE
+      ${CMAKE_CURRENT_SOURCE_DIR}/src
+  )
+  
+  target_compile_features(triton-common-table-printer PRIVATE cxx_std_11)
+  target_compile_options(
+    triton-common-table-printer
+    PRIVATE
+      -Wall -Wextra -Wno-unused-parameter -Werror
+  )
+  
+  set_target_properties(
+    triton-common-table-printer PROPERTIES
+    POSITION_INDEPENDENT_CODE ON
+    OUTPUT_NAME tritontableprinter
+  )
+endif() # NOT WIN32
 
 #
 # Install
@@ -91,15 +93,26 @@ set_target_properties(
 include(GNUInstallDirs)
 set(INSTALL_CONFIGDIR ${CMAKE_INSTALL_LIBDIR}/cmake/TritonCommon)
 
-install(
-  TARGETS
-    triton-common-json
-    triton-common-table-printer
-  EXPORT
-    triton-common-targets
-  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-  ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-)
+if(NOT WIN32)
+  install(
+    TARGETS
+      triton-common-json
+      triton-common-table-printer
+    EXPORT
+      triton-common-targets
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  )
+else ()
+  install(
+    TARGETS
+      triton-common-json
+    EXPORT
+      triton-common-targets
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  )
+endif() # NOT WIN32
 
 install(
   DIRECTORY include/
