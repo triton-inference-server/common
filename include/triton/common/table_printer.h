@@ -25,10 +25,10 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma once
 
+#include <sys/ioctl.h>
 #include <memory>
 #include <sstream>
 #include <string>
-#include <sys/ioctl.h>
 #include <vector>
 
 namespace triton { namespace common {
@@ -37,17 +37,17 @@ namespace triton { namespace common {
 // An ASCII table printer.
 //
 class TablePrinter {
-public:
+ public:
   // Insert a row at the end of the table
-  void InsertRow(const std::vector<std::string> &row);
+  void InsertRow(const std::vector<std::string>& row);
 
   // Print the table
   std::string PrintTable();
 
   // TablePrinter will take the ownership of `headers`.
-  TablePrinter(const std::vector<std::string> &headers);
+  TablePrinter(const std::vector<std::string>& headers);
 
-private:
+ private:
   // Update the `shares_` such that all the excess
   // amount of space not used a column is fairly allocated
   // to the other columns
@@ -55,19 +55,23 @@ private:
 
   // Append a row to `table`. This function handles the cases where a wrapping
   // occurs.
-  void AddRow(std::stringstream &table, const std::vector<std::string> &row);
+  void AddRow(std::stringstream& table, size_t row_index);
 
   // Add a row divider
-  void AddRowDivider(std::stringstream &table);
+  void AddRowDivider(std::stringstream& table);
 
-  // Table headers
-  std::vector<std::string> headers_;
+  // Max row width
+  std::vector<size_t> max_widths_;
 
-  // Max lengths of the data items.
-  std::vector<size_t> max_lens_;
+  // Max row height
+  std::vector<size_t> max_heights_;
 
-  // A vector of vectors containing data items for every column
-  std::vector<std::vector<std::string>> data_;
+  // A vector of vectors of vectors containing data items for every column
+  // The record is stored in a vector of string, where each of the vector items
+  // contains a single line from the record. For example, ["Item 1", "Item 2",
+  // "Item 3\n Item 3 line 2"] will be stored as [["Item 1"], ["Item 2"], ["Item
+  // 3", "Item 3 line 2"]]
+  std::vector<std::vector<std::vector<std::string>>> data_;
 
   // terminal size
   struct winsize terminal_size_;
@@ -76,4 +80,4 @@ private:
   std::vector<float> shares_;
 };
 
-}} // namespace common::triton
+}}  // namespace triton::common
