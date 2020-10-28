@@ -51,7 +51,7 @@ namespace triton { namespace common {
 //
 // A JSON parser/writer. Currently based on rapidjson but the intent
 // is to provide an abstraction for JSON functions that make it easy
-// to substiture a different JSON parser. Specifically for rapidjson
+// to substitute a different JSON parser. Specifically for rapidjson
 // the class is also designed to provide safe access and error
 // reporting to avoid the cases where rapidjson would just abort the
 // entire application (!).
@@ -966,7 +966,7 @@ class TritonJson {
 
    private:
     // Construct a non-top-level JSON value that references an
-    // existing element in a docuemnt.
+    // existing element in a document.
     explicit Value(
         rapidjson::Value& v, rapidjson::Document::AllocatorType* allocator)
         : value_(&v), allocator_(allocator)
