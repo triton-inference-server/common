@@ -28,6 +28,20 @@ cmake_minimum_required(VERSION 3.17)
 
 project(tritoncommon LANGUAGES C CXX)
 
+if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+  message("Using MSVC as compiler, default target on Windows 10. "
+		  "If the target system is not Windows 10, please update _WIN32_WINNT "
+		  "to corresponding value.")
+  set(CMAKE_CXX_FLAGS "/W4 /D_WIN32_WINNT=0x0A00 /EHsc")
+  set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
+else()
+  set(CMAKE_CXX_FLAGS "-Wall -Wextra -Wno-unused-parameter -Werror -Wno-deprecated-declarations")
+  set(CMAKE_CXX_FLAGS_DEBUG "-g")
+  set(CMAKE_CXX_FLAGS_RELEASE "-O3")
+endif()
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+
 find_package(RapidJSON CONFIG REQUIRED)
 message(STATUS "RapidJSON found. Headers: ${RAPIDJSON_INCLUDE_DIRS}")
 
@@ -70,13 +84,6 @@ target_include_directories(
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src
-)
-
-target_compile_features(triton-common-table-printer PRIVATE cxx_std_11)
-target_compile_options(
-  triton-common-table-printer
-  PRIVATE
-    -Wall -Wextra -Wno-unused-parameter -Werror
 )
 
 set_target_properties(
