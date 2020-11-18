@@ -76,7 +76,6 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
   message("Using MSVC as compiler, default target on Windows 10. "
 		  "If the target system is not Windows 10, please update _WIN32_WINNT "
 		  "to corresponding value.")
-  set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
 endif()
 target_compile_features(triton-common-table-printer PRIVATE cxx_std_11)
 target_compile_options(
@@ -88,6 +87,7 @@ target_compile_options(
 
 set_target_properties(
   triton-common-table-printer PROPERTIES
+  WINDOWS_EXPORT_ALL_SYMBOLS TRUE
   POSITION_INDEPENDENT_CODE ON
   OUTPUT_NAME tritontableprinter
 )
