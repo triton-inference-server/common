@@ -224,7 +224,7 @@ TablePrinter::TablePrinter(const std::vector<std::string>& headers)
   size_t column_size = 500;
 #ifdef _WIN32
   CONSOLE_SCREEN_BUFFER_INFO csbi;
-  int ret = GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE),&csbi);
+  int ret = GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi);
   if (ret && (csbi.dwSize.X != 0)) {
     column_size = csbi.dwSize.X;
   }
