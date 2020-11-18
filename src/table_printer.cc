@@ -26,8 +26,14 @@
 
 #include "triton/common/table_printer.h"
 
+#ifdef _WIN32
+// suppress the min and max definitions in Windef.h.
+#define NOMINMAX
+#include <Windows.h>
+#else
 #include <sys/ioctl.h>
 #include <unistd.h>
+#endif
 #include <algorithm>
 #include <iomanip>
 #include <iostream>
@@ -214,12 +220,21 @@ TablePrinter::PrintTable()
 // TablePrinter will take the ownership of `headers`.
 TablePrinter::TablePrinter(const std::vector<std::string>& headers)
 {
-  int status = ioctl(STDOUT_FILENO, TIOCGWINSZ, &terminal_size_);
-  if (status != 0 || terminal_size_.ws_col == 0) {
-    // Failed to get output size
-    // Set the column size to a default size
-    terminal_size_.ws_col = 500;
+  // terminal size
+  size_t column_size = 500;
+#ifdef _WIN32
+  CONSOLE_SCREEN_BUFFER_INFO csbi;
+  int ret = GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi);
+  if (ret && (csbi.dwSize.X != 0)) {
+    column_size = csbi.dwSize.X;
   }
+#else
+  struct winsize terminal_size;
+  int status = ioctl(STDOUT_FILENO, TIOCGWINSZ, &terminal_size);
+  if ((status == 0) && (terminal_size.ws_col != 0)) {
+    column_size = terminal_size.ws_col;
+  }
+#endif
 
   for (size_t i = 0; i < headers.size(); ++i) {
     max_widths_.emplace_back(0);
@@ -232,7 +247,7 @@ TablePrinter::TablePrinter(const std::vector<std::string>& headers)
   // required before and after each column and number of columns plus 1 for
   // the pipes between the columns
   size_t terminal_width =
-      terminal_size_.ws_col - (2 * number_of_columns) - (number_of_columns + 1);
+      column_size - (2 * number_of_columns) - (number_of_columns + 1);
   int equal_share = terminal_width / headers.size();
 
   for (size_t i = 0; i < headers.size(); ++i) {

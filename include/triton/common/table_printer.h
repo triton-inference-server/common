@@ -25,7 +25,6 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma once
 
-#include <sys/ioctl.h>
 #include <memory>
 #include <sstream>
 #include <string>
@@ -72,9 +71,6 @@ class TablePrinter {
   // "Item 3\n Item 3 line 2"] will be stored as [["Item 1"], ["Item 2"], ["Item
   // 3", "Item 3 line 2"]]
   std::vector<std::vector<std::vector<std::string>>> data_;
-
-  // terminal size
-  struct winsize terminal_size_;
 
   // Fair share of every column
   std::vector<float> shares_;

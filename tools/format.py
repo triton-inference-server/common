@@ -33,7 +33,7 @@ import yapf
 
 FLAGS = None
 FORMAT_EXTS = ('proto', 'cc', 'cu', 'h')
-SKIP_PATHS = ('tools', )
+SKIP_PATHS = ('tools',)
 
 
 def visit(path):
@@ -60,7 +60,9 @@ def visit(path):
                 print("skipping due to path prefix: " + path)
             return True
     if python_file:
-        yapf.yapflib.yapf_api.FormatFile(path, in_place=True, style_config='google')
+        yapf.yapflib.yapf_api.FormatFile(path,
+                                         in_place=True,
+                                         style_config='google')
         return True
     else:
         args = ['clang-format-6.0', '--style=file', '-i']

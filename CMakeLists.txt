@@ -46,46 +46,51 @@ target_include_directories(
   triton-common-json
   INTERFACE
     $<INSTALL_INTERFACE:include>
-    $<INSTALL_INTERFACE:${RapidJSON_INCLUDE_DIRS}>
+    $<INSTALL_INTERFACE:${RAPIDJSON_INCLUDE_DIRS}>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-    $<BUILD_INTERFACE:${RapidJSON_INCLUDE_DIRS}>
+    $<BUILD_INTERFACE:${RAPIDJSON_INCLUDE_DIRS}>
 )
 
 #
 # Table Printer
 #
-if(NOT WIN32)
-  add_library(
-    triton-common-table-printer
-    src/table_printer.cc
-  )
-  
-  add_library(
-    TritonBackend::triton-common-table-printer ALIAS triton-common-table-printer
-  )
-  
-  target_include_directories(
-    triton-common-table-printer
-    PUBLIC
-      $<INSTALL_INTERFACE:include>
-      $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-    PRIVATE
-      ${CMAKE_CURRENT_SOURCE_DIR}/src
-  )
-  
-  target_compile_features(triton-common-table-printer PRIVATE cxx_std_11)
-  target_compile_options(
-    triton-common-table-printer
-    PRIVATE
-      -Wall -Wextra -Wno-unused-parameter -Werror
-  )
-  
-  set_target_properties(
-    triton-common-table-printer PROPERTIES
-    POSITION_INDEPENDENT_CODE ON
-    OUTPUT_NAME tritontableprinter
-  )
-endif() # NOT WIN32
+add_library(
+  triton-common-table-printer
+  src/table_printer.cc
+)
+
+add_library(
+  TritonBackend::triton-common-table-printer ALIAS triton-common-table-printer
+)
+
+target_include_directories(
+  triton-common-table-printer
+  PUBLIC
+    $<INSTALL_INTERFACE:include>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/src
+)
+
+if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+  message("Using MSVC as compiler, default target on Windows 10. "
+		  "If the target system is not Windows 10, please update _WIN32_WINNT "
+		  "to corresponding value.")
+endif()
+target_compile_features(triton-common-table-printer PRIVATE cxx_std_11)
+target_compile_options(
+  triton-common-table-printer PRIVATE
+  $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>,$<CXX_COMPILER_ID:GNU>>:
+    -Wall -Wextra -Wno-unused-parameter -Wno-type-limits -Werror>
+  $<$<CXX_COMPILER_ID:MSVC>:/Wall /D_WIN32_WINNT=0x0A00 /EHsc>
+)
+
+set_target_properties(
+  triton-common-table-printer PROPERTIES
+  WINDOWS_EXPORT_ALL_SYMBOLS TRUE
+  POSITION_INDEPENDENT_CODE ON
+  OUTPUT_NAME tritontableprinter
+)
 
 #
 # Install
@@ -93,26 +98,15 @@ endif() # NOT WIN32
 include(GNUInstallDirs)
 set(INSTALL_CONFIGDIR ${CMAKE_INSTALL_LIBDIR}/cmake/TritonCommon)
 
-if(NOT WIN32)
-  install(
-    TARGETS
-      triton-common-json
-      triton-common-table-printer
-    EXPORT
-      triton-common-targets
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-  )
-else ()
-  install(
-    TARGETS
-      triton-common-json
-    EXPORT
-      triton-common-targets
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-  )
-endif() # NOT WIN32
+install(
+  TARGETS
+    triton-common-json
+    triton-common-table-printer
+  EXPORT
+    triton-common-targets
+  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+)
 
 install(
   DIRECTORY include/
