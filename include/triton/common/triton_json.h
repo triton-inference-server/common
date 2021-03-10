@@ -140,7 +140,7 @@ class TritonJson {
       // Disable class-memaccess warning to facilitate compilation with gcc>7
       // https://github.com/Tencent/rapidjson/issues/1700
 #pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wclass-memaccess"
+#pragma GCC diagnostic ignored "-Werror=class-memaccess"
       document_.Parse(base, size);
 #pragma GCC diagnostic pop
       if (document_.HasParseError()) {
