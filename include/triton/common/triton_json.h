@@ -25,7 +25,10 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma once
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wclass-memaccess"
 #include <rapidjson/document.h>
+#pragma GCC diagnostic pop
 #include <rapidjson/error/en.h>
 #include <rapidjson/prettywriter.h>
 #include <rapidjson/rapidjson.h>
@@ -139,10 +142,7 @@ class TritonJson {
       }
       // Disable class-memaccess warning to facilitate compilation with gcc>7
       // https://github.com/Tencent/rapidjson/issues/1700
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Werror=class-memaccess"
       document_.Parse(base, size);
-#pragma GCC diagnostic pop
       if (document_.HasParseError()) {
         TRITONJSON_STATUSRETURN(std::string(
             "failed to parse the request JSON buffer: " +
