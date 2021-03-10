@@ -25,10 +25,13 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma once
 
+// Disable class-memaccess warning to facilitate compilation with gcc>7
+// https://github.com/Tencent/rapidjson/issues/1700
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wclass-memaccess"
 #include <rapidjson/document.h>
 #pragma GCC diagnostic pop
+
 #include <rapidjson/error/en.h>
 #include <rapidjson/prettywriter.h>
 #include <rapidjson/rapidjson.h>
@@ -140,8 +143,6 @@ class TritonJson {
         TRITONJSON_STATUSRETURN(
             std::string("JSON parsing only available for top-level document"));
       }
-      // Disable class-memaccess warning to facilitate compilation with gcc>7
-      // https://github.com/Tencent/rapidjson/issues/1700
       document_.Parse(base, size);
       if (document_.HasParseError()) {
         TRITONJSON_STATUSRETURN(std::string(
