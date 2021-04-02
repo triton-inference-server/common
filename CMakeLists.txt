@@ -1,4 +1,4 @@
-# Copyright (c) 2020, NVIDIA CORPORATION. All rights reserved.
+# Copyright (c) 2020-2021, NVIDIA CORPORATION. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
@@ -27,6 +27,15 @@
 cmake_minimum_required(VERSION 3.17)
 
 project(tritoncommon LANGUAGES C CXX)
+
+#
+# Options
+#
+# Some components are expensive to build and have extensive
+# dependencies, so those parts of the build must be enabled
+# explicitly.
+#option(TRITON_COMMON_ENABLE_PROTOBUF "Build protobuf artifacts" OFF)
+#option(TRITON_COMMON_ENABLE_GRPC "Build grpc artifacts" OFF)
 
 find_package(RapidJSON CONFIG REQUIRED)
 message(STATUS "RapidJSON found. Headers: ${RAPIDJSON_INCLUDE_DIRS}")
@@ -111,6 +120,13 @@ set_target_properties(
 )
 
 #
+# Protobuf and GRPC artifacts
+#
+if(${TRITON_COMMON_ENABLE_PROTOBUF} OR ${TRITON_COMMON_ENABLE_GRPC})
+  add_subdirectory(protobuf)
+endif()
+
+#
 # Install
 #
 include(GNUInstallDirs)
@@ -126,6 +142,30 @@ install(
   LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
   ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
 )
+
+if(${TRITON_COMMON_ENABLE_GRPC} OR ${TRITON_COMMON_ENABLE_PROTOBUF})
+  install(
+    TARGETS
+      proto-library
+#      proto-py-library
+    EXPORT
+      triton-common-targets
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  )
+endif()
+
+if(${TRITON_COMMON_ENABLE_GRPC})
+  install(
+    TARGETS
+      grpc-service-library
+#      grpc-service-py-library
+    EXPORT
+      triton-common-targets
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  )
+endif()
 
 install(
   DIRECTORY include/
