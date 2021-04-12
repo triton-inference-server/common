@@ -36,4 +36,7 @@ if(NOT TARGET TritonCommon::triton-common-json)
   include("${TRITONCOMMON_CMAKE_DIR}/TritonCommonTargets.cmake")
 endif()
 
-set(TRITONCOMMON_LIBRARIES TritonCommon::triton-common-json)
+set(TRITONCOMMON_LIBRARIES 
+  TritonCommon::triton-common-json
+  TritonCommon::triton-common-sync-queue
+)

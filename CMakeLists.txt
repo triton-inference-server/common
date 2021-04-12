@@ -32,6 +32,24 @@ find_package(RapidJSON CONFIG REQUIRED)
 message(STATUS "RapidJSON found. Headers: ${RAPIDJSON_INCLUDE_DIRS}")
 
 #
+# SyncQueue
+#
+add_library(
+  triton-common-sync-queue INTERFACE
+)
+
+add_library(
+  TritonCommon::triton-common-sync-queue ALIAS triton-common-sync-queue
+)
+
+target_include_directories(
+  triton-common-sync-queue
+  INTERFACE
+    $<INSTALL_INTERFACE:include>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+)
+
+#
 # JSON utilities
 #
 add_library(
@@ -100,6 +118,7 @@ set(INSTALL_CONFIGDIR ${CMAKE_INSTALL_LIBDIR}/cmake/TritonCommon)
 
 install(
   TARGETS
+    triton-common-sync-queue
     triton-common-json
     triton-common-table-printer
   EXPORT
