@@ -40,6 +40,38 @@ option(TRITON_COMMON_ENABLE_GRPC "Build grpc artifacts" OFF)
 find_package(RapidJSON CONFIG REQUIRED)
 message(STATUS "RapidJSON found. Headers: ${RAPIDJSON_INCLUDE_DIRS}")
 
+if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+  message("Using MSVC as compiler, default target on Windows 10. "
+		  "If the target system is not Windows 10, please update _WIN32_WINNT "
+		  "to corresponding value.")
+endif()
+
+add_library(common-compile-settings INTERFACE)
+
+target_compile_features(common-compile-settings INTERFACE cxx_std_11)
+
+target_compile_options(common-compile-settings INTERFACE
+  $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>,$<CXX_COMPILER_ID:GNU>>:
+    -Wall -Wextra -Wno-unused-parameter -Wno-type-limits -Werror>
+  $<$<CXX_COMPILER_ID:MSVC>:/Wall /D_WIN32_WINNT=0x0A00 /EHsc>
+)
+
+#
+# Exception
+#
+add_library(triton-common-exception INTERFACE)
+
+add_library(
+  TritonCommon::triton-common-exception ALIAS triton-common-exception
+)
+
+target_include_directories(
+  triton-common-exception
+  INTERFACE
+    $<INSTALL_INTERFACE:include>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+)
+
 #
 # SyncQueue
 #
@@ -57,6 +89,29 @@ target_include_directories(
     $<INSTALL_INTERFACE:include>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
 )
+
+#
+# Async Work Queue
+#
+add_library(
+  triton-common-async-work-queue
+  src/async_work_queue.cc
+)
+
+add_library(
+  TritonCommon::triton-common-async-work-queue ALIAS  triton-common-async-work-queue
+)
+
+target_include_directories(
+  triton-common-async-work-queue
+  PUBLIC
+    $<INSTALL_INTERFACE:include>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/src
+)
+
+target_link_libraries(triton-common-async-work-queue PRIVATE common-compile-settings)
 
 #
 # JSON utilities
@@ -99,24 +154,26 @@ target_include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/src
 )
 
-if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
-  message("Using MSVC as compiler, default target on Windows 10. "
-		  "If the target system is not Windows 10, please update _WIN32_WINNT "
-		  "to corresponding value.")
-endif()
-target_compile_features(triton-common-table-printer PRIVATE cxx_std_11)
-target_compile_options(
-  triton-common-table-printer PRIVATE
-  $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>,$<CXX_COMPILER_ID:GNU>>:
-    -Wall -Wextra -Wno-unused-parameter -Wno-type-limits -Werror>
-  $<$<CXX_COMPILER_ID:MSVC>:/Wall /D_WIN32_WINNT=0x0A00 /EHsc>
+target_link_libraries(triton-common-table-printer PRIVATE common-compile-settings)
+
+set_target_properties(
+  triton-common-async-work-queue
+  triton-common-table-printer 
+  PROPERTIES
+    WINDOWS_EXPORT_ALL_SYMBOLS TRUE
+    POSITION_INDEPENDENT_CODE ON
 )
 
 set_target_properties(
-  triton-common-table-printer PROPERTIES
-  WINDOWS_EXPORT_ALL_SYMBOLS TRUE
-  POSITION_INDEPENDENT_CODE ON
-  OUTPUT_NAME tritontableprinter
+  triton-common-async-work-queue
+  PROPERTIES
+    OUTPUT_NAME tritonasyncworkqueue
+)
+
+set_target_properties(
+  triton-common-table-printer
+  PROPERTIES
+    OUTPUT_NAME tritontableprinter
 )
 
 #
@@ -134,9 +191,12 @@ set(INSTALL_CONFIGDIR ${CMAKE_INSTALL_LIBDIR}/cmake/TritonCommon)
 
 install(
   TARGETS
+    triton-common-async-work-queue
+    triton-common-exception
     triton-common-sync-queue
     triton-common-json
     triton-common-table-printer
+    common-compile-settings
   EXPORT
     triton-common-targets
   LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
