@@ -30,12 +30,11 @@
 namespace triton { namespace common {
 
 //
-// TritonCommonException
+// Status
 //
-// Exception thrown if error occurs while using triton common
-// utilities.
+// Status returned by utilities from common repo.
 //
-class Exception {
+class Status {
  public:
   enum class Code {
     SUCCESS,
@@ -48,10 +47,22 @@ class Exception {
     ALREADY_EXISTS
   };
 
-  Exception(Code code, std::string err) : code_(code), error_message_(err) {}
+  explicit Status(Code code = Code::SUCCESS) : code_(code) {}
+  explicit Status(Code code, const std::string& msg) : code_(code), msg_(msg) {}
 
+  // Return the code for this status.
+  Code StatusCode() const { return code_; }
+
+  // Return the message for this status.
+  const std::string& Message() const { return msg_; }
+
+  // Return true if this status indicates "ok"/"success", false if
+  // status indicates some kind of failure.
+  bool IsOk() const { return code_ == Code::SUCCESS; }
+
+ private:
   Code code_;
-  std::string error_message_;
+  std::string msg_;
 };
 
 }}  // namespace triton::common

@@ -32,8 +32,6 @@
 #include <thread>
 #include <vector>
 
-#include "triton/common/exception.h"
-
 namespace triton { namespace common {
 
 AsyncWorkQueue::~AsyncWorkQueue()
@@ -53,12 +51,12 @@ AsyncWorkQueue::GetSingleton()
   return &singleton;
 }
 
-void
+Status
 AsyncWorkQueue::Initialize(size_t worker_count)
 {
   if (worker_count < 1) {
-    throw Exception(
-        Exception::Code::INVALID_ARG,
+    return Status(
+        Status::Code::INVALID_ARG,
         "Async work queue must be initialized with positive 'worker_count'");
   }
   static std::mutex init_mtx;
@@ -69,12 +67,14 @@ AsyncWorkQueue::Initialize(size_t worker_count)
           std::unique_ptr<std::thread>(new std::thread([] { WorkThread(); })));
     }
   } else {
-    throw Exception(
-        Exception::Code::ALREADY_EXISTS,
+    return Status(
+        Status::Code::ALREADY_EXISTS,
         "Async work queue has been initialized with " +
             std::to_string(GetSingleton()->worker_threads_.size()) +
             " 'worker_count'");
   }
+
+  return Status(Status::Code::SUCCESS);
 }
 
 size_t
@@ -83,15 +83,17 @@ AsyncWorkQueue::WorkerCount()
   return GetSingleton()->worker_threads_.size();
 }
 
-void
+Status
 AsyncWorkQueue::AddTask(const std::function<void(void)>&& task)
 {
   if (GetSingleton()->worker_threads_.size() == 0) {
-    throw Exception(
-        Exception::Code::UNAVAILABLE,
+    return Status(
+        Status::Code::UNAVAILABLE,
         "Async work queue must be initialized before adding task");
   }
   GetSingleton()->task_queue_.Put(std::move(task));
+
+  return Status(Status::Code::SUCCESS);
 }
 
 void

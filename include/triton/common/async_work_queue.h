@@ -32,6 +32,7 @@
 #include <thread>
 #include <vector>
 
+#include "status.h"
 #include "sync_queue.h"
 
 namespace triton { namespace common {
@@ -43,14 +44,14 @@ namespace triton { namespace common {
 class AsyncWorkQueue {
  public:
   // Start 'worker_count' number of worker threads.
-  static void Initialize(size_t worker_count);
+  static Status Initialize(size_t worker_count);
 
   // Get the number of worker threads.
   static size_t WorkerCount();
 
   // Add a 'task' to the queue. The function will take ownership of 'task'.
   // Therefore std::move should be used when calling AddTask.
-  static void AddTask(const std::function<void(void)>&& task);
+  static Status AddTask(const std::function<void(void)>&& task);
 
  protected:
   static void Reset();

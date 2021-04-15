@@ -57,16 +57,16 @@ target_compile_options(common-compile-settings INTERFACE
 )
 
 #
-# Exception
+# Status
 #
-add_library(triton-common-exception INTERFACE)
+add_library(triton-common-status INTERFACE)
 
 add_library(
-  TritonCommon::triton-common-exception ALIAS triton-common-exception
+  TritonCommon::triton-common-status ALIAS triton-common-status
 )
 
 target_include_directories(
-  triton-common-exception
+  triton-common-status
   INTERFACE
     $<INSTALL_INTERFACE:include>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
@@ -192,7 +192,7 @@ set(INSTALL_CONFIGDIR ${CMAKE_INSTALL_LIBDIR}/cmake/TritonCommon)
 install(
   TARGETS
     triton-common-async-work-queue
-    triton-common-exception
+    triton-common-status
     triton-common-sync-queue
     triton-common-json
     triton-common-table-printer
