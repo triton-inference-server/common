@@ -1,4 +1,4 @@
-// Copyright (c) 2020-2021, NVIDIA CORPORATION. All rights reserved.
+// Copyright (c) 2021, NVIDIA CORPORATION. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions
@@ -25,45 +25,54 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma once
 
-#include <condition_variable>
-#include <deque>
-#include <functional>
-#include <mutex>
-#include <thread>
-#include <vector>
-
-#include "error.h"
-#include "sync_queue.h"
+#include <string>
 
 namespace triton { namespace common {
-// Manager for asynchronous worker threads. Use to accelerate copies and
-// other such operations by running them in parallel.
-// Call Initialize to start the worker threads (once) and AddTask to tasks to
-// the queue.
 
-class AsyncWorkQueue {
+//
+// Error
+//
+// Error returned by utilities from common repo.
+//
+class Error {
  public:
-  // Start 'worker_count' number of worker threads.
-  static Error Initialize(size_t worker_count);
+  enum class Code {
+    SUCCESS,
+    UNKNOWN,
+    INTERNAL,
+    NOT_FOUND,
+    INVALID_ARG,
+    UNAVAILABLE,
+    UNSUPPORTED,
+    ALREADY_EXISTS
+  };
 
-  // Get the number of worker threads.
-  static size_t WorkerCount();
+  explicit Error(Code code = Code::SUCCESS) : code_(code) {}
+  explicit Error(Code code, const std::string& msg) : code_(code), msg_(msg) {}
 
-  // Add a 'task' to the queue. The function will take ownership of 'task'.
-  // Therefore std::move should be used when calling AddTask.
-  static Error AddTask(const std::function<void(void)>&& task);
+  // Convenience "success" value. Can be used as Error::Success to
+  // indicate no error.
+  static const Error Success;
+
+  // Return the code for this status.
+  Code ErrorCode() const { return code_; }
+
+  // Return the message for this status.
+  const std::string& Message() const { return msg_; }
+
+  // Return true if this status indicates "ok"/"success", false if
+  // status indicates some kind of failure.
+  bool IsOk() const { return code_ == Code::SUCCESS; }
+
+  // Return the status as a string.
+  std::string AsString() const;
+
+  // Return the constant string name for a code.
+  static const char* CodeString(const Code code);
 
  protected:
-  static void Reset();
-
- private:
-  AsyncWorkQueue() = default;
-  ~AsyncWorkQueue();
-  static AsyncWorkQueue* GetSingleton();
-  static void WorkThread();
-
-  std::vector<std::unique_ptr<std::thread>> worker_threads_;
-  SyncQueue<std::function<void(void)>> task_queue_;
+  Code code_;
+  std::string msg_;
 };
 
 }}  // namespace triton::common

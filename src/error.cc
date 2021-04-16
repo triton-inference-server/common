@@ -23,46 +23,46 @@
 // OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-#pragma once
 
-#include <string>
+#include "triton/common/error.h"
 
 namespace triton { namespace common {
 
-//
-// Status
-//
-// Status returned by utilities from common repo.
-//
-class Status {
- public:
-  enum class Code {
-    SUCCESS,
-    UNKNOWN,
-    INTERNAL,
-    NOT_FOUND,
-    INVALID_ARG,
-    UNAVAILABLE,
-    UNSUPPORTED,
-    ALREADY_EXISTS
-  };
+const Error Error::Success(Error::Code::SUCCESS);
 
-  explicit Status(Code code = Code::SUCCESS) : code_(code) {}
-  explicit Status(Code code, const std::string& msg) : code_(code), msg_(msg) {}
+std::string
+Error::AsString() const
+{
+  std::string str(CodeString(code_));
+  str += ": " + msg_;
+  return str;
+}
 
-  // Return the code for this status.
-  Code StatusCode() const { return code_; }
+const char*
+Error::CodeString(const Code code)
+{
+  switch (code) {
+    case Error::Code::SUCCESS:
+      return "OK";
+    case Error::Code::UNKNOWN:
+      return "Unknown";
+    case Error::Code::INTERNAL:
+      return "Internal";
+    case Error::Code::NOT_FOUND:
+      return "Not found";
+    case Error::Code::INVALID_ARG:
+      return "Invalid argument";
+    case Error::Code::UNAVAILABLE:
+      return "Unavailable";
+    case Error::Code::UNSUPPORTED:
+      return "Unsupported";
+    case Error::Code::ALREADY_EXISTS:
+      return "Already exists";
+    default:
+      break;
+  }
 
-  // Return the message for this status.
-  const std::string& Message() const { return msg_; }
-
-  // Return true if this status indicates "ok"/"success", false if
-  // status indicates some kind of failure.
-  bool IsOk() const { return code_ == Code::SUCCESS; }
-
- private:
-  Code code_;
-  std::string msg_;
-};
+  return "<invalid code>";
+}
 
 }}  // namespace triton::common

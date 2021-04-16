@@ -57,20 +57,27 @@ target_compile_options(common-compile-settings INTERFACE
 )
 
 #
-# Status
+# Error
 #
-add_library(triton-common-status INTERFACE)
+add_library(
+  triton-common-error
+  src/error.cc
+  )
 
 add_library(
-  TritonCommon::triton-common-status ALIAS triton-common-status
+  TritonCommon::triton-common-error ALIAS triton-common-error
 )
 
 target_include_directories(
-  triton-common-status
-  INTERFACE
+  triton-common-error
+  PUBLIC
     $<INSTALL_INTERFACE:include>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/src
 )
+
+target_link_libraries(triton-common-error PRIVATE common-compile-settings)
 
 #
 # SyncQueue
@@ -158,7 +165,8 @@ target_link_libraries(triton-common-table-printer PRIVATE common-compile-setting
 
 set_target_properties(
   triton-common-async-work-queue
-  triton-common-table-printer 
+  triton-common-error
+  triton-common-table-printer
   PROPERTIES
     WINDOWS_EXPORT_ALL_SYMBOLS TRUE
     POSITION_INDEPENDENT_CODE ON
@@ -168,6 +176,12 @@ set_target_properties(
   triton-common-async-work-queue
   PROPERTIES
     OUTPUT_NAME tritonasyncworkqueue
+)
+
+set_target_properties(
+  triton-common-error
+  PROPERTIES
+    OUTPUT_NAME tritoncommonerror
 )
 
 set_target_properties(
@@ -192,7 +206,7 @@ set(INSTALL_CONFIGDIR ${CMAKE_INSTALL_LIBDIR}/cmake/TritonCommon)
 install(
   TARGETS
     triton-common-async-work-queue
-    triton-common-status
+    triton-common-error
     triton-common-sync-queue
     triton-common-json
     triton-common-table-printer
