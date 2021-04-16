@@ -34,8 +34,8 @@ project(tritoncommon LANGUAGES C CXX)
 # Some components are expensive to build and have extensive
 # dependencies, so those parts of the build must be enabled
 # explicitly.
-#option(TRITON_COMMON_ENABLE_PROTOBUF "Build protobuf artifacts" OFF)
-#option(TRITON_COMMON_ENABLE_GRPC "Build grpc artifacts" OFF)
+option(TRITON_COMMON_ENABLE_PROTOBUF "Build protobuf artifacts" OFF)
+option(TRITON_COMMON_ENABLE_GRPC "Build grpc artifacts" OFF)
 
 find_package(RapidJSON CONFIG REQUIRED)
 message(STATUS "RapidJSON found. Headers: ${RAPIDJSON_INCLUDE_DIRS}")
