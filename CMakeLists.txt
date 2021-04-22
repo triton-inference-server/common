@@ -103,6 +103,7 @@ target_include_directories(
 add_library(
   triton-common-async-work-queue
   src/async_work_queue.cc
+  src/error.cc
 )
 
 add_library(
