@@ -231,6 +231,14 @@ message ModelInstanceGroup
   //@@     optimization profile by default.
   //@@
   repeated string profile = 5;
+
+  //@@  .. cpp:var:: bool passive
+  //@@
+  //@@     Whether the instances within this instance group will be accepting
+  //@@     inference requests from the scheduler. If true, the instances will
+  //@@     not be added to the scheduler. Default value is false.
+  //@@
+  bool passive = 7;
 }
 
 //@@
