@@ -283,8 +283,9 @@ message ModelInstanceGroup
   //@@  .. cpp:var:: int32 numa_id
   //@@
   //@@     The id used to associate with NUMA related features for the instance
-  //@@     group. For KIND_GPU, the default value will be the same as the GPU id
-  //@@     of the instance. For other kinds, the default value is 0.
+  //@@     group. For KIND_GPU, this field will be ignored and the value will be
+  //@@     set to the GPU id of the instance.
+  //@@     For other kinds, the default value is 0.
   //@@
   int32 numa_id = 8;
 }
