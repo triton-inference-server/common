@@ -133,8 +133,7 @@ message ModelRateLimiter
 //@@
 //@@  .. cpp:var:: message SecondaryDevice
 //@@
-//@@     The secondary device to run the model instances on. Not all backend require this. For the
-//@@     TensorRT backend this would be the id of the DLA core to use.
+//@@     The secondary device to run the model instances on.
 //@@
 message SecondaryDevice
 {
@@ -156,8 +155,8 @@ message SecondaryDevice
 
   //@@  .. cpp:var:: SecondaryDeviceKind kind
   //@@
-  //@@     The secondary device kind. Currently only KIND_DLA is supported
-  //@@     which is used only by the TensorRT backend.
+  //@@     The secondary device kind. Currently KIND_DLA is only supported
+  //@@     by the TensorRT backend.
   //@@
   SecondaryDeviceKind kind = 1;
 
