@@ -131,43 +131,6 @@ message ModelRateLimiter
 }
 
 //@@
-//@@  .. cpp:var:: message SecondaryDevice
-//@@
-//@@     The secondary device to run the model instances on.
-//@@
-message SecondaryDevice
-{
-  //@@
-  //@@  .. cpp:enum:: SecondaryDeviceKind
-  //@@
-  //@@     SecondaryDeviceKind of this instance group.
-  //@@
-  enum SecondaryDeviceKind {
-    //@@    .. cpp:enumerator:: SecondaryDeviceKind::KIND_DLA = 0
-    //@@
-    //@@       This instance group represents instances that have a secondary 
-    //@@       device that can help run the model. If KIND_DLA is specified
-    //@@       but no DLA cores are found then instances will run only on the
-    //@@       specified GPU(s), otherwise it will use the specified DLA core.
-    //@@
-    KIND_DLA = 0;
-  }
-
-  //@@  .. cpp:var:: SecondaryDeviceKind kind
-  //@@
-  //@@     The secondary device kind. Currently KIND_DLA is only supported
-  //@@     by the TensorRT backend.
-  //@@
-  SecondaryDeviceKind kind = 1;
-
-  //@@  .. cpp:var:: int32 device_id
-  //@@
-  //@@     Device Id where instances should be available.
-  //@@
-  int32 device_id = 2;
-}
-
-//@@
 //@@.. cpp:var:: message ModelInstanceGroup
 //@@
 //@@   A group of one or more instances of a model and resources made
@@ -214,6 +177,40 @@ message ModelInstanceGroup
     KIND_MODEL = 3;
   }
 
+  //@@
+  //@@  .. cpp:var:: message SecondaryDevice
+  //@@
+  //@@     A secondary device required for a model instance.
+  //@@
+  message SecondaryDevice
+  {
+    //@@
+    //@@  .. cpp:enum:: SecondaryDeviceKind
+    //@@
+    //@@     The kind of the secondary device.
+    //@@
+    enum SecondaryDeviceKind {
+      //@@    .. cpp:enumerator:: SecondaryDeviceKind::KIND_NVDLA = 0
+      //@@
+      //@@       An NVDLA core. http://nvdla.org
+      //@@       Currently KIND_NVDLA is only supported by the TensorRT backend.
+      //@@
+      KIND_NVDLA = 0;
+    }
+
+    //@@  .. cpp:var:: SecondaryDeviceKind kind
+    //@@
+    //@@     The secondary device kind.
+    //@@
+    SecondaryDeviceKind kind = 1;
+
+    //@@  .. cpp:var:: int64 device_id
+    //@@
+    //@@     Identifier for the secondary device.
+    //@@
+    int64 device_id = 2;
+  }
+
   //@@  .. cpp:var:: string name
   //@@
   //@@     Optional name of this group of instances. If not specified the
@@ -258,7 +255,7 @@ message ModelInstanceGroup
 
   //@@  .. cpp:var:: SecondaryDevice secondary_devices (repeated)
   //@@
-  //@@     Secondary devices to run this instance group on. Optional.
+  //@@     Secondary devices that are required by instances specified by this instance group. Optional.
   //@@
   repeated SecondaryDevice secondary_devices = 8;
 
