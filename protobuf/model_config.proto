@@ -280,14 +280,13 @@ message ModelInstanceGroup
   //@@
   bool passive = 7;
 
-  //@@  .. cpp:var:: int32 numa_id
+  //@@  .. cpp:var:: string host_policy
   //@@
-  //@@     The id used to associate with NUMA related features for the instance
-  //@@     group. For KIND_GPU, this field will be ignored and the value will be
-  //@@     set to the GPU id of the instance.
-  //@@     For other kinds, the default value is 0.
+  //@@     The host policy name that the instance to be associated with.
+  //@@     The default value is set to reflect the device kind of the instance,
+  //@@     for instance, KIND_CPU is "cpu" and KIND_GPU is "gpu_<gpu_id>".
   //@@
-  int32 numa_id = 8;
+  string host_policy = 8;
 }
 
 //@@
