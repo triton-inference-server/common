@@ -287,7 +287,7 @@ message ModelInstanceGroup
   //@@     for instance, KIND_CPU is "cpu", KIND_MODEL is "model" and
   //@@     KIND_GPU is "gpu_<gpu_id>".
   //@@
-  string host_policy = 8;
+  string host_policy = 9;
 }
 
 //@@
