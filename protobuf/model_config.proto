@@ -284,7 +284,8 @@ message ModelInstanceGroup
   //@@
   //@@     The host policy name that the instance to be associated with.
   //@@     The default value is set to reflect the device kind of the instance,
-  //@@     for instance, KIND_CPU is "cpu" and KIND_GPU is "gpu_<gpu_id>".
+  //@@     for instance, KIND_CPU is "cpu", KIND_MODEL is "model" and
+  //@@     KIND_GPU is "gpu_<gpu_id>".
   //@@
   string host_policy = 8;
 }
