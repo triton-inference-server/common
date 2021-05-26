@@ -177,6 +177,40 @@ message ModelInstanceGroup
     KIND_MODEL = 3;
   }
 
+  //@@
+  //@@  .. cpp:var:: message SecondaryDevice
+  //@@
+  //@@     A secondary device required for a model instance.
+  //@@
+  message SecondaryDevice
+  {
+    //@@
+    //@@  .. cpp:enum:: SecondaryDeviceKind
+    //@@
+    //@@     The kind of the secondary device.
+    //@@
+    enum SecondaryDeviceKind {
+      //@@    .. cpp:enumerator:: SecondaryDeviceKind::KIND_NVDLA = 0
+      //@@
+      //@@       An NVDLA core. http://nvdla.org
+      //@@       Currently KIND_NVDLA is only supported by the TensorRT backend.
+      //@@
+      KIND_NVDLA = 0;
+    }
+
+    //@@  .. cpp:var:: SecondaryDeviceKind kind
+    //@@
+    //@@     The secondary device kind.
+    //@@
+    SecondaryDeviceKind kind = 1;
+
+    //@@  .. cpp:var:: int64 device_id
+    //@@
+    //@@     Identifier for the secondary device.
+    //@@
+    int64 device_id = 2;
+  }
+
   //@@  .. cpp:var:: string name
   //@@
   //@@     Optional name of this group of instances. If not specified the
@@ -218,6 +252,12 @@ message ModelInstanceGroup
   //@@     available GPUs.
   //@@
   repeated int32 gpus = 3;
+
+  //@@  .. cpp:var:: SecondaryDevice secondary_devices (repeated)
+  //@@
+  //@@     Secondary devices that are required by instances specified by this instance group. Optional.
+  //@@
+  repeated SecondaryDevice secondary_devices = 8;
 
   //@@  .. cpp:var:: string profile (repeated)
   //@@
