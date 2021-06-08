@@ -1,4 +1,4 @@
-// Copyright (c) 2020, NVIDIA CORPORATION. All rights reserved.
+// Copyright (c) 2020-2021, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions
@@ -222,9 +222,17 @@ class TritonJson {
             std::string("attempt to add JSON member '") + name +
             "' to non-object");
       }
-      object.AddMember(
-          rapidjson::Value(rapidjson::StringRef(name)).Move(),
-          value.value_->Move(), *allocator_);
+      if (value.value_ == nullptr) {
+        rapidjson::Value v2;
+        v2.CopyFrom(value.document_, *allocator_);
+        object.AddMember(
+            rapidjson::Value(rapidjson::StringRef(name)).Move(), v2.Move(),
+            *allocator_);
+      } else {
+        object.AddMember(
+            rapidjson::Value(rapidjson::StringRef(name)).Move(),
+            value.value_->Move(), *allocator_);
+      }
       value.Release();
       return TRITONJSON_STATUSSUCCESS;
     }
