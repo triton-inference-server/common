@@ -29,6 +29,9 @@
 #
 # Git pre-commit hook for Triton related projects
 #
+# To install this hook for a project, copy "pre-commit" and "format.py" into
+# ".git/hooks/" directory of the project
+#
 ###############################################################################
 
 ###############################################################################
