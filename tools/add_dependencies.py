@@ -39,8 +39,9 @@ def add_dependencies(image, dependencies):
     print("pulling container:{}".format(image))
     p = subprocess.run(['docker', 'pull', image])
     if p.returncode != 0:
-        return 'ERROR: docker pull container {} failed, {}'.format(
-            image, p.stderr)
+        print('ERROR: docker pull container {} failed, {}'.format(
+            image, p.stderr))
+        sys.exit(1)
 
     df += '''
 RUN apt-get update && \
@@ -51,7 +52,6 @@ RUN apt-get update && \
         searchString = "dpkg -s {}".format(dep)
         try:
             var = client.containers.run(image, searchString)
-            print(var)
             print("found package: {}".format(dep))
         # dpkg-query returns 1 when cannot find package with error message
         except docker.errors.ContainerError as var:
