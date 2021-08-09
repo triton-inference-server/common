@@ -256,7 +256,7 @@ message ModelInstanceGroup
   //@@  .. cpp:var:: SecondaryDevice secondary_devices (repeated)
   //@@
   //@@     Secondary devices that are required by instances specified by this
-  // instance group. Optional.
+  //@@     instance group. Optional.
   //@@
   repeated SecondaryDevice secondary_devices = 8;
 
@@ -1223,6 +1223,12 @@ message ModelSequenceBatching
     //@@
     repeated float fp32_false_true = 3;
 
+    //@@    .. cpp:var:: DataType data_type
+    //@@
+    //@@       The control's datatype.
+    //@@
+    DataType data_type = 4;
+
     //@@    .. cpp:var:: bool bool_false_true (repeated)
     //@@
     //@@       The control's true and false setting is indicated by setting
@@ -1231,13 +1237,7 @@ message ModelSequenceBatching
     //@@       the request. 'bool_false_true' must have two entries: the
     //@@       first the false value and the second the true value.
     //@@
-    repeated float bool_false_true = 4;
-
-    //@@    .. cpp:var:: DataType data_type
-    //@@
-    //@@       The control's datatype.
-    //@@
-    DataType data_type = 5;
+    repeated bool bool_false_true = 5;
   }
 
   //@@  .. cpp:var:: message ControlInput
