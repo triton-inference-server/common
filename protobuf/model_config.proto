@@ -1223,12 +1223,6 @@ message ModelSequenceBatching
     //@@
     repeated float fp32_false_true = 3;
 
-    //@@    .. cpp:var:: DataType data_type
-    //@@
-    //@@       The control's datatype.
-    //@@
-    DataType data_type = 4;
-
     //@@    .. cpp:var:: bool bool_false_true (repeated)
     //@@
     //@@       The control's true and false setting is indicated by setting
@@ -1238,6 +1232,12 @@ message ModelSequenceBatching
     //@@       first the false value and the second the true value.
     //@@
     repeated bool bool_false_true = 5;
+
+    //@@    .. cpp:var:: DataType data_type
+    //@@
+    //@@       The control's datatype.
+    //@@
+    DataType data_type = 4;
   }
 
   //@@  .. cpp:var:: message ControlInput
