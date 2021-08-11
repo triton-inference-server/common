@@ -209,6 +209,15 @@ class TritonJson {
       return TRITONJSON_STATUSSUCCESS;
     }
 
+    // Set/overwrite a string in a value. This changes the
+    // type of the value to string
+    TRITONJSON_STATUSTYPE SetString(const std::string& value)
+    {
+      rapidjson::Value& v = AsMutableValue();
+      v.SetString(value.c_str(), value.length(), *allocator_);
+      return TRITONJSON_STATUSSUCCESS;
+    }
+
     // Add an array or object as a new member to this value. 'value'
     // is moved into this value and so on return 'value' should not be
     // used. It is assumed that 'name' can be used by reference, it is
