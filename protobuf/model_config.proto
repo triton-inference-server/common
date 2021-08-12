@@ -1,4 +1,4 @@
-// Copyright (c) 2018-2020, NVIDIA CORPORATION. All rights reserved.
+// Copyright (c) 2018-2021, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions
@@ -255,7 +255,8 @@ message ModelInstanceGroup
 
   //@@  .. cpp:var:: SecondaryDevice secondary_devices (repeated)
   //@@
-  //@@     Secondary devices that are required by instances specified by this instance group. Optional.
+  //@@     Secondary devices that are required by instances specified by this
+  //@@     instance group. Optional.
   //@@
   repeated SecondaryDevice secondary_devices = 8;
 
@@ -1158,8 +1159,8 @@ message ModelSequenceBatching
       //@@
       //@@         A new sequence is/is-not starting. If true a sequence is
       //@@         starting, if false a sequence is continuing. Must
-      //@@         specify either int32_false_true or fp32_false_true for
-      //@@         this control. This control is optional.
+      //@@         specify either int32_false_true, fp32_false_true or
+      //@@         bool_false_true for this control. This control is optional.
       //@@
       CONTROL_SEQUENCE_START = 0;
 
@@ -1168,17 +1169,18 @@ message ModelSequenceBatching
       //@@         A sequence is/is-not ready for inference. If true the
       //@@         input tensor data is valid and should be used. If false
       //@@         the input tensor data is invalid and inferencing should
-      //@@         be "skipped".  Must specify either int32_false_true or
-      //@@         fp32_false_true for this control. This control is optional.
+      //@@         be "skipped". Must specify either int32_false_true,
+      //@@         fp32_false_true or bool_false_true for this control. This
+      //@@         control is optional.
       //@@
       CONTROL_SEQUENCE_READY = 1;
 
       //@@      .. cpp:enumerator:: Kind::CONTROL_SEQUENCE_END = 2
       //@@
       //@@         A sequence is/is-not ending. If true a sequence is
-      //@@         ending, if false a sequence is continuing. Must
-      //@@         specify either int32_false_true or fp32_false_true for
-      //@@         this control. This control is optional.
+      //@@         ending, if false a sequence is continuing. Must specify
+      //@@         either int32_false_true, fp32_false_true or bool_false_true
+      //@@         for this control. This control is optional.
       //@@
       CONTROL_SEQUENCE_END = 2;
 
@@ -1220,6 +1222,16 @@ message ModelSequenceBatching
     //@@       first the false value and the second the true value.
     //@@
     repeated float fp32_false_true = 3;
+
+    //@@    .. cpp:var:: bool bool_false_true (repeated)
+    //@@
+    //@@       The control's true and false setting is indicated by setting
+    //@@       a value in a bool tensor. The tensor must be a
+    //@@       1-dimensional tensor with size equal to the batch size of
+    //@@       the request. 'bool_false_true' must have two entries: the
+    //@@       first the false value and the second the true value.
+    //@@
+    repeated bool bool_false_true = 5;
 
     //@@    .. cpp:var:: DataType data_type
     //@@
