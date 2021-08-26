@@ -46,7 +46,7 @@ GIT_REPO_ROOT=$(git rev-parse --show-toplevel)
 PYTHON_CMD=python3
 FORMATTER_PY=${GIT_REPO_ROOT}/.git/hooks/format.py
 
-CHANGED_FILES="$(git --no-pager diff --name-status --no-color --cached | awk '$1 != "D" { print $2}')"
+CHANGED_FILES="$(git --no-pager diff --name-status --no-color --cached | awk '{ if (match($1, /R[0-9]+/)) { print $3 } else if ($1 != "D") { print $2 } }')"
 
 echo "Running Python auto-format..."
 for CHANGED_FILE in $CHANGED_FILES;
