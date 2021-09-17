@@ -1263,6 +1263,37 @@ message ModelSequenceBatching
     repeated Control control = 2;
   }
 
+  //@@  .. cpp:var:: message State
+  //@@
+  //@@     Description of the implicit state for each model.
+  //@@
+  message State
+  {
+    //@@    .. cpp:var:: string input_name
+    //@@
+    //@@       The name of the model state input.
+    //@@
+    string input_name = 1;
+
+    //@@    .. cpp:var:: string output_name
+    //@@
+    //@@       The name of the model state output.
+    //@@
+    string output_name = 2;
+
+    //@@    .. cpp:var:: DataType data_type
+    //@@
+    //@@       The data-type of the state.
+    //@@
+    DataType data_type = 3;
+
+    //@@    .. cpp:var:: int64 dim (repeated)
+    //@@
+    //@@       The dimension.
+    //@@
+    repeated int64 dims = 4;
+  }
+
   //@@  .. cpp:var:: message StrategyDirect
   //@@
   //@@     The sequence batcher uses a specific, unique batch
@@ -1377,6 +1408,16 @@ message ModelSequenceBatching
   //@@     model.
   //@@
   repeated ControlInput control_input = 2;
+
+  //@@  .. cpp:var:: State state (repeated)
+  //@@
+  //@@     The implicit state that should be stored in Triton for performing
+  //@@     inference requests in a sequence. Each sequence holds an implicit
+  //@@     state local to itself. The output state provided by the model in 
+  //@@     'output_name' field of the current inference request will be sent 
+  //@@     to the next request in the sequence in the 'input_name' field.
+  //@@
+  repeated State state = 5;
 }
 
 //@@
