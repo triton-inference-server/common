@@ -814,6 +814,22 @@ message ModelOptimizationPolicy
     //@@       Currently only recognized by TensorRT backend.
     //@@
     bool output_copy_stream = 4;
+
+    //@@    .. cpp:var:: map<string, string> parameters
+    //@@
+    //@@       Additional paremeters used to configure cuda options.
+    //@@       Following parameters can be specified:
+    //@@         "cuda_conv_algo_search": EXHAUSTIVE (expensive exhaustive benchmarking 
+    //@@          using cudnnFindConvolutionForwardAlgorithmEx), HEURISTIC (lightweight 
+    //@@          heuristic based search using cudnnGetConvolutionForwardAlgorithm_v7)
+    //@@          Default is EXHAUSTIVE.
+    //@@         "gpu_mem_limit":  Default is std::numeric_limits<size_t>::max()
+    //@@         "arena_extend_strategy": Strategy used to grow the memory arena.
+    //@@          0 = kNextPowerOfTwo, 1 = kSameAsRequested. Default is 0.
+    //@@         "do_copy_in_default_stream": Default is true.
+    //@@       Currently only recognized by ONNXRuntime backend.
+    //@@
+    map<string, string> parameters = 5;
   }
 
   //@@
@@ -991,6 +1007,24 @@ message ModelOptimizationPolicy
   //@@     Currently only recognized by TensorRT backend.
   //@@
   bool eager_batching = 8;
+
+  //@@  .. cpp:var:: map<string, string> parameters
+  //@@
+  //@@     Additional optimization paremeters.
+  //@@     Following parameters can be specified:
+  //@@       "use_global_thread_pool": By default each session creates its 
+  //@@        own set of threadpools. When multiple sessions need to be created 
+  //@@        in the same process, you end up with several threadpools created 
+  //@@        by each session. When this parameter is set ot true a single global threadpool
+  //@@        is shared across multiple sessions. Default is 0.
+  //@@       "intra_op_thread_count":  Number of threads. 0 = ORT will pick default
+  //@@        1 = The invoking thread will be used, no threads will be created in the thread pool.
+  //@@        Default is 0.
+  //@@       "allow_spinning": Allow spinning of thread pools when their queues are empty.
+  //@@        This will set the value for both inter_op and intra_op threadpools. Default is 0.
+  //@@     Currently only recognized by ONNXRuntime backend.
+  //@@
+  map<string, string> parameters = 2;
 }
 
 //@@
