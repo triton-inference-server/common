@@ -1024,7 +1024,7 @@ message ModelOptimizationPolicy
   //@@        This will set the value for both inter_op and intra_op threadpools. Default is 0.
   //@@     Currently only recognized by ONNXRuntime backend.
   //@@
-  map<string, string> parameters = 2;
+  map<string, string> parameters = 9;
 }
 
 //@@
