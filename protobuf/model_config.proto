@@ -810,7 +810,10 @@ message ModelOptimizationPolicy
     //@@    .. cpp:var:: bool output_copy_stream
     //@@
     //@@       Uses a CUDA stream separate from the inference stream to copy the
-    //@@       output to host. Default value is false.
+    //@@       output to host. However, be aware that setting this option to true
+    //@@       will lead to an increase in the memory consumption of the model as 
+    //@@       Triton will allocate twice as much GPU memory for its I/O tensor
+    //@@       buffers. Default value is false.
     //@@       Currently only recognized by TensorRT backend.
     //@@
     bool output_copy_stream = 4;
