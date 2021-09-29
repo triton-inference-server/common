@@ -1265,7 +1265,7 @@ message ModelSequenceBatching
 
   //@@  .. cpp:var:: message State
   //@@
-  //@@     Description of the implicit state for each model.
+  //@@     An input / output pair of tensors that carry state for the sequence.
   //@@
   message State
   {
@@ -1411,11 +1411,13 @@ message ModelSequenceBatching
 
   //@@  .. cpp:var:: State state (repeated)
   //@@
-  //@@     The implicit state that should be stored in Triton for performing
-  //@@     inference requests in a sequence. Each sequence holds an implicit
-  //@@     state local to itself. The output state provided by the model in 
-  //@@     'output_name' field of the current inference request will be sent 
-  //@@     to the next request in the sequence in the 'input_name' field.
+  //@@     The optional state that can be stored in Triton for performing
+  //@@     inference requests on a sequence. Each sequence holds an implicit
+  //@@     state local to itself. The output state tensor provided by the
+  //@@     model in 'output_name' field of the current inference request will
+  //@@     be transferred as an input tensor named 'input_name' in the next
+  //@@     request of the same sequence. The input state of the first request
+  //@@     in the sequence contains garbage data.
   //@@
   repeated State state = 5;
 }
