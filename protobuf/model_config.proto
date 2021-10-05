@@ -394,8 +394,7 @@ message ModelInput
   //@@     created batch. Default is false indicating that two requests will
   //@@     only be batched if this tensor has the same shape in both requests.
   //@@     True indicates that two requests can be batched even if this tensor
-  //@@     has a different shape in each request. A true value is currently
-  //@@     supported only for custom models.
+  //@@     has a different shape in each request.
   //@@
   bool allow_ragged_batch = 7;
 }
@@ -811,7 +810,7 @@ message ModelOptimizationPolicy
     //@@
     //@@       Uses a CUDA stream separate from the inference stream to copy the
     //@@       output to host. However, be aware that setting this option to true
-    //@@       will lead to an increase in the memory consumption of the model as 
+    //@@       will lead to an increase in the memory consumption of the model as
     //@@       Triton will allocate twice as much GPU memory for its I/O tensor
     //@@       buffers. Default value is false.
     //@@       Currently only recognized by TensorRT backend.
@@ -1769,8 +1768,7 @@ message ModelConfig
 
   //@@  .. cpp:var:: map<string,ModelParameter> parameters
   //@@
-  //@@     Optional model parameters. User-specified parameter values that
-  //@@     are made available to custom backends.
+  //@@     Optional model parameters. User-specified parameter values.
   //@@
   map<string, ModelParameter> parameters = 14;
 
