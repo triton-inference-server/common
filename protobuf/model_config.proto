@@ -122,10 +122,11 @@ message ModelRateLimiter
 
   //@@  .. cpp:var:: uint32 priority
   //@@
-  //@@     The weighting value to be used for prioritizing across instances.
-  //@@     An instance with priority 2 will be given 1/2 the number of
-  //@@     scheduling chances as an instance_group with priority 1. The
-  //@@     default priority is 1.
+  //@@     The optional weighting value to be used for prioritizing across
+  //@@     instances. An instance with priority 2 will be given 1/2 the
+  //@@     number of scheduling chances as an instance_group with priority
+  //@@     1. The default priority is 1. The priority of value 0 will be
+  //@@     treated as priority 1.
   //@@
   uint32 priority = 2;
 }
