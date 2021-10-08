@@ -1,4 +1,4 @@
-// Copyright (c) 2018-2021, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// Copyright 2018-2021, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions
@@ -810,10 +810,10 @@ message ModelOptimizationPolicy
     //@@    .. cpp:var:: bool output_copy_stream
     //@@
     //@@       Uses a CUDA stream separate from the inference stream to copy the
-    //@@       output to host. However, be aware that setting this option to true
-    //@@       will lead to an increase in the memory consumption of the model as
-    //@@       Triton will allocate twice as much GPU memory for its I/O tensor
-    //@@       buffers. Default value is false.
+    //@@       output to host. However, be aware that setting this option to
+    //@@       true will lead to an increase in the memory consumption of the
+    //@@       model as Triton will allocate twice as much GPU memory for its
+    //@@       I/O tensor buffers. Default value is false.
     //@@       Currently only recognized by TensorRT backend.
     //@@
     bool output_copy_stream = 4;
@@ -1609,6 +1609,25 @@ message ModelRepositoryAgents
 }
 
 //@@
+//@@.. cpp:var:: message ModelResponseCache
+//@@
+//@@   The response cache setting for the model.
+//@@
+message ModelResponseCache
+{
+  //@@
+  //@@  .. cpp::var:: bool enable
+  //@@
+  //@@     Whether or not to use response cache for the model. If True, the
+  //@@     responses from the model are cached and when identical request
+  //@@     is encountered, instead of going through the model execution,
+  //@@     the response from the cache is utilized. By default, response
+  //@@     cache is disabled for the models.
+  //@@
+  bool enable = 1;
+}
+
+//@@
 //@@.. cpp:var:: message ModelConfig
 //@@
 //@@   A model configuration.
@@ -1803,4 +1822,11 @@ message ModelConfig
   //@@     with repository actions are performed for this model.
   //@@
   ModelRepositoryAgents model_repository_agents = 23;
+
+  //@@  .. cpp:var:: ModelResponseCache response_cache
+  //@@
+  //@@     Optional setting for utilizing the response cache for this
+  //@@     model.
+  //@@
+  ModelResponseCache response_cache = 24;
 }
