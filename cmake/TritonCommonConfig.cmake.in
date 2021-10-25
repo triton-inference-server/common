@@ -30,6 +30,9 @@ set_and_check(TRITONCOMMON_CMAKE_DIR "${CMAKE_CURRENT_LIST_DIR}")
 
 list(APPEND CMAKE_MODULE_PATH ${TRITONCOMMON_CMAKE_DIR})
 
+include(CMakeFindDependencyMacro)
+find_dependency(Threads)
+
 if(NOT TARGET TritonCommon::triton-common-json)
   include("${TRITONCOMMON_CMAKE_DIR}/TritonCommonTargets.cmake")
 endif()

@@ -97,6 +97,8 @@ target_include_directories(
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
 )
 
+set(THREADS_PREFER_PTHREAD_FLAG TRUE)
+find_package(Threads REQUIRED)
 #
 # Async Work Queue
 #
@@ -119,7 +121,12 @@ target_include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/src
 )
 
-target_link_libraries(triton-common-async-work-queue PRIVATE common-compile-settings)
+target_link_libraries(triton-common-async-work-queue
+  PUBLIC
+    Threads::Threads
+  PRIVATE
+    common-compile-settings
+)
 
 #
 # JSON utilities
