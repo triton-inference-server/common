@@ -41,7 +41,7 @@ dependencies.
 $ apt-get install rapidjson-dev
 ```
 
-Use cmake 3.14 or later to build and install in a local directory.
+Use cmake 3.17 or later to build and install in a local directory.
 
 ```
 $ mkdir build
