@@ -84,7 +84,7 @@ AsyncWorkQueue::WorkerCount()
 }
 
 Error
-AsyncWorkQueue::AddTask(const std::function<void(void)>&& task)
+AsyncWorkQueue::AddTask(std::function<void(void)>&& task)
 {
   if (GetSingleton()->worker_threads_.size() == 0) {
     return Error(
