@@ -214,7 +214,7 @@ TablePrinter::PrintTable()
 
   AddRowDivider(table);
 
-  return std::move(table.str());
+  return table.str();
 }
 
 // TablePrinter will take the ownership of `headers`.
