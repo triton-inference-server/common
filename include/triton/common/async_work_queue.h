@@ -51,7 +51,7 @@ class AsyncWorkQueue {
 
   // Add a 'task' to the queue. The function will take ownership of 'task'.
   // Therefore std::move should be used when calling AddTask.
-  static Error AddTask(const std::function<void(void)>&& task);
+  static Error AddTask(std::function<void(void)>&& task);
 
  protected:
   static void Reset();
