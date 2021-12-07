@@ -1263,6 +1263,70 @@ message ModelSequenceBatching
     repeated Control control = 2;
   }
 
+  //@@
+  //@@  .. cpp:var:: message InitialState
+  //@@
+  //@@     Settings used to initialize data for implicit state.
+  //@@
+  message InitialState
+  {
+    //@@
+    //@@    .. cpp:var:: message StateMetaData
+    //@@
+    //@@       Meta data associated with a state.
+    //@@
+    message StateMetaData
+    {
+      //@@      .. cpp:var:: DataType data_type
+      //@@
+      //@@         The data-type of the state.
+      //@@
+      DataType data_type = 1;
+
+      //@@      .. cpp:var:: int64 dims (repeated)
+      //@@
+      //@@         The shape of the state tensor, not including the batch dimension.
+      //@@
+      repeated int64 dims = 2;
+
+      //@@      .. cpp:var:: oneof state_data
+      //@@
+      //@@         Specify how the initial state data is generated.
+      //@@
+      oneof state_data
+      {
+        //@@
+        //@@      .. cpp:var:: bool zero_data
+        //@@
+        //@@         The identifier for using zeros as initial state data.
+        //@@         Note that the value of 'zero_data' will not be checked,
+        //@@         instead, zero data will be used as long as the field is set.
+        //@@
+        bool zero_data = 3;
+
+        //@@      .. cpp:var:: string data_file
+        //@@
+        //@@         The file whose content will be used as the initial data for
+        //@@         the state in row-major order. The file must be provided in
+        //@@         sub-directory 'initial_state' under the model directory.
+        //@@
+        string data_file = 4;
+      }
+    }
+
+    //@@  .. cpp:var:: string name
+    //@@
+    //@@     The name of the state initialization.
+    //@@
+    string name = 1;
+
+    //@@  .. cpp:var:: StateMetaData state
+    //@@
+    //@@     The meta data needed for state initialization.
+    //@@
+    StateMetaData state = 2;
+  }
+
   //@@  .. cpp:var:: message State
   //@@
   //@@     An input / output pair of tensors that carry state for the sequence.
@@ -1582,70 +1646,6 @@ message ModelWarmup
   //@@     control tensors.
   //@@
   map<string, Input> inputs = 3;
-}
-
-//@@
-//@@.. cpp:var:: message InitialState
-//@@
-//@@   Settings used to initialize data for implicit state.
-//@@
-message InitialState
-{
-  //@@
-  //@@  .. cpp:var:: message State
-  //@@
-  //@@     Meta data associated with a state.
-  //@@
-  message State
-  {
-    //@@    .. cpp:var:: DataType data_type
-    //@@
-    //@@       The data-type of the state.
-    //@@
-    DataType data_type = 1;
-
-    //@@    .. cpp:var:: int64 dims (repeated)
-    //@@
-    //@@       The shape of the state tensor, not including the batch dimension.
-    //@@
-    repeated int64 dims = 2;
-
-    //@@    .. cpp:var:: oneof state_data
-    //@@
-    //@@       Specify how the initial state data is generated.
-    //@@
-    oneof state_data
-    {
-      //@@
-      //@@    .. cpp:var:: bool zero_data
-      //@@
-      //@@       The identifier for using zeros as initial state data.
-      //@@       Note that the value of 'zero_data' will not be checked,
-      //@@       instead, zero data will be used as long as the field is set.
-      //@@
-      bool zero_data = 3;
-
-      //@@    .. cpp:var:: string data_file
-      //@@
-      //@@       The file whose content will be used as the initial data for the state in
-      //@@       row-major order. The file must be provided in a sub-directory
-      //@@       'initial_state' under the model directory.
-      //@@
-      string data_file = 4;
-    }
-  }
-
-  //@@  .. cpp:var:: string name
-  //@@
-  //@@     The name of the state initialization.
-  //@@
-  string name = 1;
-
-  //@@  .. cpp:var:: map<string, State> states
-  //@@
-  //@@     The state initialization meta data associated with every model state.
-  //@@
-  map<string, State> states = 2;
 }
 
 //@@
