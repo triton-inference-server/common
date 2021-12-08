@@ -402,10 +402,8 @@ message ModelInput
   //@@  .. cpp:var:: bool optional
   //@@
   //@@     Whether or not the input is optional for the model execution.
-  //@@     If true, the input is not required in the inference request and
-  //@@     Triton will skip the input for dynamic batching check even if the
-  //@@     input is provided, as if 'allow_ragged_batch' is true. Default value
-  //@@     is false.
+  //@@     If true, the input is not required in the inference request.
+  //@@     Default value is false.
   //@@
   bool optional = 8;
 }
