@@ -1270,61 +1270,47 @@ message ModelSequenceBatching
   //@@
   message InitialState
   {
+    //@@      .. cpp:var:: DataType data_type
     //@@
-    //@@    .. cpp:var:: message StateMetaData
+    //@@         The data-type of the state.
     //@@
-    //@@       Meta data associated with a state.
+    DataType data_type = 1;
+
+    //@@      .. cpp:var:: int64 dims (repeated)
     //@@
-    message StateMetaData
+    //@@         The shape of the state tensor, not including the batch dimension.
+    //@@
+    repeated int64 dims = 2;
+
+    //@@      .. cpp:var:: oneof state_data
+    //@@
+    //@@         Specify how the initial state data is generated.
+    //@@
+    oneof state_data
     {
-      //@@      .. cpp:var:: DataType data_type
       //@@
-      //@@         The data-type of the state.
+      //@@      .. cpp:var:: bool zero_data
       //@@
-      DataType data_type = 1;
+      //@@         The identifier for using zeros as initial state data.
+      //@@         Note that the value of 'zero_data' will not be checked,
+      //@@         instead, zero data will be used as long as the field is set.
+      //@@
+      bool zero_data = 3;
 
-      //@@      .. cpp:var:: int64 dims (repeated)
+      //@@      .. cpp:var:: string data_file
       //@@
-      //@@         The shape of the state tensor, not including the batch dimension.
+      //@@         The file whose content will be used as the initial data for
+      //@@         the state in row-major order. The file must be provided in
+      //@@         sub-directory 'initial_state' under the model directory.
       //@@
-      repeated int64 dims = 2;
-
-      //@@      .. cpp:var:: oneof state_data
-      //@@
-      //@@         Specify how the initial state data is generated.
-      //@@
-      oneof state_data
-      {
-        //@@
-        //@@      .. cpp:var:: bool zero_data
-        //@@
-        //@@         The identifier for using zeros as initial state data.
-        //@@         Note that the value of 'zero_data' will not be checked,
-        //@@         instead, zero data will be used as long as the field is set.
-        //@@
-        bool zero_data = 3;
-
-        //@@      .. cpp:var:: string data_file
-        //@@
-        //@@         The file whose content will be used as the initial data for
-        //@@         the state in row-major order. The file must be provided in
-        //@@         sub-directory 'initial_state' under the model directory.
-        //@@
-        string data_file = 4;
-      }
+      string data_file = 4;
     }
 
     //@@  .. cpp:var:: string name
     //@@
     //@@     The name of the state initialization.
     //@@
-    string name = 1;
-
-    //@@  .. cpp:var:: StateMetaData state
-    //@@
-    //@@     The meta data needed for state initialization.
-    //@@
-    StateMetaData state = 2;
+    string name = 5;
   }
 
   //@@  .. cpp:var:: message State
