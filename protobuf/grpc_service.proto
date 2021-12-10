@@ -933,6 +933,15 @@ message InferStatistics
   //@@     should include the time to copy output tensor data from the GPU.
   //@@
   StatisticDuration compute_output = 6;
+
+  //@@  .. cpp:var:: StatisticDuration cache_hit
+  //@@
+  //@@     The count of response cache hits and cumulative duration to lookup
+  //@@     and extract output tensor data from the Response Cache on a cache
+  //@@     hit. For example, this duration should include the time to copy
+  //@@     output tensor data from the Response Cache to the response object.
+  //@@
+  StatisticDuration cache_hit = 7;
 }
 
 //@@
