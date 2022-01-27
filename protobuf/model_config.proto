@@ -1734,10 +1734,6 @@ message ModelResponseCache
   bool enable = 1;
 }
 
-//@@message Tensor {
-  //@@string tensor_name = 1;
-//@@}
-
 message ListStruct 
 {
   repeated TensorStructure list = 1;
@@ -1750,8 +1746,6 @@ message TupleStruct
 message MapStruct 
 {
   map<string, TensorStructure> dict = 1;
-  //@@string key = 1;
-  //@@TensorStruct value = 2;
 }
 
 message TensorStructure {
