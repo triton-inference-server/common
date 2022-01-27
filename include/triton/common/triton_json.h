@@ -173,7 +173,7 @@ class TritonJson {
         TRITONJSON_STATUSRETURN(
             std::string("JSON writing only available for top-level document"));
       }
-      unsigned writeFlags =
+      const unsigned int writeFlags =
           2;  // kWriteNanAndInfFlag - allow nan and inf in output
       rapidjson::Writer<
           WriteBuffer, rapidjson::UTF8<>, rapidjson::UTF8<>,
@@ -195,7 +195,7 @@ class TritonJson {
         TRITONJSON_STATUSRETURN(
             std::string("JSON writing only available for top-level document"));
       }
-      unsigned writeFlags =
+      const unsigned int writeFlags =
           2;  // kWriteNanAndInfFlag - allow nan and inf in output
       rapidjson::PrettyWriter<
           WriteBuffer, rapidjson::UTF8<>, rapidjson::UTF8<>,
