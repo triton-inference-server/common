@@ -172,7 +172,10 @@ class TritonJson {
             std::string("JSON writing only available for top-level document"));
       }
       rapidjson::Writer<WriteBuffer> writer(*buffer);
-      document_.Accept(writer);
+      if (!document_.Accept(writer)) {
+        TRITONJSON_STATUSRETURN(
+            std::string("Failed to accept document, invalid JSON."));
+      }
       return TRITONJSON_STATUSSUCCESS;
     }
 
@@ -186,7 +189,10 @@ class TritonJson {
             std::string("JSON writing only available for top-level document"));
       }
       rapidjson::PrettyWriter<WriteBuffer> writer(*buffer);
-      document_.Accept(writer);
+      if (!document_.Accept(writer)) {
+        TRITONJSON_STATUSRETURN(
+            std::string("Failed to accept document, invalid JSON."));
+      }
       return TRITONJSON_STATUSSUCCESS;
     }
 
