@@ -1,4 +1,4 @@
-// Copyright 2018-2021, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// Copyright 2018-2022, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions
@@ -1734,6 +1734,16 @@ message ModelResponseCache
   bool enable = 1;
 }
 
+message TensorStructure {
+  oneof kind_choice 
+  {
+    map<string, TensorStructure> dict = 1;
+    repeated TensorStructure list = 2;
+    repeated TensorStructure read_only_list = 3;
+    string tensor_name = 4;
+  }
+}
+
 //@@
 //@@.. cpp:var:: message ModelConfig
 //@@
@@ -1936,4 +1946,8 @@ message ModelConfig
   //@@     model.
   //@@
   ModelResponseCache response_cache = 24;
+
+  repeated TensorStructure input_tensors_structure = 25;
+
+  repeated TensorStructure output_tensors_structure = 26;
 }
