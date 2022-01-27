@@ -174,7 +174,7 @@ class TritonJson {
             std::string("JSON writing only available for top-level document"));
       }
       unsigned writeFlags = 2; // kWriteNanAndInfFlag - allow nan and inf in output
-      rapidjson::Writer<WriteBuffer, UTF8<>, UTF8<>, CrtAllocator, writeFlags> writer(*buffer);
+      rapidjson::Writer<WriteBuffer, rapidjson::UTF8<>, rapidjson::UTF8<>, rapidjson::CrtAllocator, writeFlags> writer(*buffer);
       if (!document_.Accept(writer)) {
         TRITONJSON_STATUSRETURN(
             std::string("Failed to accept document, invalid JSON."));
@@ -191,7 +191,7 @@ class TritonJson {
         TRITONJSON_STATUSRETURN(
             std::string("JSON writing only available for top-level document"));
       }
-      rapidjson::PrettyWriter<WriteBuffer, UTF8<>, UTF8<>, CrtAllocator, writeFlags> writer(*buffer);
+      rapidjson::PrettyWriter<WriteBuffer, rapidjson::UTF8<>, rapidjson::UTF8<>, rapidjson::CrtAllocator, writeFlags> writer(*buffer);
       if (!document_.Accept(writer)) {
         TRITONJSON_STATUSRETURN(
             std::string("Failed to accept document, invalid JSON."));
