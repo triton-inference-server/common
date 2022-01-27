@@ -34,13 +34,13 @@
 #include <rapidjson/document.h>
 #pragma GCC diagnostic pop
 
+#include <rapidjson/allocators.h>  // CrtAllocator (default) for Writer instantiation
+#include <rapidjson/encodings.h>  // UTF8 (default) for Writer instantiation
 #include <rapidjson/error/en.h>
 #include <rapidjson/prettywriter.h>
 #include <rapidjson/rapidjson.h>
 #include <rapidjson/stringbuffer.h>
 #include <rapidjson/writer.h>
-#include <rapidjson/allocators.h> // CrtAllocator (default) for Writer instantiation
-#include <rapidjson/encodings.h>  // UTF8 (default) for Writer instantiation
 #include <string>
 #include <vector>
 
@@ -173,8 +173,12 @@ class TritonJson {
         TRITONJSON_STATUSRETURN(
             std::string("JSON writing only available for top-level document"));
       }
-      unsigned writeFlags = 2; // kWriteNanAndInfFlag - allow nan and inf in output
-      rapidjson::Writer<WriteBuffer, rapidjson::UTF8<>, rapidjson::UTF8<>, rapidjson::CrtAllocator, writeFlags> writer(*buffer);
+      unsigned writeFlags =
+          2;  // kWriteNanAndInfFlag - allow nan and inf in output
+      rapidjson::Writer<
+          WriteBuffer, rapidjson::UTF8<>, rapidjson::UTF8<>,
+          rapidjson::CrtAllocator, writeFlags>
+          writer(*buffer);
       if (!document_.Accept(writer)) {
         TRITONJSON_STATUSRETURN(
             std::string("Failed to accept document, invalid JSON."));
@@ -191,7 +195,12 @@ class TritonJson {
         TRITONJSON_STATUSRETURN(
             std::string("JSON writing only available for top-level document"));
       }
-      rapidjson::PrettyWriter<WriteBuffer, rapidjson::UTF8<>, rapidjson::UTF8<>, rapidjson::CrtAllocator, writeFlags> writer(*buffer);
+      unsigned writeFlags =
+          2;  // kWriteNanAndInfFlag - allow nan and inf in output
+      rapidjson::PrettyWriter<
+          WriteBuffer, rapidjson::UTF8<>, rapidjson::UTF8<>,
+          rapidjson::CrtAllocator, writeFlags>
+          writer(*buffer);
       if (!document_.Accept(writer)) {
         TRITONJSON_STATUSRETURN(
             std::string("Failed to accept document, invalid JSON."));
