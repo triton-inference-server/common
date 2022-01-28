@@ -1747,11 +1747,20 @@ message TensorStructure
     repeated TensorStructure item = 1;
   }
 
+  message MapStructure {
+    message MapItem {
+      string key = 1;
+      TensorStructure value = 2;
+    }
+
+    repeated MapItem item = 1;
+  }
+
   oneof struct_kind
   {
     ListStructure list = 1;
     ReadOnlyListStructure read_only_list = 2;
-    map<string, TensorStructure> dict = 3;
+    MapStructure dict = 3;
     string tensor_name = 4;
   }
 }
