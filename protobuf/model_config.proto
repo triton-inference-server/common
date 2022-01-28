@@ -1734,28 +1734,31 @@ message ModelResponseCache
   bool enable = 1;
 }
 
-message ListStruct 
-{
-  repeated TensorStructure list = 1;
-}
 
-message TupleStruct 
+message TensorStructure 
 {
-  repeated TensorStructure tuple = 1;
-}
-message MapStruct 
-{
-  map<string, TensorStructure> dict = 1;
-}
+  message ListStructure
+  {
+    repeated TensorStructure list = 1;
+  }
 
-message TensorStructure {
+  message TupleStructure
+  {
+    repeated TensorStructure tuple = 1;
+  }
+
+  message MapStructure
+  {
+    map<string, TensorStructure> dict = 1;
+  }
+
   oneof struct_kind 
   {
-    ListStruct list = 1;
-    TupleStruct tuple = 2;
-    MapStruct dict = 3;
+    ListStructure list = 1;
+    TupleStructure tuple = 2;
+    MapStructure dict = 3;
     string tensor_name = 4;
-  } 
+  }
 }
 
 //@@
