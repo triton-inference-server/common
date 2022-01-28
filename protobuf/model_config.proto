@@ -1739,24 +1739,19 @@ message TensorStructure
 {
   message ListStructure
   {
-    repeated TensorStructure list = 1;
+    repeated TensorStructure item = 1;
   }
 
-  message TupleStructure
+  message ReadOnlyListStructure
   {
-    repeated TensorStructure tuple = 1;
+    repeated TensorStructure item = 1;
   }
 
-  message MapStructure
-  {
-    map<string, TensorStructure> dict = 1;
-  }
-
-  oneof struct_kind 
+  oneof struct_kind
   {
     ListStructure list = 1;
-    TupleStructure tuple = 2;
-    MapStructure dict = 3;
+    ReadOnlyListStructure read_only_list = 2;
+    map<string, TensorStructure> dict = 3;
     string tensor_name = 4;
   }
 }
