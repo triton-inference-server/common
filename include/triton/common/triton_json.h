@@ -147,7 +147,8 @@ class TritonJson {
         TRITONJSON_STATUSRETURN(
             std::string("JSON parsing only available for top-level document"));
       }
-      document_.Parse(base, size);
+      const unsigned int parseFlags = rapidjson::kParseNanAndInfFlag;
+      document_.Parse<parseFlags>(base, size);
       if (document_.HasParseError()) {
         TRITONJSON_STATUSRETURN(std::string(
             "failed to parse the request JSON buffer: " +
@@ -173,8 +174,7 @@ class TritonJson {
         TRITONJSON_STATUSRETURN(
             std::string("JSON writing only available for top-level document"));
       }
-      const unsigned int writeFlags =
-          2u;  // kWriteNanAndInfFlag - allow nan and inf in output
+      const unsigned int writeFlags = rapidjson::kWriteNanAndInfFlag;
       rapidjson::Writer<
           WriteBuffer, rapidjson::UTF8<>, rapidjson::UTF8<>,
           rapidjson::CrtAllocator, writeFlags>
