@@ -197,12 +197,13 @@ class TritonJson {
             std::string("JSON writing only available for top-level document"));
       }
 
-      const unsigned int writeFlags = rapidjson::kWriteNanAndInfFlag;
-      // Provide default template arguments to pass writeFlags
-      rapidjson::PrettyWriter<
-          WriteBuffer, rapidjson::UTF8<>, rapidjson::UTF8<>,
-          rapidjson::CrtAllocator, writeFlags>
-          writer(*buffer);
+      // Can't pass writeFlags with latest release v1.1.0 of rapidjson-dev.
+      // We would need to build rapidjson from source to capture latest fixes.
+      // See this issue:
+      // https://github.com/Tencent/rapidjson/issues/905#issuecomment-370981353
+      // PrettyWrite is only used for displaying model configs currently, so
+      // this should not be an issue.
+      rapidjson::PrettyWriter<WriteBuffer> writer(*buffer);
       if (!document_.Accept(writer)) {
         TRITONJSON_STATUSRETURN(
             std::string("Failed to accept document, invalid JSON."));
