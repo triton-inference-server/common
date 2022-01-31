@@ -1,4 +1,4 @@
-// Copyright 2020-2021, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// Copyright 2020-2022, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions
@@ -175,6 +175,7 @@ class TritonJson {
             std::string("JSON writing only available for top-level document"));
       }
       const unsigned int writeFlags = rapidjson::kWriteNanAndInfFlag;
+      // Provide default template arguments to pass writeFlags
       rapidjson::Writer<
           WriteBuffer, rapidjson::UTF8<>, rapidjson::UTF8<>,
           rapidjson::CrtAllocator, writeFlags>
@@ -196,15 +197,12 @@ class TritonJson {
             std::string("JSON writing only available for top-level document"));
       }
 
-      rapidjson::PrettyWriter<WriteBuffer> writer(*buffer);
-      /*
-      const unsigned int writeFlags =
-          2u;  // kWriteNanAndInfFlag - allow nan and inf in output
+      const unsigned int writeFlags = rapidjson::kWriteNanAndInfFlag;
+      // Provide default template arguments to pass writeFlags
       rapidjson::PrettyWriter<
           WriteBuffer, rapidjson::UTF8<>, rapidjson::UTF8<>,
           rapidjson::CrtAllocator, writeFlags>
           writer(*buffer);
-      */
       if (!document_.Accept(writer)) {
         TRITONJSON_STATUSRETURN(
             std::string("Failed to accept document, invalid JSON."));
