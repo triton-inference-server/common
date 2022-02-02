@@ -202,6 +202,15 @@ service GRPCInferenceService
       returns (CudaSharedMemoryUnregisterResponse)
   {
   }
+
+  //@@  .. cpp:var:: rpc Trace(TraceRequest)
+  //@@                   returns (TraceResponse)
+  //@@
+  //@@     Update and get the trace setting of the Triton server.
+  //@@
+  rpc Trace(TraceRequest) returns (TraceResponse)
+  {
+  }
 }
 
 //@@
@@ -1477,3 +1486,65 @@ message CudaSharedMemoryUnregisterRequest
 //@@   Response message for CudaSharedMemoryUnregister.
 //@@
 message CudaSharedMemoryUnregisterResponse {}
+
+//@@
+//@@.. cpp:var:: message TraceRequest
+//@@
+//@@   Request message for Trace.
+//@@
+message TraceRequest
+{
+  //@@
+  //@@  .. cpp:var:: message SettingValue
+  //@@
+  //@@     The values to be associated with a trace setting.
+  //@@
+  message SettingValue
+  {
+    //@@
+    //@@    .. cpp:var:: string value (repeated)
+    //@@
+    //@@       The value.
+    //@@
+    repeated string value = 3;
+  }
+
+  //@@  .. cpp:var:: map<string,SettingValue> settings
+  //@@
+  //@@     The new setting values to be updated,
+  //@@     settings that are not specified will remain unchanged.
+  //@@
+  map<string, SettingValue> settings = 1;
+
+  //@@
+  //@@  .. cpp:var:: string name
+  //@@
+  //@@     The name of the model to apply the new trace settings.
+  //@@     If not given, the new settings will be applied globally.
+  //@@
+  string model_name = 2;
+}
+
+message TraceResponse
+{
+  //@@
+  //@@  .. cpp:var:: message SettingValue
+  //@@
+  //@@     The values to be associated with a trace setting.
+  //@@
+  message SettingValue
+  {
+    //@@
+    //@@    .. cpp:var:: string value (repeated)
+    //@@
+    //@@       The value.
+    //@@
+    repeated string value = 3;
+  }
+
+  //@@  .. cpp:var:: map<string,SettingValue> settings
+  //@@
+  //@@     The latest trace settings used.
+  //@@
+  map<string, SettingValue> settings = 1;
+}
