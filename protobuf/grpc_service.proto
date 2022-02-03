@@ -1498,6 +1498,8 @@ message TraceRequest
   //@@  .. cpp:var:: message SettingValue
   //@@
   //@@     The values to be associated with a trace setting.
+  //@@     If no value is provided, the setting will be clear and
+  //@@     the global setting value will be used.
   //@@
   message SettingValue
   {
@@ -1517,21 +1519,12 @@ message TraceRequest
   map<string, SettingValue> settings = 1;
 
   //@@
-  //@@  .. cpp:var:: string name
+  //@@  .. cpp:var:: string model_name
   //@@
   //@@     The name of the model to apply the new trace settings.
   //@@     If not given, the new settings will be applied globally.
   //@@
   string model_name = 2;
-
-  //@@
-  //@@  .. cpp:var:: bool clear_setting
-  //@@
-  //@@     Clear the current model specific setting if specified, and
-  //@@     any new setting values will not be applied.
-  //@@     This option will be ignored if 'model_name' is not given.
-  //@@
-  bool clear_setting = 3;
 }
 
 message TraceResponse
@@ -1548,12 +1541,13 @@ message TraceResponse
     //@@
     //@@       The value.
     //@@
-    repeated string value = 3;
+    repeated string value = 2;
   }
 
   //@@  .. cpp:var:: map<string,SettingValue> settings
   //@@
-  //@@     The latest trace settings used.
+  //@@     The current trace settings, including any changes specified
+  //@@     by TraceRequest.
   //@@
   map<string, SettingValue> settings = 1;
 }
