@@ -203,12 +203,12 @@ service GRPCInferenceService
   {
   }
 
-  //@@  .. cpp:var:: rpc Trace(TraceRequest)
-  //@@                   returns (TraceResponse)
+  //@@  .. cpp:var:: rpc TraceSetting(TraceSettingRequest)
+  //@@                   returns (TraceSettingResponse)
   //@@
   //@@     Update and get the trace setting of the Triton server.
   //@@
-  rpc Trace(TraceRequest) returns (TraceResponse)
+  rpc TraceSetting(TraceSettingRequest) returns (TraceSettingResponse)
   {
   }
 }
@@ -1488,11 +1488,11 @@ message CudaSharedMemoryUnregisterRequest
 message CudaSharedMemoryUnregisterResponse {}
 
 //@@
-//@@.. cpp:var:: message TraceRequest
+//@@.. cpp:var:: message TraceSettingRequest
 //@@
-//@@   Request message for Trace.
+//@@   Request message for TraceSetting.
 //@@
-message TraceRequest
+message TraceSettingRequest
 {
   //@@
   //@@  .. cpp:var:: message SettingValue
@@ -1527,7 +1527,12 @@ message TraceRequest
   string model_name = 2;
 }
 
-message TraceResponse
+//@@
+//@@.. cpp:var:: message TraceSettingResponse
+//@@
+//@@   Response message for TraceSetting.
+//@@
+message TraceSettingResponse
 {
   //@@
   //@@  .. cpp:var:: message SettingValue
@@ -1547,7 +1552,7 @@ message TraceResponse
   //@@  .. cpp:var:: map<string,SettingValue> settings
   //@@
   //@@     The current trace settings, including any changes specified
-  //@@     by TraceRequest.
+  //@@     by TraceSettingRequest.
   //@@
   map<string, SettingValue> settings = 1;
 }
