@@ -1508,7 +1508,7 @@ message TraceRequest
     //@@
     //@@       The value.
     //@@
-    repeated string value = 3;
+    repeated string value = 1;
   }
 
   //@@  .. cpp:var:: map<string,SettingValue> settings
@@ -1541,7 +1541,7 @@ message TraceResponse
     //@@
     //@@       The value.
     //@@
-    repeated string value = 2;
+    repeated string value = 1;
   }
 
   //@@  .. cpp:var:: map<string,SettingValue> settings
