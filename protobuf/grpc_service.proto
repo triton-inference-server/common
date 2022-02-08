@@ -202,6 +202,15 @@ service GRPCInferenceService
       returns (CudaSharedMemoryUnregisterResponse)
   {
   }
+
+  //@@  .. cpp:var:: rpc TraceSetting(TraceSettingRequest)
+  //@@                   returns (TraceSettingResponse)
+  //@@
+  //@@     Update and get the trace setting of the Triton server.
+  //@@
+  rpc TraceSetting(TraceSettingRequest) returns (TraceSettingResponse)
+  {
+  }
 }
 
 //@@
@@ -1477,3 +1486,73 @@ message CudaSharedMemoryUnregisterRequest
 //@@   Response message for CudaSharedMemoryUnregister.
 //@@
 message CudaSharedMemoryUnregisterResponse {}
+
+//@@
+//@@.. cpp:var:: message TraceSettingRequest
+//@@
+//@@   Request message for TraceSetting.
+//@@
+message TraceSettingRequest
+{
+  //@@
+  //@@  .. cpp:var:: message SettingValue
+  //@@
+  //@@     The values to be associated with a trace setting.
+  //@@     If no value is provided, the setting will be clear and
+  //@@     the global setting value will be used.
+  //@@
+  message SettingValue
+  {
+    //@@
+    //@@    .. cpp:var:: string value (repeated)
+    //@@
+    //@@       The value.
+    //@@
+    repeated string value = 1;
+  }
+
+  //@@  .. cpp:var:: map<string,SettingValue> settings
+  //@@
+  //@@     The new setting values to be updated,
+  //@@     settings that are not specified will remain unchanged.
+  //@@
+  map<string, SettingValue> settings = 1;
+
+  //@@
+  //@@  .. cpp:var:: string model_name
+  //@@
+  //@@     The name of the model to apply the new trace settings.
+  //@@     If not given, the new settings will be applied globally.
+  //@@
+  string model_name = 2;
+}
+
+//@@
+//@@.. cpp:var:: message TraceSettingResponse
+//@@
+//@@   Response message for TraceSetting.
+//@@
+message TraceSettingResponse
+{
+  //@@
+  //@@  .. cpp:var:: message SettingValue
+  //@@
+  //@@     The values to be associated with a trace setting.
+  //@@
+  message SettingValue
+  {
+    //@@
+    //@@    .. cpp:var:: string value (repeated)
+    //@@
+    //@@       The value.
+    //@@
+    repeated string value = 1;
+  }
+
+  //@@  .. cpp:var:: map<string,SettingValue> settings
+  //@@
+  //@@     The current trace settings, including any changes specified
+  //@@     by TraceSettingRequest.
+  //@@
+  map<string, SettingValue> settings = 1;
+}

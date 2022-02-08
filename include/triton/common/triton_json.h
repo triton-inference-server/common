@@ -621,6 +621,13 @@ class TritonJson {
       return false;
     }
 
+    // Whether the object is null value. Note that false will also be retuned
+    // if the object is not a JSON value.
+    bool IsNull() const
+    {
+      return ((value_ != nullptr) && value_->IsNull());
+    }
+
     // Get value as a string. The string may contain null or other
     // special characters and so 'len' must be used to determine length.
     // Error if value is not a string.
