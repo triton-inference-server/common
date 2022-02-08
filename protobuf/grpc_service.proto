@@ -920,9 +920,8 @@ message InferStatistics
   //@@     required by the model framework / backend. For example, this duration
   //@@     should include the time to copy input tensor data to the GPU.
   //@@     The "compute_input" count and cumulative duration do not account for
-  //@@     requests that were a cache hit. When using response cache, preparing
-  //@@     input tensor data for model/backend consumption is not required for
-  //@@     requests that hit cache. See the "cache_hit" field for more info.
+  //@@     requests that were a cache hit. See the "cache_hit" field for more
+  //@@     info.
   //@@
   StatisticDuration compute_input = 4;
 
@@ -930,9 +929,8 @@ message InferStatistics
   //@@
   //@@     The count and cumulative duration to execute the model.
   //@@     The "compute_infer" count and cumulative duration do not account for
-  //@@     requests that were a cache hit. When using response cache, performing 
-  //@@     inference in the model/backend is not required for requests that hit
-  //@@     hit cache. See the "cache_hit" field for more info.
+  //@@     requests that were a cache hit. See the "cache_hit" field for more
+  //@@     info.
   //@@
   StatisticDuration compute_infer = 5;
 
@@ -942,9 +940,8 @@ message InferStatistics
   //@@     produced by the model framework / backend. For example, this duration
   //@@     should include the time to copy output tensor data from the GPU.
   //@@     The "compute_output" count and cumulative duration do not account for
-  //@@     requests that were a cache hit. When using response cache, extracting
-  //@@     output tensor data in the model/backend is not required for requests
-  //@@     that hit cache. See the "cache_hit" field for more info.
+  //@@     requests that were a cache hit. See the "cache_hit" field for more
+  //@@     info.
   //@@
   StatisticDuration compute_output = 6;
 
@@ -954,11 +951,14 @@ message InferStatistics
   //@@     and extract output tensor data from the Response Cache on a cache
   //@@     hit. For example, this duration should include the time to copy
   //@@     output tensor data from the Response Cache to the response object.
-  //@@     Assuming the response cache is enabled for a given model, a cache
-  //@@     hit occurs for a request to that model when the request metadata
-  //@@     (model name, model version, model inputs) hashes to an existing
-  //@@     entry in the cache. On a cache miss, the request hash and response
-  //@@     is added to the cache. See response cache docs for more info:
+  //@@     On cache hits, triton does not need to go to the model/backend 
+  //@@     for the output tensor data, so the "compute_input", "compute_infer",
+  //@@     and "compute_output" fields are not updated. Assuming the response
+  //@@     cache is enabled for a given model, a cache hit occurs for a
+  //@@     request to that model when the request metadata (model name,
+  //@@     model version, model inputs) hashes to an existing entry in the
+  //@@     cache. On a cache miss, the request hash and response output tensor
+  //@@     data is added to the cache. See response cache docs for more info:
   //@@     https://github.com/triton-inference-server/server/blob/main/docs/response_cache.md
   //@@
   StatisticDuration cache_hit = 7;
