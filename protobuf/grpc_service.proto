@@ -1221,6 +1221,12 @@ message RepositoryModelLoadRequest
   //@@     The name of the model to load, or reload.
   //@@
   string model_name = 2;
+
+  //@@  .. cpp:var:: map<string,ModelRepositoryParameter> parameters
+  //@@
+  //@@     Optional model repository request parameters.
+  //@@
+  map<string, ModelRepositoryParameter> parameters = 3;
 }
 
 //@@
