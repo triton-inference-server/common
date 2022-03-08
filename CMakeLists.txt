@@ -1,4 +1,4 @@
-# Copyright (c) 2020-2021, NVIDIA CORPORATION. All rights reserved.
+# Copyright (c) 2020-2022, NVIDIA CORPORATION. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
@@ -78,6 +78,36 @@ target_include_directories(
 )
 
 target_link_libraries(triton-common-error PRIVATE common-compile-settings)
+
+#
+# Logging
+#
+add_library(
+  triton-common-logging
+  src/logging.cc
+)
+
+add_library(
+  TritonCommon::triton-common-logging ALIAS triton-common-logging
+)
+
+target_include_directories(
+  triton-common-logging
+  PUBLIC
+    $<INSTALL_INTERFACE:include>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/src
+)
+
+if(${TRITON_ENABLE_LOGGING})
+  target_compile_definitions(
+    triton-common-logging
+    PRIVATE TRITON_ENABLE_LOGGING=1
+  )
+endif() # TRITON_ENABLE_LOGGING
+
+target_link_libraries(triton-common-logging PRIVATE common-compile-settings)
 
 #
 # SyncQueue
@@ -174,6 +204,7 @@ target_link_libraries(triton-common-table-printer PRIVATE common-compile-setting
 set_target_properties(
   triton-common-async-work-queue
   triton-common-error
+  triton-common-logging
   triton-common-table-printer
   PROPERTIES
     WINDOWS_EXPORT_ALL_SYMBOLS TRUE
@@ -190,6 +221,12 @@ set_target_properties(
   triton-common-error
   PROPERTIES
     OUTPUT_NAME tritoncommonerror
+)
+
+set_target_properties(
+  triton-common-logging
+  PROPERTIES
+    OUTPUT_NAME tritoncommonlogging
 )
 
 set_target_properties(
@@ -215,6 +252,7 @@ install(
   TARGETS
     triton-common-async-work-queue
     triton-common-error
+    triton-common-logging
     triton-common-sync-queue
     triton-common-json
     triton-common-table-printer
