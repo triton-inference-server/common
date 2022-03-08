@@ -40,6 +40,9 @@ option(TRITON_COMMON_ENABLE_GRPC "Build grpc artifacts" OFF)
 find_package(RapidJSON CONFIG REQUIRED)
 message(STATUS "RapidJSON found. Headers: ${RAPIDJSON_INCLUDE_DIRS}")
 
+set(THREADS_PREFER_PTHREAD_FLAG TRUE)
+find_package(Threads REQUIRED)
+
 if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
   message("Using MSVC as compiler, default target on Windows 10. "
 		  "If the target system is not Windows 10, please update _WIN32_WINNT "
@@ -54,6 +57,24 @@ target_compile_options(common-compile-settings INTERFACE
   $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>,$<CXX_COMPILER_ID:GNU>>:
     -Wall -Wextra -Wno-unused-parameter -Wno-type-limits -Werror>
   $<$<CXX_COMPILER_ID:MSVC>:/Wall /D_WIN32_WINNT=0x0A00 /EHsc>
+)
+
+#
+# Constants
+#
+add_library(
+  triton-common-constants INTERFACE
+)
+
+add_library(
+  TritonCommon::triton-common-constants ALIAS triton-common-constants
+)
+
+target_include_directories(
+  triton-common-constants
+  INTERFACE
+    $<INSTALL_INTERFACE:include>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
 )
 
 #
@@ -127,8 +148,6 @@ target_include_directories(
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
 )
 
-set(THREADS_PREFER_PTHREAD_FLAG TRUE)
-find_package(Threads REQUIRED)
 #
 # Async Work Queue
 #
@@ -251,6 +270,7 @@ set(INSTALL_CONFIGDIR ${CMAKE_INSTALL_LIBDIR}/cmake/TritonCommon)
 install(
   TARGETS
     triton-common-async-work-queue
+    triton-common-constants
     triton-common-error
     triton-common-logging
     triton-common-sync-queue
