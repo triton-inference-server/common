@@ -40,46 +40,48 @@ endif()
 #
 # Protobuf
 #
-file(GLOB proto-srcs *.proto)
-protobuf_generate_cpp(PROTO_SRCS PROTO_HDRS ${proto-srcs})
-protobuf_generate_python(PROTO_PY ${proto-srcs})
+if(${TRITON_COMMON_ENABLE_PROTOBUF})
+  file(GLOB proto-srcs *.proto)
+  protobuf_generate_cpp(PROTO_SRCS PROTO_HDRS ${proto-srcs})
+  protobuf_generate_python(PROTO_PY ${proto-srcs})
 
-set(_PROTOBUF_PROTOC $<TARGET_FILE:protobuf::protoc>)
-if(${TRITON_COMMON_ENABLE_GRPC})
-  set(_GRPC_CPP_PLUGIN_EXECUTABLE $<TARGET_FILE:gRPC::grpc_cpp_plugin>)
+  set(_PROTOBUF_PROTOC $<TARGET_FILE:protobuf::protoc>)
+  if(${TRITON_COMMON_ENABLE_GRPC})
+    set(_GRPC_CPP_PLUGIN_EXECUTABLE $<TARGET_FILE:gRPC::grpc_cpp_plugin>)
+  endif()
+
+  add_library(
+    proto-library EXCLUDE_FROM_ALL OBJECT
+    ${PROTO_SRCS} ${PROTO_HDRS}
+  )
+
+  target_include_directories(
+    proto-library
+    PUBLIC
+      $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
+  )
+
+  target_compile_options(
+    proto-library PRIVATE
+    $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>,$<CXX_COMPILER_ID:GNU>>:
+      -Wall -Wextra -Wno-unused-parameter -Werror>
+    $<$<CXX_COMPILER_ID:MSVC>:/W0 /D_WIN32_WINNT=0x0A00 /EHsc>
+  )
+
+  set_target_properties(
+    proto-library
+    PROPERTIES
+      POSITION_INDEPENDENT_CODE ON
+  )
+
+  add_custom_target(proto-py-library DEPENDS ${PROTO_PY})
+
+  install(
+    FILES
+      ${PROTO_HDRS}
+    DESTINATION include
+  )
 endif()
-
-add_library(
-  proto-library EXCLUDE_FROM_ALL OBJECT
-  ${PROTO_SRCS} ${PROTO_HDRS}
-)
-
-target_include_directories(
-  proto-library
-  PUBLIC
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
-)
-
-target_compile_options(
-  proto-library PRIVATE
-  $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>,$<CXX_COMPILER_ID:GNU>>:
-    -Wall -Wextra -Wno-unused-parameter -Werror>
-  $<$<CXX_COMPILER_ID:MSVC>:/Wall /D_WIN32_WINNT=0x0A00 /EHsc>
-)
-
-set_target_properties(
-  proto-library
-  PROPERTIES
-    POSITION_INDEPENDENT_CODE ON
-)
-
-add_custom_target(proto-py-library DEPENDS ${PROTO_PY})
-
-install(
-  FILES
-    ${PROTO_HDRS}
-  DESTINATION include
-)
 
 #
 # GRPC
@@ -130,7 +132,7 @@ if(${TRITON_COMMON_ENABLE_GRPC})
     grpc-service-library PRIVATE
     $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>,$<CXX_COMPILER_ID:GNU>>:
       -Wall -Wextra -Wno-unused-parameter -Werror>
-    $<$<CXX_COMPILER_ID:MSVC>:/Wall /D_WIN32_WINNT=0x0A00 /EHsc>
+    $<$<CXX_COMPILER_ID:MSVC>:/W0 /D_WIN32_WINNT=0x0A00 /EHsc>
   )
 
   set_target_properties(
