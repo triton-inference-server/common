@@ -25,6 +25,9 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma once
 
+#ifdef _WIN32
+#include <rapidjson/document.h>
+#else
 // Disable class-memaccess warning to facilitate compilation with gcc>7
 // https://github.com/Tencent/rapidjson/issues/1700
 #pragma GCC diagnostic push
@@ -33,6 +36,7 @@
 #endif
 #include <rapidjson/document.h>
 #pragma GCC diagnostic pop
+#endif // _WIN32
 
 #include <rapidjson/allocators.h>  // CrtAllocator (default) for Writer instantiation
 #include <rapidjson/encodings.h>  // UTF8 (default) for Writer instantiation
