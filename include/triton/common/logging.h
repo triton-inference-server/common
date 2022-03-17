@@ -29,7 +29,7 @@
 #include <string>
 #include <vector>
 
-namespace nvidia { namespace inferenceserver {
+namespace triton { namespace common {
 
 // A log message.
 class LogMessage {
@@ -81,31 +81,31 @@ class Logger {
 extern Logger gLogger_;
 
 #define LOG_ENABLE_INFO(E)                      \
-  nvidia::inferenceserver::gLogger_.SetEnabled( \
-      nvidia::inferenceserver::LogMessage::Level::kINFO, (E))
+  triton::common::gLogger_.SetEnabled( \
+      triton::common::LogMessage::Level::kINFO, (E))
 #define LOG_ENABLE_WARNING(E)                   \
-  nvidia::inferenceserver::gLogger_.SetEnabled( \
-      nvidia::inferenceserver::LogMessage::Level::kWARNING, (E))
+  triton::common::gLogger_.SetEnabled( \
+      triton::common::LogMessage::Level::kWARNING, (E))
 #define LOG_ENABLE_ERROR(E)                     \
-  nvidia::inferenceserver::gLogger_.SetEnabled( \
-      nvidia::inferenceserver::LogMessage::Level::kERROR, (E))
+  triton::common::gLogger_.SetEnabled( \
+      triton::common::LogMessage::Level::kERROR, (E))
 #define LOG_SET_VERBOSE(L)                           \
-  nvidia::inferenceserver::gLogger_.SetVerboseLevel( \
+  triton::common::gLogger_.SetVerboseLevel( \
       static_cast<uint32_t>(std::max(0, (L))))
 
 #ifdef TRITON_ENABLE_LOGGING
 
 #define LOG_INFO_IS_ON                         \
-  nvidia::inferenceserver::gLogger_.IsEnabled( \
-      nvidia::inferenceserver::LogMessage::Level::kINFO)
+  triton::common::gLogger_.IsEnabled( \
+      triton::common::LogMessage::Level::kINFO)
 #define LOG_WARNING_IS_ON                      \
-  nvidia::inferenceserver::gLogger_.IsEnabled( \
-      nvidia::inferenceserver::LogMessage::Level::kWARNING)
+  triton::common::gLogger_.IsEnabled( \
+      triton::common::LogMessage::Level::kWARNING)
 #define LOG_ERROR_IS_ON                        \
-  nvidia::inferenceserver::gLogger_.IsEnabled( \
-      nvidia::inferenceserver::LogMessage::Level::kERROR)
+  triton::common::gLogger_.IsEnabled( \
+      triton::common::LogMessage::Level::kERROR)
 #define LOG_VERBOSE_IS_ON(L) \
-  (nvidia::inferenceserver::gLogger_.VerboseLevel() >= (L))
+  (triton::common::gLogger_.VerboseLevel() >= (L))
 
 #else
 
@@ -120,23 +120,23 @@ extern Logger gLogger_;
 // Macros that use explicitly given filename and line number.
 #define LOG_INFO_FL(FN, LN)                                               \
   if (LOG_INFO_IS_ON)                                                     \
-  nvidia::inferenceserver::LogMessage(                                    \
-      (char*)(FN), LN, nvidia::inferenceserver::LogMessage::Level::kINFO) \
+  triton::common::LogMessage(                                    \
+      (char*)(FN), LN, triton::common::LogMessage::Level::kINFO) \
       .stream()
 #define LOG_WARNING_FL(FN, LN)                                               \
   if (LOG_WARNING_IS_ON)                                                     \
-  nvidia::inferenceserver::LogMessage(                                       \
-      (char*)(FN), LN, nvidia::inferenceserver::LogMessage::Level::kWARNING) \
+  triton::common::LogMessage(                                       \
+      (char*)(FN), LN, triton::common::LogMessage::Level::kWARNING) \
       .stream()
 #define LOG_ERROR_FL(FN, LN)                                               \
   if (LOG_ERROR_IS_ON)                                                     \
-  nvidia::inferenceserver::LogMessage(                                     \
-      (char*)(FN), LN, nvidia::inferenceserver::LogMessage::Level::kERROR) \
+  triton::common::LogMessage(                                     \
+      (char*)(FN), LN, triton::common::LogMessage::Level::kERROR) \
       .stream()
 #define LOG_VERBOSE_FL(L, FN, LN)                                         \
   if (LOG_VERBOSE_IS_ON(L))                                               \
-  nvidia::inferenceserver::LogMessage(                                    \
-      (char*)(FN), LN, nvidia::inferenceserver::LogMessage::Level::kINFO) \
+  triton::common::LogMessage(                                    \
+      (char*)(FN), LN, triton::common::LogMessage::Level::kINFO) \
       .stream()
 
 // Macros that use current filename and line number.
@@ -164,6 +164,6 @@ extern Logger gLogger_;
     }                                                                   \
   } while (false)
 
-#define LOG_FLUSH nvidia::inferenceserver::gLogger_.Flush()
+#define LOG_FLUSH triton::common::gLogger_.Flush()
 
-}}  // namespace nvidia::inferenceserver
+}}  // namespace triton::common

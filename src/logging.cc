@@ -40,7 +40,7 @@
 #include <iomanip>
 #include <iostream>
 
-namespace nvidia { namespace inferenceserver {
+namespace triton { namespace common {
 
 Logger gLogger_;
 
@@ -100,4 +100,4 @@ LogMessage::~LogMessage()
   gLogger_.Log(stream_.str());
 }
 
-}}  // namespace nvidia::inferenceserver
+}}  // namespace triton::common
