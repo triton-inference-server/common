@@ -27,7 +27,7 @@
 
 #include <stdint.h>
 
-namespace nvidia { namespace inferenceserver {
+namespace triton { namespace common {
 
 constexpr char kInferHeaderContentLengthHTTPHeader[] =
     "Inference-Header-Content-Length";
@@ -97,9 +97,9 @@ constexpr int METRIC_REPORTER_ID_RESPONSE_CACHE = -2;
 #endif
 
 #define TIMESPEC_TO_NANOS(TS) \
-  ((TS).tv_sec * nvidia::inferenceserver::NANOS_PER_SECOND + (TS).tv_nsec)
+  ((TS).tv_sec * triton::common::NANOS_PER_SECOND + (TS).tv_nsec)
 #define TIMESPEC_TO_MILLIS(TS) \
-  (TIMESPEC_TO_NANOS(TS) / nvidia::inferenceserver::NANOS_PER_MILLIS)
+  (TIMESPEC_TO_NANOS(TS) / triton::common::NANOS_PER_MILLIS)
 
 #define DISALLOW_MOVE(TypeName) TypeName(Context&& o) = delete;
 #define DISALLOW_COPY(TypeName) TypeName(const TypeName&) = delete;
@@ -108,4 +108,4 @@ constexpr int METRIC_REPORTER_ID_RESPONSE_CACHE = -2;
   DISALLOW_COPY(TypeName)                  \
   DISALLOW_ASSIGN(TypeName)
 
-}}  // namespace nvidia::inferenceserver
+}}  // namespace triton::common
