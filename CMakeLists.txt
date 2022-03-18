@@ -60,24 +60,6 @@ target_compile_options(common-compile-settings INTERFACE
 )
 
 #
-# Constants
-#
-add_library(
-  triton-common-constants INTERFACE
-)
-
-add_library(
-  TritonCommon::triton-common-constants ALIAS triton-common-constants
-)
-
-target_include_directories(
-  triton-common-constants
-  INTERFACE
-    $<INSTALL_INTERFACE:include>
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-)
-
-#
 # Error
 #
 add_library(
@@ -270,7 +252,6 @@ set(INSTALL_CONFIGDIR ${CMAKE_INSTALL_LIBDIR}/cmake/TritonCommon)
 install(
   TARGETS
     triton-common-async-work-queue
-    triton-common-constants
     triton-common-error
     triton-common-logging
     triton-common-sync-queue
