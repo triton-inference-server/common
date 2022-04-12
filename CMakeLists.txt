@@ -35,6 +35,7 @@ project(tritoncommon LANGUAGES C CXX)
 # dependencies, so those parts of the build must be enabled
 # explicitly.
 option(TRITON_COMMON_ENABLE_PROTOBUF "Build protobuf artifacts" OFF)
+option(TRITON_COMMON_ENABLE_PROTOBUF_PYTHON "Build protobuf artifacts for python" ON)
 option(TRITON_COMMON_ENABLE_GRPC "Build grpc artifacts" OFF)
 option(TRITON_COMMON_ENABLE_JSON "Build json-related libs" ON)
 
