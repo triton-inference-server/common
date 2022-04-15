@@ -202,33 +202,10 @@ target_include_directories(
 
 target_link_libraries(triton-common-table-printer PRIVATE common-compile-settings)
 
-#
-# Model Config
-#
-add_library(
-  triton-common-model-config
-  src/model-config.cc
-  )
-
-add_library(
-  TritonCommon::triton-common-model-config ALIAS triton-common-model-config
-)
-
-target_include_directories(
-  triton-common-model-config
-  PUBLIC
-    $<INSTALL_INTERFACE:include>
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-  PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}/src
-)
-
-target_link_libraries(triton-common-model-config PRIVATE common-compile-settings)
 
 set_target_properties(
   triton-common-async-work-queue
   triton-common-error
-  triton-common-model-config
   triton-common-logging
   triton-common-table-printer
   PROPERTIES
@@ -249,12 +226,6 @@ set_target_properties(
 )
 
 set_target_properties(
-  triton-common-model-config
-  PROPERTIES
-    OUTPUT_NAME tritoncommonmodelconfig
-)
-
-set_target_properties(
   triton-common-logging
   PROPERTIES
     OUTPUT_NAME tritoncommonlogging
@@ -271,6 +242,44 @@ set_target_properties(
 #
 if(${TRITON_COMMON_ENABLE_PROTOBUF} OR ${TRITON_COMMON_ENABLE_GRPC})
   add_subdirectory(protobuf)
+
+  #
+  # Model Config (depends on protobuf & generated .pb.h file)
+  #
+  add_library(
+    triton-common-model-config
+    src/model-config.cc
+    )
+
+  add_library(
+    TritonCommon::triton-common-model-config ALIAS triton-common-model-config
+  )
+
+  target_include_directories(
+    triton-common-model-config
+    PUBLIC
+      $<INSTALL_INTERFACE:include>
+      $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    PRIVATE
+      ${CMAKE_CURRENT_SOURCE_DIR}/src
+  )
+
+  target_link_libraries(
+    triton-common-model-config
+    PRIVATE
+      common-compile-settings
+      protobuf::libprotobuf
+      proto-library
+  )
+
+  set_target_properties(
+    triton-common-model-config
+    PROPERTIES
+      WINDOWS_EXPORT_ALL_SYMBOLS TRUE
+      POSITION_INDEPENDENT_CODE ON
+      OUTPUT_NAME tritoncommonmodelconfig
+  )
+
 endif()
 
 #
@@ -283,7 +292,6 @@ install(
   TARGETS
     triton-common-async-work-queue
     triton-common-error
-    triton-common-model-config
     triton-common-logging
     triton-common-sync-queue
     triton-common-json
@@ -299,6 +307,7 @@ if(${TRITON_COMMON_ENABLE_GRPC} OR ${TRITON_COMMON_ENABLE_PROTOBUF})
   install(
     TARGETS
       proto-library
+      triton-common-model-config
 #      proto-py-library
     EXPORT
       triton-common-targets
