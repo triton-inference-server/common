@@ -243,6 +243,10 @@ set_target_properties(
 if(${TRITON_COMMON_ENABLE_PROTOBUF} OR ${TRITON_COMMON_ENABLE_GRPC})
   add_subdirectory(protobuf)
 
+  set(protobuf_MODULE_COMPATIBLE TRUE CACHE BOOL "protobuf_MODULE_COMPATIBLE" FORCE)
+  find_package(Protobuf CONFIG REQUIRED)
+  message(STATUS "Using protobuf ${Protobuf_VERSION}")
+
   #
   # Model Config (depends on protobuf & generated .pb.h file)
   #
@@ -262,6 +266,7 @@ if(${TRITON_COMMON_ENABLE_PROTOBUF} OR ${TRITON_COMMON_ENABLE_GRPC})
       $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     PRIVATE
       ${CMAKE_CURRENT_SOURCE_DIR}/src
+      ${Protobuf_INCLUDE_DIRS}
   )
 
   target_link_libraries(
