@@ -29,7 +29,7 @@
 #include <stdint.h>
 #include "model_config.pb.h"
 
-namespace triton { namespace core {
+namespace triton { namespace common {
 
 /// The type for a repeated dims field (used for shape).
 using DimsList = ::google::protobuf::RepeatedField<::google::protobuf::int64>;

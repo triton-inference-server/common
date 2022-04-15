@@ -26,7 +26,7 @@
 
 #include "triton/common/model_config.h"
 
-namespace triton { namespace core {
+namespace triton { namespace common {
 
 bool
 IsFixedSizeDataType(const inference::DataType dtype)
