@@ -248,7 +248,7 @@ if(${TRITON_COMMON_ENABLE_PROTOBUF} OR ${TRITON_COMMON_ENABLE_GRPC})
   #
   add_library(
     triton-common-model-config
-    src/model-config.cc
+    src/model_config.cc
     )
 
   add_library(
