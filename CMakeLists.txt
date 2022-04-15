@@ -202,9 +202,33 @@ target_include_directories(
 
 target_link_libraries(triton-common-table-printer PRIVATE common-compile-settings)
 
+#
+# Model Config
+#
+add_library(
+  triton-common-model-config
+  src/model-config.cc
+  )
+
+add_library(
+  TritonCommon::triton-common-model-config ALIAS triton-common-model-config
+)
+
+target_include_directories(
+  triton-common-model-config
+  PUBLIC
+    $<INSTALL_INTERFACE:include>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/src
+)
+
+target_link_libraries(triton-common-model-config PRIVATE common-compile-settings)
+
 set_target_properties(
   triton-common-async-work-queue
   triton-common-error
+  triton-common-model-config
   triton-common-logging
   triton-common-table-printer
   PROPERTIES
@@ -222,6 +246,12 @@ set_target_properties(
   triton-common-error
   PROPERTIES
     OUTPUT_NAME tritoncommonerror
+)
+
+set_target_properties(
+  triton-common-model-config
+  PROPERTIES
+    OUTPUT_NAME tritoncommonmodelconfig
 )
 
 set_target_properties(
@@ -253,6 +283,7 @@ install(
   TARGETS
     triton-common-async-work-queue
     triton-common-error
+    triton-common-model-config
     triton-common-logging
     triton-common-sync-queue
     triton-common-json
