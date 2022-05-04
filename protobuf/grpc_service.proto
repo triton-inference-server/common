@@ -1142,6 +1142,12 @@ message ModelRepositoryParameter
     //@@       A string parameter value.
     //@@
     string string_param = 3;
+
+    //@@    .. cpp:var:: bytes bytes_param
+    //@@
+    //@@       A bytes parameter value.
+    //@@
+    bytes bytes_param = 4;
   }
 }
 
