@@ -202,7 +202,6 @@ target_include_directories(
 
 target_link_libraries(triton-common-table-printer PRIVATE common-compile-settings)
 
-
 set_target_properties(
   triton-common-async-work-queue
   triton-common-error
