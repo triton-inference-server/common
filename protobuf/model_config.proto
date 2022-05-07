@@ -71,6 +71,9 @@ enum DataType {
 
   //@@  .. cpp:enumerator:: DataType::STRING = 13
   TYPE_STRING = 13;
+
+  //@@  .. cpp:enumerator:: DataType::BF16 = 14
+  TYPE_BF16 = 14;
 }
 
 //@@
