@@ -241,4 +241,4 @@ inference::DataType ProtocolStringToDataType(const std::string& dtype);
 /// \return The data type.
 inference::DataType ProtocolStringToDataType(const char* dtype, size_t len);
 
-}}  // namespace triton::core
+}}  // namespace triton::common

@@ -426,4 +426,4 @@ ProtocolStringToDataType(const char* dtype, size_t len)
   return inference::DataType::TYPE_INVALID;
 }
 
-}}  // namespace triton::core
+}}  // namespace triton::common
