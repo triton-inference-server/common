@@ -46,8 +46,6 @@ Logger gLogger_;
 
 Logger::Logger() : enables_{true, true, true}, vlevel_(0) {}
 
-std::mutex Logger::mutex_;
-
 void
 Logger::Log(const std::string& msg)
 {

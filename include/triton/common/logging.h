@@ -77,7 +77,7 @@ class Logger {
  private:
   std::vector<bool> enables_;
   uint32_t vlevel_;
-  static std::mutex mutex_;
+  std::mutex mutex_;
 };
 
 extern Logger gLogger_;
