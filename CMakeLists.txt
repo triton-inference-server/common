@@ -35,10 +35,14 @@ project(tritoncommon LANGUAGES C CXX)
 # dependencies, so those parts of the build must be enabled
 # explicitly.
 option(TRITON_COMMON_ENABLE_PROTOBUF "Build protobuf artifacts" OFF)
+option(TRITON_COMMON_ENABLE_PROTOBUF_PYTHON "Build protobuf artifacts for python" ON)
 option(TRITON_COMMON_ENABLE_GRPC "Build grpc artifacts" OFF)
+option(TRITON_COMMON_ENABLE_JSON "Build json-related libs" ON)
 
-find_package(RapidJSON CONFIG REQUIRED)
-message(STATUS "RapidJSON found. Headers: ${RAPIDJSON_INCLUDE_DIRS}")
+if(TRITON_COMMON_ENABLE_JSON)
+  find_package(RapidJSON CONFIG REQUIRED)
+  message(STATUS "RapidJSON found. Headers: ${RAPIDJSON_INCLUDE_DIRS}")
+endif()
 
 set(THREADS_PREFER_PTHREAD_FLAG TRUE)
 find_package(Threads REQUIRED)
@@ -162,22 +166,24 @@ target_link_libraries(triton-common-async-work-queue
 #
 # JSON utilities
 #
-add_library(
-  triton-common-json INTERFACE
-)
+if(TRITON_COMMON_ENABLE_JSON)
+  add_library(
+    triton-common-json INTERFACE
+  )
 
-add_library(
-  TritonCommon::triton-common-json ALIAS triton-common-json
-)
+  add_library(
+    TritonCommon::triton-common-json ALIAS triton-common-json
+  )
 
-target_include_directories(
-  triton-common-json
-  INTERFACE
-    $<INSTALL_INTERFACE:include>
-    $<INSTALL_INTERFACE:${RAPIDJSON_INCLUDE_DIRS}>
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-    $<BUILD_INTERFACE:${RAPIDJSON_INCLUDE_DIRS}>
-)
+  target_include_directories(
+    triton-common-json
+    INTERFACE
+      $<INSTALL_INTERFACE:include>
+      $<INSTALL_INTERFACE:${RAPIDJSON_INCLUDE_DIRS}>
+      $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+      $<BUILD_INTERFACE:${RAPIDJSON_INCLUDE_DIRS}>
+  )
+endif()
 
 #
 # Table Printer
@@ -298,7 +304,6 @@ install(
     triton-common-error
     triton-common-logging
     triton-common-sync-queue
-    triton-common-json
     triton-common-table-printer
     common-compile-settings
   EXPORT
@@ -306,6 +311,17 @@ install(
   LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
   ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
 )
+
+if(TRITON_COMMON_ENABLE_JSON)
+  install(
+    TARGETS
+      triton-common-json
+    EXPORT
+      triton-common-targets
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  )
+endif()
 
 if(${TRITON_COMMON_ENABLE_GRPC} OR ${TRITON_COMMON_ENABLE_PROTOBUF})
   install(
