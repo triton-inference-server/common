@@ -46,14 +46,13 @@ Logger gLogger_;
 
 Logger::Logger() : enables_{true, true, true}, vlevel_(0) {}
 
-std::mutex Logger::mutex;
+std::mutex Logger::mutex_;
 
 void
 Logger::Log(const std::string& msg)
 {
-  mutex.lock();
+  const std::lock_guard<std::mutex> lock(mutex_);
   std::cerr << msg << std::endl;
-  mutex.unlock();
 }
 
 void
