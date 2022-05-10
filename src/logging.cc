@@ -1,4 +1,4 @@
-// Copyright (c) 2018-2022, NVIDIA CORPORATION. All rights reserved.
+// Copyright 2018-2022, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions
@@ -49,6 +49,7 @@ Logger::Logger() : enables_{true, true, true}, vlevel_(0) {}
 void
 Logger::Log(const std::string& msg)
 {
+  const std::lock_guard<std::mutex> lock(mutex_);
   std::cerr << msg << std::endl;
 }
 
