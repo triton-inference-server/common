@@ -266,7 +266,7 @@ class TritonJson {
       return TRITONJSON_STATUSSUCCESS;
     }
 
-    // Set/overwrite a string member, name, in this object with provided value
+    // Set/overwrite a string member with provided name and value in this object
     TRITONJSON_STATUSTYPE SetString(const char* name, const std::string& value) 
     {
       rapidjson::Value& object = AsMutableValue();
