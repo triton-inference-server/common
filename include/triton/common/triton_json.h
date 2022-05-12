@@ -243,6 +243,29 @@ class TritonJson {
       return TRITONJSON_STATUSSUCCESS;
     }
 
+    // Set/overwrite a string member with provided name and value in this object
+    TRITONJSON_STATUSTYPE SetString(const char* name, const std::string& value) 
+    {
+      rapidjson::Value& object = AsMutableValue();
+      if (!object.IsObject()) {
+        TRITONJSON_STATUSRETURN(
+            std::string("attempt to add/replace JSON member '") + name +
+            "' to non-object");
+      }
+      auto itr = object.FindMember(name);
+      if (itr == object.MemberEnd()) {
+        AddString(name, value);
+      } else {
+        object.RemoveMember(itr);
+        object.AddMember(
+            rapidjson::Value(rapidjson::StringRef(name)).Move(),
+            rapidjson::Value(value.c_str(), value.size(), *allocator_),
+            *allocator_);
+      }
+
+      return TRITONJSON_STATUSSUCCESS;
+    }
+
     // Add an array or object as a new member to this value. 'value'
     // is moved into this value and so on return 'value' should not be
     // used. It is assumed that 'name' can be used by reference, it is
@@ -550,6 +573,23 @@ class TritonJson {
       }
 
       array.PushBack(rapidjson::Value(value).Move(), *allocator_);
+      return TRITONJSON_STATUSSUCCESS;
+    }
+
+    // Remove member from this object
+    TRITONJSON_STATUSTYPE Remove(const char* name)
+    {
+      rapidjson::Value& object = AsMutableValue();
+      if (!object.IsObject()) {
+        TRITONJSON_STATUSRETURN(
+            std::string("attempt to remove JSON member '") + name +
+            "' to non-object");
+      }
+      auto itr = object.FindMember(name);
+      if (itr != object.MemberEnd()) {
+        object.RemoveMember(itr);
+      } // else report success
+
       return TRITONJSON_STATUSSUCCESS;
     }
 
