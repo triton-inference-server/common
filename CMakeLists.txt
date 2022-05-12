@@ -1,4 +1,4 @@
-# Copyright (c) 2020-2022, NVIDIA CORPORATION. All rights reserved.
+# Copyright (c) 2020-2022, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
@@ -247,6 +247,49 @@ set_target_properties(
 #
 if(${TRITON_COMMON_ENABLE_PROTOBUF} OR ${TRITON_COMMON_ENABLE_GRPC})
   add_subdirectory(protobuf)
+
+  set(protobuf_MODULE_COMPATIBLE TRUE CACHE BOOL "protobuf_MODULE_COMPATIBLE" FORCE)
+  find_package(Protobuf CONFIG REQUIRED)
+  message(STATUS "Using protobuf ${Protobuf_VERSION}")
+
+  #
+  # Model Config (depends on protobuf & generated .pb.h file)
+  #
+  add_library(
+    triton-common-model-config
+    src/model_config.cc
+    )
+
+  add_library(
+    TritonCommon::triton-common-model-config ALIAS triton-common-model-config
+  )
+
+  target_include_directories(
+    triton-common-model-config
+    PUBLIC
+      $<INSTALL_INTERFACE:include>
+      $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    PRIVATE
+      ${CMAKE_CURRENT_SOURCE_DIR}/src
+      ${Protobuf_INCLUDE_DIRS}
+  )
+
+  target_link_libraries(
+    triton-common-model-config
+    PRIVATE
+      common-compile-settings
+      protobuf::libprotobuf
+      proto-library
+  )
+
+  set_target_properties(
+    triton-common-model-config
+    PROPERTIES
+      WINDOWS_EXPORT_ALL_SYMBOLS TRUE
+      POSITION_INDEPENDENT_CODE ON
+      OUTPUT_NAME tritoncommonmodelconfig
+  )
+
 endif()
 
 #
@@ -284,6 +327,7 @@ if(${TRITON_COMMON_ENABLE_GRPC} OR ${TRITON_COMMON_ENABLE_PROTOBUF})
   install(
     TARGETS
       proto-library
+      triton-common-model-config
 #      proto-py-library
     EXPORT
       triton-common-targets

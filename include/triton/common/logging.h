@@ -1,4 +1,4 @@
-// Copyright (c) 2018-2020, NVIDIA CORPORATION. All rights reserved.
+// Copyright 2018-2022, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions
@@ -25,6 +25,7 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma once
 
+#include <mutex>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -76,36 +77,34 @@ class Logger {
  private:
   std::vector<bool> enables_;
   uint32_t vlevel_;
+  std::mutex mutex_;
 };
 
 extern Logger gLogger_;
 
-#define LOG_ENABLE_INFO(E)                      \
+#define LOG_ENABLE_INFO(E)             \
   triton::common::gLogger_.SetEnabled( \
       triton::common::LogMessage::Level::kINFO, (E))
-#define LOG_ENABLE_WARNING(E)                   \
+#define LOG_ENABLE_WARNING(E)          \
   triton::common::gLogger_.SetEnabled( \
       triton::common::LogMessage::Level::kWARNING, (E))
-#define LOG_ENABLE_ERROR(E)                     \
+#define LOG_ENABLE_ERROR(E)            \
   triton::common::gLogger_.SetEnabled( \
       triton::common::LogMessage::Level::kERROR, (E))
-#define LOG_SET_VERBOSE(L)                           \
+#define LOG_SET_VERBOSE(L)                  \
   triton::common::gLogger_.SetVerboseLevel( \
       static_cast<uint32_t>(std::max(0, (L))))
 
 #ifdef TRITON_ENABLE_LOGGING
 
-#define LOG_INFO_IS_ON                         \
-  triton::common::gLogger_.IsEnabled( \
-      triton::common::LogMessage::Level::kINFO)
-#define LOG_WARNING_IS_ON                      \
+#define LOG_INFO_IS_ON \
+  triton::common::gLogger_.IsEnabled(triton::common::LogMessage::Level::kINFO)
+#define LOG_WARNING_IS_ON             \
   triton::common::gLogger_.IsEnabled( \
       triton::common::LogMessage::Level::kWARNING)
-#define LOG_ERROR_IS_ON                        \
-  triton::common::gLogger_.IsEnabled( \
-      triton::common::LogMessage::Level::kERROR)
-#define LOG_VERBOSE_IS_ON(L) \
-  (triton::common::gLogger_.VerboseLevel() >= (L))
+#define LOG_ERROR_IS_ON \
+  triton::common::gLogger_.IsEnabled(triton::common::LogMessage::Level::kERROR)
+#define LOG_VERBOSE_IS_ON(L) (triton::common::gLogger_.VerboseLevel() >= (L))
 
 #else
 
@@ -118,23 +117,23 @@ extern Logger gLogger_;
 #endif  // TRITON_ENABLE_LOGGING
 
 // Macros that use explicitly given filename and line number.
-#define LOG_INFO_FL(FN, LN)                                               \
-  if (LOG_INFO_IS_ON)                                                     \
+#define LOG_INFO_FL(FN, LN)                                      \
+  if (LOG_INFO_IS_ON)                                            \
   triton::common::LogMessage(                                    \
       (char*)(FN), LN, triton::common::LogMessage::Level::kINFO) \
       .stream()
-#define LOG_WARNING_FL(FN, LN)                                               \
-  if (LOG_WARNING_IS_ON)                                                     \
+#define LOG_WARNING_FL(FN, LN)                                      \
+  if (LOG_WARNING_IS_ON)                                            \
   triton::common::LogMessage(                                       \
       (char*)(FN), LN, triton::common::LogMessage::Level::kWARNING) \
       .stream()
-#define LOG_ERROR_FL(FN, LN)                                               \
-  if (LOG_ERROR_IS_ON)                                                     \
+#define LOG_ERROR_FL(FN, LN)                                      \
+  if (LOG_ERROR_IS_ON)                                            \
   triton::common::LogMessage(                                     \
       (char*)(FN), LN, triton::common::LogMessage::Level::kERROR) \
       .stream()
-#define LOG_VERBOSE_FL(L, FN, LN)                                         \
-  if (LOG_VERBOSE_IS_ON(L))                                               \
+#define LOG_VERBOSE_FL(L, FN, LN)                                \
+  if (LOG_VERBOSE_IS_ON(L))                                      \
   triton::common::LogMessage(                                    \
       (char*)(FN), LN, triton::common::LogMessage::Level::kINFO) \
       .stream()
