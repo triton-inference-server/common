@@ -244,7 +244,7 @@ class TritonJson {
     }
 
     // Set/overwrite a string member with provided name and value in this object
-    TRITONJSON_STATUSTYPE SetString(const char* name, const std::string& value) 
+    TRITONJSON_STATUSTYPE SetStringObject(const char* name, const std::string& value) 
     {
       rapidjson::Value& object = AsMutableValue();
       if (!object.IsObject()) {
@@ -670,6 +670,17 @@ class TritonJson {
     bool IsNull() const
     {
       return ((value_ != nullptr) && value_->IsNull());
+    }
+
+    // Return true if the object is an object and it has no members;
+    // false otherwise.
+    bool Empty() const
+    {
+      const rapidjson::Value& object = AsValue();
+      if (object.IsObject() && object.MemberCount() == 0) {
+        return true;
+      }
+      return false;
     }
 
     // Get value as a string. The string may contain null or other
