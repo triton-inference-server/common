@@ -674,7 +674,7 @@ class TritonJson {
 
     // Return true if the object is an object and it has no members;
     // false otherwise.
-    bool Empty() const
+    bool IsEmpty() const
     {
       const rapidjson::Value& object = AsValue();
       if (object.IsObject() && object.MemberCount() == 0) {
