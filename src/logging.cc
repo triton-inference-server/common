@@ -119,7 +119,7 @@ LogMessage::LogMessage(const char* file, int line, uint32_t level)
     gettimeofday(&tv, NULL);
     struct tm tm_time;
     gmtime_r(((time_t*)&(tv.tv_sec)), &tm_time);
-    stream_ << tm_time.tm_year << '-'
+    stream_ << (tm_time.tm_year + 1900) << '-'
             << std::setfill('0') << std::setw(2) << (tm_time.tm_mon + 1) << '-'
             << std::setw(2) << tm_time.tm_mday << 'T' << std::setw(2)
             << tm_time.tm_hour << ':' << std::setw(2) << tm_time.tm_min << ':'
