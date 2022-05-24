@@ -616,23 +616,6 @@ class TritonJson {
       return TRITONJSON_STATUSSUCCESS;
     }
 
-    // Remove member from this object
-    TRITONJSON_STATUSTYPE Remove(const char* name)
-    {
-      rapidjson::Value& object = AsMutableValue();
-      if (!object.IsObject()) {
-        TRITONJSON_STATUSRETURN(
-            std::string("attempt to remove JSON member '") + name +
-            "' to non-object");
-      }
-      auto itr = object.FindMember(name);
-      if (itr != object.MemberEnd()) {
-        object.RemoveMember(itr);
-      } // else report success
-
-      return TRITONJSON_STATUSSUCCESS;
-    }
-
     // Check if this value is of the specified type. Return appropriate
     // error if not.
     TRITONJSON_STATUSTYPE AssertType(TritonJson::ValueType type) const
