@@ -111,7 +111,7 @@ LogMessage::LogMessage(const char* file, int line, uint32_t level)
             << std::setw(2) << system_time.wDay << 'T' << std::setw(2)
             << system_time.wHour << ':' << std::setw(2) << system_time.wMinute
             << ':' << std::setw(2) << system_time.wSecond << ' '
-            << level_name_[std::min(level, (uint32_t)Level::kINFO)] << '' ''
+            << level_name_[std::min(level, (uint32_t)Level::kINFO)] << ' '
             << static_cast<uint32_t>(GetCurrentProcessId()) << ' ' << path << ':'
             << line << "] ";
 #else
