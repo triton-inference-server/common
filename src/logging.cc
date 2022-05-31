@@ -70,7 +70,7 @@ LogMessage::LogMessage(const char* file, int line, uint32_t level)
     path = path.substr(pos + 1, std::string::npos);
   }
 
-  // 'L' for log level
+  // 'L' below is placeholder for showing log level
   switch (gLogger_.LogFormat())
   {
   case Logger::Format::kDEFAULT: {
@@ -102,7 +102,7 @@ LogMessage::LogMessage(const char* file, int line, uint32_t level)
     break;
   }
   case Logger::Format::kISO8601: {
-    // YYYY-MM-DDThh:mm:ss L
+    // YYYY-MM-DDThh:mm:ssZ L
 #ifdef _WIN32
     SYSTEMTIME system_time;
     GetSystemTime(&system_time);
@@ -110,7 +110,7 @@ LogMessage::LogMessage(const char* file, int line, uint32_t level)
             << std::setfill('0') << std::setw(2) << system_time.wMonth << '-'
             << std::setw(2) << system_time.wDay << 'T' << std::setw(2)
             << system_time.wHour << ':' << std::setw(2) << system_time.wMinute
-            << ':' << std::setw(2) << system_time.wSecond << ' '
+            << ':' << std::setw(2) << system_time.wSecond << 'Z '
             << level_name_[std::min(level, (uint32_t)Level::kINFO)] << ' '
             << static_cast<uint32_t>(GetCurrentProcessId()) << ' ' << path << ':'
             << line << "] ";

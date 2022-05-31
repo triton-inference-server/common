@@ -51,7 +51,7 @@ class LogMessage {
 // Global logger for messages. Controls how log messages are reported.
 class Logger {
  public:
-  enum Format { kDEFAULT = 0, kISO8601 = 1 };
+  enum class Format { kDEFAULT, kISO8601 };
 
   Logger();
 
