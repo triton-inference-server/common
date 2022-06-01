@@ -51,6 +51,8 @@ class LogMessage {
 // Global logger for messages. Controls how log messages are reported.
 class Logger {
  public:
+  enum class Format { kDEFAULT, kISO8601 };
+
   Logger();
 
   // Is a log level enabled.
@@ -68,6 +70,12 @@ class Logger {
   // Set the current verbose logging level.
   void SetVerboseLevel(uint32_t vlevel) { vlevel_ = vlevel; }
 
+  // Get the logging format.
+  Format LogFormat() { return format_; }
+
+  // Set the logging format.
+  void SetLogFormat(Format format) { format_ = format; }
+
   // Log a message.
   void Log(const std::string& msg);
 
@@ -77,6 +85,7 @@ class Logger {
  private:
   std::vector<bool> enables_;
   uint32_t vlevel_;
+  Format format_;
   std::mutex mutex_;
 };
 
@@ -94,6 +103,8 @@ extern Logger gLogger_;
 #define LOG_SET_VERBOSE(L)                  \
   triton::common::gLogger_.SetVerboseLevel( \
       static_cast<uint32_t>(std::max(0, (L))))
+#define LOG_SET_FORMAT(F) \
+  triton::common::gLogger_.SetLogFormat((F))
 
 #ifdef TRITON_ENABLE_LOGGING
 
