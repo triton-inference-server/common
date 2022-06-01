@@ -123,7 +123,7 @@ LogMessage::LogMessage(const char* file, int line, uint32_t level)
             << std::setfill('0') << std::setw(2) << (tm_time.tm_mon + 1) << '-'
             << std::setw(2) << tm_time.tm_mday << 'T' << std::setw(2)
             << tm_time.tm_hour << ':' << std::setw(2) << tm_time.tm_min << ':'
-            << std::setw(2) << tm_time.tm_sec << ' '
+            << std::setw(2) << tm_time.tm_sec << 'Z '
             << level_name_[std::min(level, (uint32_t)Level::kINFO)] << ' '
             << static_cast<uint32_t>(getpid()) << ' ' << path << ':'
             << line << "] ";
