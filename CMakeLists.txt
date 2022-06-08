@@ -329,6 +329,7 @@ set(INSTALL_CONFIGDIR ${CMAKE_INSTALL_LIBDIR}/cmake/TritonCommon)
 install(
   TARGETS
     triton-common-async-work-queue
+    triton-common-thread-pool
     triton-common-error
     triton-common-logging
     triton-common-sync-queue
