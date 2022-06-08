@@ -46,4 +46,5 @@ set(TRITONCOMMON_LIBRARIES
   TritonCommon::triton-common-json
   TritonCommon::triton-common-sync-queue
   TritonCommon::triton-common-async-work-queue
+  TritonCommon::triton-common-thread-pool
 )
