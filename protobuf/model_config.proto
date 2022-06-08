@@ -1665,6 +1665,15 @@ message ModelWarmup
   //@@     control tensors.
   //@@
   map<string, Input> inputs = 3;
+
+  //@@  .. cpp:var:: uint32 repeat_count
+  //@@
+  //@@     The number of iterations that this warmup sample will be repeated.
+  //@@     For example, if this field is set to 2, 2 model executions using this
+  //@@     sample will be scheduled for warmup. Default value is 0 which
+  //@@     indicates that this sample will be used only once.
+  //@@
+  uint32 repeat_count = 4;
 }
 
 //@@
