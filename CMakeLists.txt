@@ -164,6 +164,34 @@ target_link_libraries(triton-common-async-work-queue
 )
 
 #
+# Thread Pool 
+#
+add_library(
+  triton-common-thread-pool
+  src/thread_pool.cc
+)
+
+add_library(
+  TritonCommon::triton-common-thread-pool ALIAS  triton-common-thread-pool
+)
+
+target_include_directories(
+  triton-common-thread-pool
+  PUBLIC
+    $<INSTALL_INTERFACE:include>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/src
+)
+
+target_link_libraries(triton-common-thread-pool
+  PUBLIC
+    Threads::Threads
+  PRIVATE
+    common-compile-settings
+)
+
+#
 # JSON utilities
 #
 if(TRITON_COMMON_ENABLE_JSON)
