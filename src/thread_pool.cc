@@ -24,11 +24,11 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include "../include/triton/common/thread_pool.h"
+#include "triton/common/thread_pool.h"
 
 namespace triton { namespace common {
 
-ThreadPool::ThreadPool(std::size_t thread_count)
+ThreadPool::ThreadPool(size_t thread_count)
 {
   if (!thread_count) {
     throw std::invalid_argument("Thread count must be greater than zero.");
@@ -58,7 +58,7 @@ ThreadPool::ThreadPool(std::size_t thread_count)
   };
 
   workers_.reserve(thread_count);
-  for (auto i = 0; i < thread_count; ++i) {
+  for (size_t i = 0; i < thread_count; ++i) {
     workers_.emplace_back(worker_loop);
   }
 }
