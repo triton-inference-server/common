@@ -253,6 +253,12 @@ set_target_properties(
 )
 
 set_target_properties(
+  triton-common-thread-pool
+  PROPERTIES
+    OUTPUT_NAME tritonthreadpool
+)
+
+set_target_properties(
   triton-common-error
   PROPERTIES
     OUTPUT_NAME tritoncommonerror
