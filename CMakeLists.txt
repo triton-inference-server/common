@@ -241,6 +241,7 @@ set_target_properties(
   triton-common-error
   triton-common-logging
   triton-common-table-printer
+  triton-common-thread-pool
   PROPERTIES
     WINDOWS_EXPORT_ALL_SYMBOLS TRUE
     POSITION_INDEPENDENT_CODE ON
@@ -335,11 +336,11 @@ set(INSTALL_CONFIGDIR ${CMAKE_INSTALL_LIBDIR}/cmake/TritonCommon)
 install(
   TARGETS
     triton-common-async-work-queue
-    triton-common-thread-pool
     triton-common-error
     triton-common-logging
     triton-common-sync-queue
     triton-common-table-printer
+    triton-common-thread-pool
     common-compile-settings
   EXPORT
     triton-common-targets
