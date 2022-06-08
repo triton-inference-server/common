@@ -25,14 +25,14 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "triton/common/thread_pool.h"
+#include <stdexcept>
 
 namespace triton { namespace common {
 
 ThreadPool::ThreadPool(size_t thread_count)
 {
   if (!thread_count) {
-    // TODO
-    //throw std::invalid_argument("Thread count must be greater than zero.");
+    throw std::invalid_argument("Thread count must be greater than zero.");
   }
 
   // Define infinite loop for each thread to wait for a task to complete

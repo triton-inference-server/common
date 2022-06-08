@@ -28,7 +28,6 @@
 #include <condition_variable>
 #include <functional>
 #include <queue>
-#include <stdexcept>
 #include <thread>
 
 namespace triton { namespace common {
