@@ -45,6 +45,8 @@ class ThreadPool {
   // Assigns "task" to the task queue for a worker thread to execute when
   // available. This will not track the return value of the task.
   void enqueue(Task task);
+  // Returns the number of threads in thread pool
+  size_t size() { return workers_.size(); }
 
  private:
   std::queue<Task> task_queue_;
