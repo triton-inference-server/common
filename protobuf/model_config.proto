@@ -1672,6 +1672,11 @@ message ModelWarmup
   //@@     For example, if this field is set to 2, 2 model executions using this
   //@@     sample will be scheduled for warmup. Default value is 0 which
   //@@     indicates that this sample will be used only once.
+  //@@     Note that for sequence model, 'repeat_count' may not work well
+  //@@     because the model often expect a valid sequence of requests which
+  //@@     should be represented by a series of warmup samples. 'repeat_count'
+  //@@     essentially "resends" one of the sample, which may invalidate the
+  //@@     sequence and result in unexpected warmup failure.
   //@@
   uint32 repeat_count = 4;
 }
