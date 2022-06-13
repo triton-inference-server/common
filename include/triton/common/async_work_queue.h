@@ -53,7 +53,7 @@ class AsyncWorkQueue {
   AsyncWorkQueue() = default;
   ~AsyncWorkQueue();
   static AsyncWorkQueue* GetSingleton();
-  ThreadPool thread_pool_;
+  std::unique_ptr<ThreadPool> thread_pool_;
 };
 
 }}  // namespace triton::common
