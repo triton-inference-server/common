@@ -82,7 +82,7 @@ AsyncWorkQueue::AddTask(std::function<void(void)>&& task)
         Error::Code::UNAVAILABLE,
         "Async work queue must be initialized before adding task");
   }
-  GetSingleton()->thread_pool_.enqueue(std::move(task));
+  GetSingleton()->thread_pool_->enqueue(std::move(task));
 
   return Error::Success;
 }
