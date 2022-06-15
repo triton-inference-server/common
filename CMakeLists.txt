@@ -141,6 +141,7 @@ add_library(
   triton-common-async-work-queue
   src/async_work_queue.cc
   src/error.cc
+  src/thread_pool.cc
 )
 
 add_library(
