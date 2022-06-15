@@ -40,10 +40,12 @@ endif()
 check_required_components(triton-common-json
   triton-common-sync-queue
   triton-common-async-work-queue
+  triton-common-thread-pool
 )
 
 set(TRITONCOMMON_LIBRARIES 
   TritonCommon::triton-common-json
   TritonCommon::triton-common-sync-queue
   TritonCommon::triton-common-async-work-queue
+  TritonCommon::triton-common-thread-pool
 )

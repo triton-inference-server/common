@@ -164,6 +164,34 @@ target_link_libraries(triton-common-async-work-queue
 )
 
 #
+# Thread Pool 
+#
+add_library(
+  triton-common-thread-pool
+  src/thread_pool.cc
+)
+
+add_library(
+  TritonCommon::triton-common-thread-pool ALIAS  triton-common-thread-pool
+)
+
+target_include_directories(
+  triton-common-thread-pool
+  PUBLIC
+    $<INSTALL_INTERFACE:include>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/src
+)
+
+target_link_libraries(triton-common-thread-pool
+  PUBLIC
+    Threads::Threads
+  PRIVATE
+    common-compile-settings
+)
+
+#
 # JSON utilities
 #
 if(TRITON_COMMON_ENABLE_JSON)
@@ -213,6 +241,7 @@ set_target_properties(
   triton-common-error
   triton-common-logging
   triton-common-table-printer
+  triton-common-thread-pool
   PROPERTIES
     WINDOWS_EXPORT_ALL_SYMBOLS TRUE
     POSITION_INDEPENDENT_CODE ON
@@ -222,6 +251,12 @@ set_target_properties(
   triton-common-async-work-queue
   PROPERTIES
     OUTPUT_NAME tritonasyncworkqueue
+)
+
+set_target_properties(
+  triton-common-thread-pool
+  PROPERTIES
+    OUTPUT_NAME tritonthreadpool
 )
 
 set_target_properties(
@@ -305,6 +340,7 @@ install(
     triton-common-logging
     triton-common-sync-queue
     triton-common-table-printer
+    triton-common-thread-pool
     common-compile-settings
   EXPORT
     triton-common-targets
