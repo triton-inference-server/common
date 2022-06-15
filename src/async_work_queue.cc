@@ -26,22 +26,11 @@
 
 #include "triton/common/async_work_queue.h"
 
-#include <condition_variable>
-#include <deque>
-#include <mutex>
-#include <thread>
-#include <vector>
-
 namespace triton { namespace common {
 
 AsyncWorkQueue::~AsyncWorkQueue()
 {
-  for (size_t cnt = 0; cnt < worker_threads_.size(); cnt++) {
-    GetSingleton()->task_queue_.Put(nullptr);
-  }
-  for (const auto& worker_thread : worker_threads_) {
-    worker_thread->join();
-  }
+  GetSingleton()->thread_pool_.reset();
 }
 
 AsyncWorkQueue*
@@ -59,54 +48,42 @@ AsyncWorkQueue::Initialize(size_t worker_count)
         Error::Code::INVALID_ARG,
         "Async work queue must be initialized with positive 'worker_count'");
   }
+
   static std::mutex init_mtx;
   std::lock_guard<std::mutex> lk(init_mtx);
-  if (GetSingleton()->worker_threads_.size() == 0) {
-    for (size_t cnt = 0; cnt < worker_count; cnt++) {
-      GetSingleton()->worker_threads_.push_back(
-          std::unique_ptr<std::thread>(new std::thread([] { WorkThread(); })));
-    }
-  } else {
+
+  if (GetSingleton()->thread_pool_) {
     return Error(
         Error::Code::ALREADY_EXISTS,
         "Async work queue has been initialized with " +
-            std::to_string(GetSingleton()->worker_threads_.size()) +
+            std::to_string(GetSingleton()->thread_pool_->size()) +
             " 'worker_count'");
   }
 
+  GetSingleton()->thread_pool_.reset(new ThreadPool(worker_count));
   return Error::Success;
 }
 
 size_t
 AsyncWorkQueue::WorkerCount()
 {
-  return GetSingleton()->worker_threads_.size();
+  if (!GetSingleton()->thread_pool_) {
+    return 0;
+  }
+  return GetSingleton()->thread_pool_->size();
 }
 
 Error
 AsyncWorkQueue::AddTask(std::function<void(void)>&& task)
 {
-  if (GetSingleton()->worker_threads_.size() == 0) {
+  if (!GetSingleton()->thread_pool_) {
     return Error(
         Error::Code::UNAVAILABLE,
         "Async work queue must be initialized before adding task");
   }
-  GetSingleton()->task_queue_.Put(std::move(task));
+  GetSingleton()->thread_pool_->enqueue(std::move(task));
 
   return Error::Success;
-}
-
-void
-AsyncWorkQueue::WorkThread()
-{
-  while (true) {
-    auto task = GetSingleton()->task_queue_.Get();
-    if (task != nullptr) {
-      task();
-    } else {
-      break;
-    }
-  }
 }
 
 void
