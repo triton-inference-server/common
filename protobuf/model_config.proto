@@ -1569,17 +1569,44 @@ message ModelEnsembling
 }
 
 //@@
+//@@.. cpp:var:: message ModelParameterList
+//@@
+//@@   A list of ModelParameter objects. This message is created
+//@@   to get around 'oneof' limitation of not allowing repeated fields.
+//@@
+message ModelParameterList
+{
+  //@@  .. cpp:var:: ModelParameter list_value (repeated)
+  //@@
+  //@@     Containing a list of parameters.
+  //@@
+  repeated ModelParameter parameters = 1;
+}
+
+//@@
 //@@.. cpp:var:: message ModelParameter
 //@@
 //@@   A model parameter.
 //@@
 message ModelParameter
 {
-  //@@  .. cpp:var:: string string_value
+  //@@  .. cpp:var:: oneof kind
   //@@
-  //@@     The string value of the parameter.
+  //@@     The model parameter kind.
   //@@
-  string string_value = 1;
+  oneof kind {
+    //@@  .. cpp:var:: string string_value
+    //@@
+    //@@     The string value of the parameter.
+    //@@
+    string string_value = 1;
+
+    //@@  .. cpp:var:: ModelParameterList list_value (repeated)
+    //@@
+    //@@     A list of ModelParameter messages.
+    //@@
+    ModelParameterList list_value = 2;
+  }
 }
 
 //@@
