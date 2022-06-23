@@ -56,7 +56,7 @@ AsyncWorkQueue::Initialize(size_t worker_count)
     return Error(
         Error::Code::ALREADY_EXISTS,
         "Async work queue has been initialized with " +
-            std::to_string(GetSingleton()->thread_pool_->size()) +
+            std::to_string(GetSingleton()->thread_pool_->Size()) +
             " 'worker_count'");
   }
 
@@ -70,7 +70,7 @@ AsyncWorkQueue::WorkerCount()
   if (!GetSingleton()->thread_pool_) {
     return 0;
   }
-  return GetSingleton()->thread_pool_->size();
+  return GetSingleton()->thread_pool_->Size();
 }
 
 Error
@@ -81,7 +81,7 @@ AsyncWorkQueue::AddTask(std::function<void(void)>&& task)
         Error::Code::UNAVAILABLE,
         "Async work queue must be initialized before adding task");
   }
-  GetSingleton()->thread_pool_->enqueue(std::move(task));
+  GetSingleton()->thread_pool_->Enqueue(std::move(task));
 
   return Error::Success;
 }

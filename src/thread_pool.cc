@@ -79,7 +79,7 @@ ThreadPool::~ThreadPool()
 }
 
 void
-ThreadPool::enqueue(Task&& task)
+ThreadPool::Enqueue(Task&& task)
 {
   {
     std::lock_guard<std::mutex> lk(queue_mtx_);
