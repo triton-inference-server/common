@@ -1,4 +1,4 @@
-// Copyright (c) 2020-2021, NVIDIA CORPORATION. All rights reserved.
+// Copyright 2020-2022, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions
@@ -25,15 +25,8 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma once
 
-#include <condition_variable>
-#include <deque>
-#include <functional>
-#include <mutex>
-#include <thread>
-#include <vector>
-
 #include "error.h"
-#include "sync_queue.h"
+#include "thread_pool.h"
 
 namespace triton { namespace common {
 // Manager for asynchronous worker threads. Use to accelerate copies and
@@ -60,10 +53,7 @@ class AsyncWorkQueue {
   AsyncWorkQueue() = default;
   ~AsyncWorkQueue();
   static AsyncWorkQueue* GetSingleton();
-  static void WorkThread();
-
-  std::vector<std::unique_ptr<std::thread>> worker_threads_;
-  SyncQueue<std::function<void(void)>> task_queue_;
+  std::unique_ptr<ThreadPool> thread_pool_;
 };
 
 }}  // namespace triton::common

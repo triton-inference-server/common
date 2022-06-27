@@ -1,4 +1,4 @@
-# Copyright (c) 2020-2022, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# Copyright 2020-2022, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
@@ -141,6 +141,7 @@ add_library(
   triton-common-async-work-queue
   src/async_work_queue.cc
   src/error.cc
+  src/thread_pool.cc
 )
 
 add_library(
