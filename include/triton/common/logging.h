@@ -29,6 +29,7 @@
 #include <sstream>
 #include <string>
 #include <vector>
+#include <iostream>
 
 namespace triton { namespace common {
 
@@ -54,13 +55,14 @@ class Logger {
   enum class Format { kDEFAULT, kISO8601 };
 
   Logger();
-
+kjbkjbkb
   // Is a log level enabled.
   bool IsEnabled(LogMessage::Level level) const { return enables_[level]; }
 
   // Set enable for a log Level.
   void SetEnabled(LogMessage::Level level, bool enable)
   {
+    std::cerr<<"LOG TRAITS CHANGING " << enable << std::endl;
     enables_[level] = enable;
   }
 
@@ -76,6 +78,8 @@ class Logger {
   // Set the logging format.
   void SetLogFormat(Format format) { format_ = format; }
 
+  void SetLogOutFile(std::string filename) { filename_ = filename; }
+
   // Log a message.
   void Log(const std::string& msg);
 
@@ -87,6 +91,7 @@ class Logger {
   uint32_t vlevel_;
   Format format_;
   std::mutex mutex_;
+  std::string filename_;
 };
 
 extern Logger gLogger_;
@@ -116,6 +121,8 @@ extern Logger gLogger_;
 #define LOG_ERROR_IS_ON \
   triton::common::gLogger_.IsEnabled(triton::common::LogMessage::Level::kERROR)
 #define LOG_VERBOSE_IS_ON(L) (triton::common::gLogger_.VerboseLevel() >= (L))
+#define LOG_SET_OUT_FILE(FN) \
+    triton::common::gLogger_.SetLogOutFile((FN))
 
 #else
 
