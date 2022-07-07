@@ -55,7 +55,6 @@ class Logger {
   enum class Format { kDEFAULT, kISO8601 };
 
   Logger();
-kjbkjbkb
   // Is a log level enabled.
   bool IsEnabled(LogMessage::Level level) const { return enables_[level]; }
 
