@@ -117,7 +117,7 @@ extern Logger gLogger_;
 #define LOG_SET_OUT_FILE(FN) \
     triton::common::gLogger_.SetLogOutFile((FN))
 #define LOG_GET_OUT_FILE() \
-    triton::common::gLogger_.GetLogOutFile(())
+    triton::common::gLogger_.GetLogOutFile()
 
 #ifdef TRITON_ENABLE_LOGGING
 
