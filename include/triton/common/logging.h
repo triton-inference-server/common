@@ -95,7 +95,6 @@ class Logger {
   Format format_;
   std::mutex mutex_;
   std::string filename_;
-  bool first_write_;
 };
 
 extern Logger gLogger_;

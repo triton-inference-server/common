@@ -39,6 +39,7 @@
 #include <algorithm>
 #include <iomanip>
 #include <iostream>
+#include <fstream>
 
 namespace triton { namespace common {
 
@@ -53,7 +54,21 @@ void
 Logger::Log(const std::string& msg)
 {
   const std::lock_guard<std::mutex> lock(mutex_);
-  std::cerr << msg << std::endl;
+  if(Logger::GetLogOutFile() != ""){
+    try{
+      std::ofstream file_stream;
+      file_stream.open(filename_);
+      file_stream << msg << std::endl;
+    }
+    catch (const std::ofstream::failure& e) {
+      LOG_ERROR << "failed creating trace file: " << e.what();
+    }
+    catch (...) {
+      LOG_ERROR << "failed creating trace file: reason unknown";
+    }
+  } else {
+    std::cerr << msg << std::endl;
+  }
 }
 
 void
