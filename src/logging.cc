@@ -54,21 +54,23 @@ void
 Logger::Log(const std::string& msg)
 {
   const std::lock_guard<std::mutex> lock(mutex_);
+  std::cerr << msg << std::endl;
+  std::cerr << Logger::GetLogOutFile() << std::endl;
   if(Logger::GetLogOutFile() != ""){
     try{
-      LOG_INFO << "Attempting to add: " << msg << std::endl;
+      std::cerr << "Attempting to add: " << msg << std::endl;
       std::ofstream file_stream;
       file_stream.open(filename_, std::ios::app);
       file_stream << msg << std::endl;
+      file_stream.close();
     }
     catch (const std::ofstream::failure& e) {
-      LOG_ERROR << "failed creating trace file: " << e.what();
+      std::cerr << "failed creating trace file: " << e.what();
     }
     catch (...) {
-      LOG_ERROR << "failed creating trace file: reason unknown";
+      std::cerr << "failed creating trace file: reason unknown";
     }
   } 
-  std::cerr << msg << std::endl;
 }
 
 void
