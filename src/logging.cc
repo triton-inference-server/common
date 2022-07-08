@@ -67,9 +67,8 @@ Logger::Log(const std::string& msg)
     catch (...) {
       LOG_ERROR << "failed creating trace file: reason unknown";
     }
-  } else {
-    std::cerr << msg << std::endl;
-  }
+  } 
+  std::cerr << msg << std::endl;
 }
 
 void
