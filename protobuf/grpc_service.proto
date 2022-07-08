@@ -1656,11 +1656,11 @@ message DynamicLoggingRequest
 }
 
 //@@
-//@@.. cpp:var:: message TraceSettingResponse
+//@@.. cpp:var:: message DynamicLoggingResponse
 //@@
 //@@   Response message for TraceSetting.
 //@@
-message TraceSettingResponse
+message DynamicLoggingResponse
 {
   //@@
   //@@  .. cpp:var:: message SettingValue
