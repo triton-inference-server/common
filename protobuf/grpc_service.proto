@@ -212,12 +212,12 @@ service GRPCInferenceService
   {
   }
   
-  //@@  .. cpp:var:: rpc DynamicLogging(DynamicLoggingRequest)
-  //@@                   returns (DynamicLoggingResponse)
+  //@@  .. cpp:var:: rpc LogSettings(LogSettingsRequest)
+  //@@                   returns (LogSettingsResponse)
   //@@
   //@@     Update and get the log settings of the Triton server.
   //@@
-  rpc DynamicLogging(DynamicLoggingRequest) returns (DynamicLoggingResponse)
+  rpc LogSettings(LogSettingsRequest) returns (LogSettingsResponse)
   {
   }
 }
@@ -1624,11 +1624,11 @@ message TraceSettingResponse
 }
 
 //@@
-//@@.. cpp:var:: message DynamicLoggingRequest
+//@@.. cpp:var:: message LogSettingsRequest
 //@@
-//@@   Request message for DynamicLogging.
+//@@   Request message for LogSettings.
 //@@
-message DynamicLoggingRequest
+message LogSettingsRequest
 {
   //@@
   //@@  .. cpp:var:: message SettingValue
@@ -1656,11 +1656,11 @@ message DynamicLoggingRequest
 }
 
 //@@
-//@@.. cpp:var:: message DynamicLoggingResponse
+//@@.. cpp:var:: message LogSettingsResponse
 //@@
 //@@   Response message for TraceSetting.
 //@@
-message DynamicLoggingResponse
+message LogSettingsResponse
 {
   //@@
   //@@  .. cpp:var:: message SettingValue
