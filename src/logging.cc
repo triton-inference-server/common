@@ -55,10 +55,8 @@ Logger::Log(const std::string& msg)
 {
   const std::lock_guard<std::mutex> lock(mutex_);
   std::cerr << msg << std::endl;
-  std::cerr << Logger::GetLogOutFile() << std::endl;
   if(Logger::GetLogOutFile() != ""){
     try{
-      std::cerr << "Attempting to add: " << msg << std::endl;
       std::ofstream file_stream;
       file_stream.open(filename_, std::ios::app);
       file_stream << msg << std::endl;

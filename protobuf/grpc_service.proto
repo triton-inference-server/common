@@ -211,6 +211,15 @@ service GRPCInferenceService
   rpc TraceSetting(TraceSettingRequest) returns (TraceSettingResponse)
   {
   }
+  
+  //@@  .. cpp:var:: rpc DynamicLogging(DynamicLoggingRequest)
+  //@@                   returns (DynamicLoggingResponse)
+  //@@
+  //@@     Update and get the log settings of the Triton server.
+  //@@
+  rpc DynamicLogging(DynamicLoggingRequest) returns (DynamicLoggingResponse)
+  {
+  }
 }
 
 //@@
@@ -1582,6 +1591,68 @@ message TraceSettingRequest
   //@@     If not given, the new settings will be applied globally.
   //@@
   string model_name = 2;
+}
+
+//@@
+//@@.. cpp:var:: message TraceSettingResponse
+//@@
+//@@   Response message for TraceSetting.
+//@@
+message TraceSettingResponse
+{
+  //@@
+  //@@  .. cpp:var:: message SettingValue
+  //@@
+  //@@     The values to be associated with a trace setting.
+  //@@
+  message SettingValue
+  {
+    //@@
+    //@@    .. cpp:var:: string value (repeated)
+    //@@
+    //@@       The value.
+    //@@
+    repeated string value = 1;
+  }
+
+  //@@  .. cpp:var:: map<string,SettingValue> settings
+  //@@
+  //@@     The current trace settings, including any changes specified
+  //@@     by TraceSettingRequest.
+  //@@
+  map<string, SettingValue> settings = 1;
+}
+
+//@@
+//@@.. cpp:var:: message DynamicLoggingRequest
+//@@
+//@@   Request message for DynamicLogging.
+//@@
+message DynamicLoggingRequest
+{
+  //@@
+  //@@  .. cpp:var:: message SettingValue
+  //@@
+  //@@     The values to be associated with a trace setting.
+  //@@     If no value is provided, the setting will be clear and
+  //@@     the global setting value will be used.
+  //@@
+  message SettingValue
+  {
+    //@@
+    //@@    .. cpp:var:: string value (repeated)
+    //@@
+    //@@       The value.
+    //@@
+    repeated string value = 1;
+  }
+
+  //@@  .. cpp:var:: map<string,SettingValue> settings
+  //@@
+  //@@     The new setting values to be updated,
+  //@@     settings that are not specified will remain unchanged.
+  //@@
+  map<string, SettingValue> settings = 1;
 }
 
 //@@
