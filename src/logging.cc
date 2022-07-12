@@ -54,7 +54,6 @@ void
 Logger::Log(const std::string& msg)
 {
   const std::lock_guard<std::mutex> lock(mutex_);
-  std::cerr << msg << std::endl;
   if(Logger::GetLogOutFile() != ""){
     try{
       std::ofstream file_stream;
@@ -68,6 +67,8 @@ Logger::Log(const std::string& msg)
     catch (...) {
       std::cerr << "failed creating trace file: reason unknown";
     }
+  } else {
+    std::cerr << msg << std::endl;
   } 
 }
 

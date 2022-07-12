@@ -115,7 +115,7 @@ extern Logger gLogger_;
   triton::common::gLogger_.SetLogFormat((F))
 #define LOG_SET_OUT_FILE(FN) \
     triton::common::gLogger_.SetLogOutFile((FN))
-#define LOG_GET_OUT_FILE() \
+#define LOG_OUT_FILE \
     triton::common::gLogger_.GetLogOutFile()
 
 #ifdef TRITON_ENABLE_LOGGING
@@ -141,6 +141,7 @@ extern Logger gLogger_;
 #define LOG_VERBOSE_IS_ON(L) false
 #define LOG_FORMAT triton::common::Logger::Format::kDEFAULT;
 #define LOG_VERBOSE_LEVEL 0
+#define LOG_OUT_FILE ""
 
 #endif  // TRITON_ENABLE_LOGGING
 
