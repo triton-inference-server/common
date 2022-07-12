@@ -1630,41 +1630,42 @@ message TraceSettingResponse
 //@@
 message LogSettingsRequest
 {
+  //@@  .. cpp:var:: string name
   //@@
-  //@@  .. cpp:var:: message SettingValue
+  //@@     The name of the log_file.
   //@@
-  //@@     The values to be associated with a log setting.
-  //@@
-  message LogSettingValue
-  {
-    oneof parameter_choice
-    {
-      //@@    .. cpp:var:: bool bool_param
-      //@@
-      //@@       A boolean parameter value.
-      //@@
-      bool bool_param = 1;
+  string log_file = 1;
 
-      //@@    .. cpp:var:: int32 int32_param
-      //@@
-      //@@       An int32 parameter value.
-      //@@
-      int32 int32_param = 2;
-
-      //@@    .. cpp:var:: string string_param
-      //@@
-      //@@       A string parameter value.
-      //@@
-      string string_param = 3;
-    }
-  }
-
-  //@@  .. cpp:var:: map<string,SettingValue> settings
+  //@@  .. cpp:var:: bool log_info
   //@@
-  //@@     The new setting values to be updated,
-  //@@     settings that are not specified will remain unchanged.
+  //@@     Whether Triton should log info messages.
+  //@@ 
+  bool log_info = 2;
+
+  //@@  .. cpp:var:: bool log_warnings
   //@@
-  map<string, LogSettingValue> settings = 1;
+  //@@     Whether Triton should log warning messages.
+  //@@ 
+  bool log_warnings = 3;
+
+  //@@  .. cpp:var:: bool log_errors
+  //@@
+  //@@     Whether Triton should log error messages.
+  //@@ 
+  bool log_errors = 4;
+
+  //@@  .. cpp:var:: int32 log_verbose_level
+  //@@
+  //@@     Messages with verbosity levels <= log_verbose_level
+  //@@     will be logged by the Triton server.
+  //@@
+  int32 log_verbose_level = 5;
+
+  //@@  .. cpp:var:: string log_format
+  //@@
+  //@@     The format of of the log_file.
+  //@@
+  string log_format = 6;
 }
 
 //@@
@@ -1674,39 +1675,40 @@ message LogSettingsRequest
 //@@
 message LogSettingsResponse
 {
+  //@@  .. cpp:var:: string name
   //@@
-  //@@  .. cpp:var:: message LogSettingValue
+  //@@     The name of the log_file.
   //@@
-  //@@     The values to be associated with a log setting.
-  //@@
-  message LogSettingValue
-  {
-    oneof parameter_choice
-    {
-      //@@    .. cpp:var:: bool bool_param
-      //@@
-      //@@       A boolean parameter value.
-      //@@
-      bool bool_param = 1;
+  string log_file = 1;
 
-      //@@    .. cpp:var:: int32 int32_param
-      //@@
-      //@@       An int32 parameter value.
-      //@@
-      int32 int32_param = 2;
-
-      //@@    .. cpp:var:: string string_param
-      //@@
-      //@@       A string parameter value.
-      //@@
-      string string_param = 3;
-    }
-  }
-
-  //@@  .. cpp:var:: map<string,LogSettingValue> settings
+  //@@  .. cpp:var:: bool log_info
   //@@
-  //@@     The current log settings, including any changes specified
-  //@@     by LogSettingsRequest.
+  //@@     Whether Triton should log info messages.
+  //@@ 
+  bool log_info = 2;
+
+  //@@  .. cpp:var:: bool log_warnings
   //@@
-  map<string, LogSettingValue> settings = 1;
+  //@@     Whether Triton should log warning messages.
+  //@@ 
+  bool log_warnings = 3;
+
+  //@@  .. cpp:var:: bool log_errors
+  //@@
+  //@@     Whether Triton should log error messages.
+  //@@ 
+  bool log_errors = 4;
+
+  //@@  .. cpp:var:: int32 log_verbose_level
+  //@@
+  //@@     Messages with verbosity levels <= log_verbose_level
+  //@@     will be logged by the Triton server.
+  //@@
+  int32 log_verbose_level = 5;
+
+  //@@  .. cpp:var:: string log_format
+  //@@
+  //@@     The format of of the log_file.
+  //@@
+  string log_format = 6;
 }
