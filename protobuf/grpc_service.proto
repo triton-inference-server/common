@@ -1664,7 +1664,7 @@ message LogSettingsRequest
   //@@     The new setting values to be updated,
   //@@     settings that are not specified will remain unchanged.
   //@@
-  map<string, SettingValue> settings = 1;
+  map<string, LogSettingValue> settings = 1;
 }
 
 //@@
@@ -1675,7 +1675,7 @@ message LogSettingsRequest
 message LogSettingsResponse
 {
   //@@
-  //@@  .. cpp:var:: message SettingValue
+  //@@  .. cpp:var:: message LogSettingValue
   //@@
   //@@     The values to be associated with a log setting.
   //@@
@@ -1703,10 +1703,10 @@ message LogSettingsResponse
     }
   }
 
-  //@@  .. cpp:var:: map<string,SettingValue> settings
+  //@@  .. cpp:var:: map<string,LogSettingValue> settings
   //@@
   //@@     The current log settings, including any changes specified
   //@@     by LogSettingsRequest.
   //@@
-  map<string, SettingValue> settings = 1;
+  map<string, LogSettingValue> settings = 1;
 }
