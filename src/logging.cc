@@ -37,9 +37,9 @@
 #include <unistd.h>
 #endif
 #include <algorithm>
+#include <fstream>
 #include <iomanip>
 #include <iostream>
-#include <fstream>
 
 namespace triton { namespace common {
 
@@ -54,8 +54,8 @@ void
 Logger::Log(const std::string& msg)
 {
   const std::lock_guard<std::mutex> lock(mutex_);
-  if(Logger::GetLogOutFile() != ""){
-    try{
+  if (Logger::GetLogOutFile() != "") {
+    try {
       std::ofstream file_stream;
       file_stream.open(filename_, std::ios::app);
       file_stream << msg << std::endl;
@@ -69,7 +69,7 @@ Logger::Log(const std::string& msg)
     }
   } else {
     std::cerr << msg << std::endl;
-  } 
+  }
 }
 
 void

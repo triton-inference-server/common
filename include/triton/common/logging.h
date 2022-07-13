@@ -25,11 +25,11 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma once
 
+#include <iostream>
 #include <mutex>
 #include <sstream>
 #include <string>
 #include <vector>
-#include <iostream>
 
 namespace triton { namespace common {
 
@@ -61,7 +61,6 @@ class Logger {
   // Set enable for a log Level.
   void SetEnabled(LogMessage::Level level, bool enable)
   {
-    std::cerr<<"LOG TRAITS CHANGING " << enable << std::endl;
     enables_[level] = enable;
   }
 
@@ -73,6 +72,16 @@ class Logger {
 
   // Get the logging format.
   Format LogFormat() { return format_; }
+
+  // Get the logging format as a string.
+  std::string LogFormatString()
+  {
+    std::string format = "default";
+    if (format_ == Format::kISO8601) {
+      format = "ISO8601";
+    }
+    return format;
+  }
 
   // Set the logging format.
   void SetLogFormat(Format format) { format_ = format; }
@@ -111,12 +120,12 @@ extern Logger gLogger_;
 #define LOG_SET_VERBOSE(L)                  \
   triton::common::gLogger_.SetVerboseLevel( \
       static_cast<uint32_t>(std::max(0, (L))))
-#define LOG_SET_FORMAT(F) \
-  triton::common::gLogger_.SetLogFormat((F))
-#define LOG_SET_OUT_FILE(FN) \
-    triton::common::gLogger_.SetLogOutFile((FN))
-#define LOG_OUT_FILE \
-    triton::common::gLogger_.GetLogOutFile()
+#define LOG_VERBOSE_LEVEL triton::common::gLogger_.VerboseLevel()
+#define LOG_SET_FORMAT(F) triton::common::gLogger_.SetLogFormat((F))
+#define LOG_FORMAT triton::common::gLogger_.LogFormat()
+#define LOG_FORMAT_STRING triton::common::gLogger_.LogFormatString()
+#define LOG_SET_OUT_FILE(FN) triton::common::gLogger_.SetLogOutFile((FN))
+#define LOG_OUT_FILE triton::common::gLogger_.GetLogOutFile()
 
 #ifdef TRITON_ENABLE_LOGGING
 
@@ -128,10 +137,6 @@ extern Logger gLogger_;
 #define LOG_ERROR_IS_ON \
   triton::common::gLogger_.IsEnabled(triton::common::LogMessage::Level::kERROR)
 #define LOG_VERBOSE_IS_ON(L) (triton::common::gLogger_.VerboseLevel() >= (L))
-#define LOG_FORMAT \
-  triton::common::gLogger_.LogFormat()
-#define LOG_VERBOSE_LEVEL \
-  triton::common::gLogger_.VerboseLevel()
 #else
 
 // If logging is disabled, define macro to be false to avoid further evaluation
@@ -139,8 +144,6 @@ extern Logger gLogger_;
 #define LOG_WARNING_IS_ON false
 #define LOG_ERROR_IS_ON false
 #define LOG_VERBOSE_IS_ON(L) false
-#define LOG_FORMAT triton::common::Logger::Format::kDEFAULT;
-#define LOG_VERBOSE_LEVEL 0
 
 #endif  // TRITON_ENABLE_LOGGING
 
