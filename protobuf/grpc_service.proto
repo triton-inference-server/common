@@ -1644,7 +1644,7 @@ message LogSettingsRequest
       //@@
       //@@       An int32 parameter value.
       //@@
-      uint32 int32_param = 2;
+      uint32 uint32_param = 2;
 
       //@@    .. cpp:var:: string string_param
       //@@
@@ -1681,7 +1681,7 @@ message LogSettingsResponse
       //@@
       //@@       An int32 parameter value.
       //@@
-      uint32 int32_param = 2;
+      uint32 uint32_param = 2;
 
       //@@    .. cpp:var:: string string_param
       //@@
