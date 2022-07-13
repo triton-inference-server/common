@@ -141,7 +141,6 @@ extern Logger gLogger_;
 #define LOG_VERBOSE_IS_ON(L) false
 #define LOG_FORMAT triton::common::Logger::Format::kDEFAULT;
 #define LOG_VERBOSE_LEVEL 0
-#define LOG_OUT_FILE ""
 
 #endif  // TRITON_ENABLE_LOGGING
 
