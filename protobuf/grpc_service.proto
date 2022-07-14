@@ -1640,9 +1640,9 @@ message LogSettingsRequest
       //@@
       bool bool_param = 1;
 
-      //@@    .. cpp:var:: int32 int32_param
+      //@@    .. cpp:var:: uint32 uint32_param
       //@@
-      //@@       An int32 parameter value.
+      //@@       An uint32 parameter value.
       //@@
       uint32 uint32_param = 2;
 
@@ -1677,7 +1677,7 @@ message LogSettingsResponse
       //@@
       bool bool_param = 1;
 
-      //@@    .. cpp:var:: int32 int32_param
+      //@@    .. cpp:var:: uint32 uint32_param
       //@@
       //@@       An int32 parameter value.
       //@@
