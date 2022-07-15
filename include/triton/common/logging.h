@@ -86,10 +86,10 @@ class Logger {
   void SetLogFormat(Format format) { format_ = format; }
 
   // Get the log output file name.
-  std::string GetLogOutFile() { return filename_; }
+  const std::string& GetLogOutFile() { return filename_; }
 
   // Set the log output file.
-  void SetLogOutFile(std::string filename) { filename_ = filename; }
+  void SetLogOutFile(const std::string& filename) { filename_ = filename; }
 
   // Log a message.
   void Log(const std::string& msg);
@@ -119,11 +119,12 @@ extern Logger gLogger_;
 #define LOG_SET_VERBOSE(L)                  \
   triton::common::gLogger_.SetVerboseLevel( \
       static_cast<uint32_t>(std::max(0, (L))))
-#define LOG_VERBOSE_LEVEL triton::common::gLogger_.VerboseLevel()
+#define LOG_SET_OUT_FILE(FN) triton::common::gLogger_.SetLogOutFile((FN))
 #define LOG_SET_FORMAT(F) triton::common::gLogger_.SetLogFormat((F))
+
+#define LOG_VERBOSE_LEVEL triton::common::gLogger_.VerboseLevel()
 #define LOG_FORMAT triton::common::gLogger_.LogFormat()
 #define LOG_FORMAT_STRING triton::common::gLogger_.LogFormatString()
-#define LOG_SET_OUT_FILE(FN) triton::common::gLogger_.SetLogOutFile((FN))
 #define LOG_OUT_FILE triton::common::gLogger_.GetLogOutFile()
 
 #ifdef TRITON_ENABLE_LOGGING

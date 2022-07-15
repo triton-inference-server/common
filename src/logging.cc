@@ -62,10 +62,10 @@ Logger::Log(const std::string& msg)
       file_stream.close();
     }
     catch (const std::ofstream::failure& e) {
-      std::cerr << "failed creating trace file: " << e.what();
+      std::cerr << "failed creating trace file: " << e.what() << std::endl;
     }
     catch (...) {
-      std::cerr << "failed creating trace file: reason unknown";
+      std::cerr << "failed creating trace file: reason unknown" << std::endl;
     }
   } else {
     std::cerr << msg << std::endl;
