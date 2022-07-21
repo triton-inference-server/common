@@ -35,8 +35,7 @@ namespace triton { namespace common {
 using DimsList = ::google::protobuf::RepeatedField<::google::protobuf::int64>;
 
 /// The type for the metric_tags map.
-using MetricTagsMap = ::google::protobuf::Map<
-    ::google::protobuf::string, ::google::protobuf::string>;
+using MetricTagsMap = ::google::protobuf::Map<std::string, std::string>;
 
 // Map from a host policy name to <setting, value> map of cmdline
 // settings for the host policy.
