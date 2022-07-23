@@ -37,7 +37,6 @@
 #include <unistd.h>
 #endif
 #include <algorithm>
-#include <fstream>
 #include <iomanip>
 #include <iostream>
 
@@ -56,10 +55,17 @@ Logger::Log(const std::string& msg)
   const std::lock_guard<std::mutex> lock(mutex_);
   if (Logger::GetLogOutFile() != "") {
     try {
-      std::ofstream file_stream;
-      file_stream.open(filename_, std::ios::app);
-      file_stream << msg << std::endl;
-      file_stream.close();
+      // first time writing to a log file
+      if(!file_stream_.is_open()) {
+        file_name_changed_ = false;
+        file_stream_.open(filename_, std::ios::app);
+      }
+      else if(file_stream_.is_open() && file_name_changed_) {
+        file_stream_.close();
+        file_name_changed_ = false;
+        file_stream_.open(filename_, std::ios::app);
+      }
+      file_stream_ << msg << std::endl;
     }
     catch (const std::ofstream::failure& e) {
       std::cerr << "failed creating trace file: " << e.what() << std::endl;

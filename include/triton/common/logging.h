@@ -29,6 +29,7 @@
 #include <sstream>
 #include <string>
 #include <vector>
+#include <fstream>
 
 namespace triton { namespace common {
 
@@ -89,7 +90,7 @@ class Logger {
   const std::string& GetLogOutFile() { return filename_; }
 
   // Set the log output file.
-  void SetLogOutFile(const std::string& filename) { filename_ = filename; }
+  void SetLogOutFile(const std::string& filename) { filename_ = filename; file_name_changed_=true; }
 
   // Log a message.
   void Log(const std::string& msg);
@@ -103,6 +104,8 @@ class Logger {
   Format format_;
   std::mutex mutex_;
   std::string filename_;
+  std::ofstream file_stream_;
+  bool file_name_changed_;
 };
 
 extern Logger gLogger_;
