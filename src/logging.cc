@@ -53,14 +53,13 @@ void
 Logger::Log(const std::string& msg)
 {
   const std::lock_guard<std::mutex> lock(mutex_);
-  if (Logger::GetLogOutFile() != "") {
+  if (Logger::LogFile() != "") {
     try {
       // first time writing to a log file
-      if(!file_stream_.is_open()) {
+      if (!file_stream_.is_open()) {
         file_name_changed_ = false;
         file_stream_.open(filename_, std::ios::app);
-      }
-      else if(file_stream_.is_open() && file_name_changed_) {
+      } else if (file_stream_.is_open() && file_name_changed_) {
         file_stream_.close();
         file_name_changed_ = false;
         file_stream_.open(filename_, std::ios::app);
@@ -68,10 +67,10 @@ Logger::Log(const std::string& msg)
       file_stream_ << msg << std::endl;
     }
     catch (const std::ofstream::failure& e) {
-      std::cerr << "failed creating trace file: " << e.what() << std::endl;
+      std::cerr << "failed creating log file: " << e.what() << std::endl;
     }
     catch (...) {
-      std::cerr << "failed creating trace file: reason unknown" << std::endl;
+      std::cerr << "failed creating log file: reason unknown" << std::endl;
     }
   } else {
     std::cerr << msg << std::endl;

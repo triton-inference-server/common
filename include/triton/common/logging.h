@@ -25,11 +25,11 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma once
 
+#include <fstream>
 #include <mutex>
 #include <sstream>
 #include <string>
 #include <vector>
-#include <fstream>
 
 namespace triton { namespace common {
 
@@ -87,10 +87,15 @@ class Logger {
   void SetLogFormat(Format format) { format_ = format; }
 
   // Get the log output file name.
-  const std::string& GetLogOutFile() { return filename_; }
+  const std::string& LogFile() { return filename_; }
 
   // Set the log output file.
-  void SetLogOutFile(const std::string& filename) { filename_ = filename; file_name_changed_=true; }
+  void SetLogFile(const std::string& filename)
+  {
+    const std::lock_guard<std::mutex> lock(mutex_);
+    filename_ = filename;
+    file_name_changed_ = true;
+  }
 
   // Log a message.
   void Log(const std::string& msg);
@@ -128,7 +133,7 @@ extern Logger gLogger_;
 #define LOG_VERBOSE_LEVEL triton::common::gLogger_.VerboseLevel()
 #define LOG_FORMAT triton::common::gLogger_.LogFormat()
 #define LOG_FORMAT_STRING triton::common::gLogger_.LogFormatString()
-#define LOG_OUT_FILE triton::common::gLogger_.GetLogOutFile()
+#define LOG_FILE triton::common::gLogger_.LogFile()
 
 #ifdef TRITON_ENABLE_LOGGING
 
