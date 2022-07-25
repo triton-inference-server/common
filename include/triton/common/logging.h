@@ -93,8 +93,17 @@ class Logger {
   void SetLogFile(const std::string& filename)
   {
     const std::lock_guard<std::mutex> lock(mutex_);
+    file_stream_.close();
     filename_ = filename;
-    file_name_changed_ = true;
+    try {
+      file_stream_.open(filename_, std::ios::app);
+    }
+    catch (const std::ofstream::failure& e) {
+      std::cerr << "failed to open log file: " << e.what() << std::endl;
+    }
+    catch (...) {
+      std::cerr << "failed to open log file: reason unknown" << std::endl;
+    }
   }
 
   // Log a message.
@@ -110,7 +119,6 @@ class Logger {
   std::mutex mutex_;
   std::string filename_;
   std::ofstream file_stream_;
-  bool file_name_changed_;
 };
 
 extern Logger gLogger_;
