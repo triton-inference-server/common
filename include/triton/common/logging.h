@@ -127,7 +127,7 @@ extern Logger gLogger_;
 #define LOG_SET_VERBOSE(L)                  \
   triton::common::gLogger_.SetVerboseLevel( \
       static_cast<uint32_t>(std::max(0, (L))))
-#define LOG_SET_OUT_FILE(FN) triton::common::gLogger_.SetLogOutFile((FN))
+#define LOG_SET_OUT_FILE(FN) triton::common::gLogger_.SetLogFile((FN))
 #define LOG_SET_FORMAT(F) triton::common::gLogger_.SetLogFormat((F))
 
 #define LOG_VERBOSE_LEVEL triton::common::gLogger_.VerboseLevel()
