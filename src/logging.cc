@@ -38,7 +38,6 @@
 #endif
 #include <algorithm>
 #include <iomanip>
-#include <iostream>
 
 namespace triton { namespace common {
 
