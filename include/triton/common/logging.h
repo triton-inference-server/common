@@ -82,6 +82,8 @@ class Logger {
         return "ISO8601";
       case Format::kDEFAULT:
         return "default";
+      default:
+        return "";
     }
   }
 
