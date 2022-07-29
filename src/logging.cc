@@ -44,7 +44,10 @@ namespace triton { namespace common {
 
 Logger gLogger_;
 
-Logger::Logger() : enables_{true, true, true}, vlevel_(0), format_(Format::kDEFAULT) {}
+Logger::Logger()
+    : enables_{true, true, true}, vlevel_(0), format_(Format::kDEFAULT)
+{
+}
 
 void
 Logger::Log(const std::string& msg)
@@ -71,65 +74,64 @@ LogMessage::LogMessage(const char* file, int line, uint32_t level)
   }
 
   // 'L' below is placeholder for showing log level
-  switch (gLogger_.LogFormat())
-  {
-  case Logger::Format::kDEFAULT: {
-    // LMMDD hh:mm:ss.ssssss
+  switch (gLogger_.LogFormat()) {
+    case Logger::Format::kDEFAULT: {
+      // LMMDD hh:mm:ss.ssssss
 #ifdef _WIN32
-    SYSTEMTIME system_time;
-    GetSystemTime(&system_time);
-    stream_ << level_name_[std::min(level, (uint32_t)Level::kINFO)]
-            << std::setfill('0') << std::setw(2) << system_time.wMonth
-            << std::setw(2) << system_time.wDay << ' ' << std::setw(2)
-            << system_time.wHour << ':' << std::setw(2) << system_time.wMinute
-            << ':' << std::setw(2) << system_time.wSecond << '.' << std::setw(6)
-            << system_time.wMilliseconds * 1000 << ' '
-            << static_cast<uint32_t>(GetCurrentProcessId()) << ' ' << path << ':'
-            << line << "] ";
+      SYSTEMTIME system_time;
+      GetSystemTime(&system_time);
+      stream_ << level_name_[std::min(level, (uint32_t)Level::kINFO)]
+              << std::setfill('0') << std::setw(2) << system_time.wMonth
+              << std::setw(2) << system_time.wDay << ' ' << std::setw(2)
+              << system_time.wHour << ':' << std::setw(2) << system_time.wMinute
+              << ':' << std::setw(2) << system_time.wSecond << '.'
+              << std::setw(6) << system_time.wMilliseconds * 1000 << ' '
+              << static_cast<uint32_t>(GetCurrentProcessId()) << ' ' << path
+              << ':' << line << "] ";
 #else
-    struct timeval tv;
-    gettimeofday(&tv, NULL);
-    struct tm tm_time;
-    gmtime_r(((time_t*)&(tv.tv_sec)), &tm_time);
-    stream_ << level_name_[std::min(level, (uint32_t)Level::kINFO)]
-            << std::setfill('0') << std::setw(2) << (tm_time.tm_mon + 1)
-            << std::setw(2) << tm_time.tm_mday << ' ' << std::setw(2)
-            << tm_time.tm_hour << ':' << std::setw(2) << tm_time.tm_min << ':'
-            << std::setw(2) << tm_time.tm_sec << '.' << std::setw(6) << tv.tv_usec
-            << ' ' << static_cast<uint32_t>(getpid()) << ' ' << path << ':'
-            << line << "] ";
+      struct timeval tv;
+      gettimeofday(&tv, NULL);
+      struct tm tm_time;
+      gmtime_r(((time_t*)&(tv.tv_sec)), &tm_time);
+      stream_ << level_name_[std::min(level, (uint32_t)Level::kINFO)]
+              << std::setfill('0') << std::setw(2) << (tm_time.tm_mon + 1)
+              << std::setw(2) << tm_time.tm_mday << ' ' << std::setw(2)
+              << tm_time.tm_hour << ':' << std::setw(2) << tm_time.tm_min << ':'
+              << std::setw(2) << tm_time.tm_sec << '.' << std::setw(6)
+              << tv.tv_usec << ' ' << static_cast<uint32_t>(getpid()) << ' '
+              << path << ':' << line << "] ";
 #endif
-    break;
-  }
-  case Logger::Format::kISO8601: {
-    // YYYY-MM-DDThh:mm:ssZ L
+      break;
+    }
+    case Logger::Format::kISO8601: {
+      // YYYY-MM-DDThh:mm:ssZ L
 #ifdef _WIN32
-    SYSTEMTIME system_time;
-    GetSystemTime(&system_time);
-    stream_ << system_time.wYear << '-'
-            << std::setfill('0') << std::setw(2) << system_time.wMonth << '-'
-            << std::setw(2) << system_time.wDay << 'T' << std::setw(2)
-            << system_time.wHour << ':' << std::setw(2) << system_time.wMinute
-            << ':' << std::setw(2) << system_time.wSecond << "Z "
-            << level_name_[std::min(level, (uint32_t)Level::kINFO)] << ' '
-            << static_cast<uint32_t>(GetCurrentProcessId()) << ' ' << path << ':'
-            << line << "] ";
+      SYSTEMTIME system_time;
+      GetSystemTime(&system_time);
+      stream_ << system_time.wYear << '-' << std::setfill('0') << std::setw(2)
+              << system_time.wMonth << '-' << std::setw(2) << system_time.wDay
+              << 'T' << std::setw(2) << system_time.wHour << ':' << std::setw(2)
+              << system_time.wMinute << ':' << std::setw(2)
+              << system_time.wSecond << "Z "
+              << level_name_[std::min(level, (uint32_t)Level::kINFO)] << ' '
+              << static_cast<uint32_t>(GetCurrentProcessId()) << ' ' << path
+              << ':' << line << "] ";
 #else
-    struct timeval tv;
-    gettimeofday(&tv, NULL);
-    struct tm tm_time;
-    gmtime_r(((time_t*)&(tv.tv_sec)), &tm_time);
-    stream_ << (tm_time.tm_year + 1900) << '-'
-            << std::setfill('0') << std::setw(2) << (tm_time.tm_mon + 1) << '-'
-            << std::setw(2) << tm_time.tm_mday << 'T' << std::setw(2)
-            << tm_time.tm_hour << ':' << std::setw(2) << tm_time.tm_min << ':'
-            << std::setw(2) << tm_time.tm_sec << "Z "
-            << level_name_[std::min(level, (uint32_t)Level::kINFO)] << ' '
-            << static_cast<uint32_t>(getpid()) << ' ' << path << ':'
-            << line << "] ";
+      struct timeval tv;
+      gettimeofday(&tv, NULL);
+      struct tm tm_time;
+      gmtime_r(((time_t*)&(tv.tv_sec)), &tm_time);
+      stream_ << (tm_time.tm_year + 1900) << '-' << std::setfill('0')
+              << std::setw(2) << (tm_time.tm_mon + 1) << '-' << std::setw(2)
+              << tm_time.tm_mday << 'T' << std::setw(2) << tm_time.tm_hour
+              << ':' << std::setw(2) << tm_time.tm_min << ':' << std::setw(2)
+              << tm_time.tm_sec << "Z "
+              << level_name_[std::min(level, (uint32_t)Level::kINFO)] << ' '
+              << static_cast<uint32_t>(getpid()) << ' ' << path << ':' << line
+              << "] ";
 #endif
-    break;
-  }
+      break;
+    }
   }
 }
 
