@@ -26,11 +26,11 @@
 #pragma once
 
 #include <fstream>
+#include <iostream>
 #include <mutex>
 #include <sstream>
 #include <string>
 #include <vector>
-#include <iostream>
 
 namespace triton { namespace common {
 
@@ -77,11 +77,12 @@ class Logger {
   // Get the logging format as a string.
   std::string LogFormatString()
   {
-    std::string format = "default";
-    if (format_ == Format::kISO8601) {
-      format = "ISO8601";
+    switch (format_) {
+      case Format::kISO8601:
+        return "ISO8601";
+      case Format::kDEFAULT:
+        return "default";
     }
-    return format;
   }
 
   // Set the logging format.
