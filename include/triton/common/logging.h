@@ -100,12 +100,9 @@ class Logger {
     file_stream_.close();
     filename_ = filename;
     if(!filename.empty()) {
-      file_stream_.exceptions(std::ofstream::badbit | std::ofstream::failbit);
-      try {
-        file_stream_.open(filename_, std::ios::app);
-      }
-      catch (const std::ofstream::failure& e) {
-        std::cerr << "failed to open log file: " << e.what() << std::endl;
+      file_stream_.open(filename_, std::ios::app);
+      if(file_stream_.fail()) {
+        std::cerr << "failed to open log file" << std::endl;
         return false;
       }
     }
