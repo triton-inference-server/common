@@ -92,20 +92,20 @@ class Logger {
   const std::string& LogFile() { return filename_; }
 
   // Set the log output file.
-  void SetLogFile(const std::string& filename)
+  bool SetLogFile(const std::string& filename)
   {
     const std::lock_guard<std::mutex> lock(mutex_);
     file_stream_.close();
     filename_ = filename;
+    file_stream_.exceptions(std::ofstream::badbit | std::ofstream::failbit);
     try {
       file_stream_.open(filename_, std::ios::app);
     }
     catch (const std::ofstream::failure& e) {
       std::cerr << "failed to open log file: " << e.what() << std::endl;
+      return false;
     }
-    catch (...) {
-      std::cerr << "failed to open log file: reason unknown" << std::endl;
-    }
+    return true;
   }
 
   // Log a message.
