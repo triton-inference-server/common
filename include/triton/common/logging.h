@@ -102,6 +102,8 @@ class Logger {
     if(!filename.empty()) {
       file_stream_.open(filename_, std::ios::app);
       if(file_stream_.fail()) {
+        file_stream_.close();
+        filename_ = "";
         return false;
       }
     }
