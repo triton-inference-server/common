@@ -52,7 +52,7 @@ void
 Logger::Log(const std::string& msg)
 {
   const std::lock_guard<std::mutex> lock(mutex_);
-  if (Logger::LogFile() != "") {
+  if (file_stream_.is_open()) {
     file_stream_ << msg << std::endl;
   } else {
     std::cerr << msg << std::endl;
