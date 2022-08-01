@@ -36,7 +36,7 @@
 #endif
 #include <rapidjson/document.h>
 #pragma GCC diagnostic pop
-#endif // _WIN32
+#endif  // _WIN32
 
 #include <rapidjson/allocators.h>  // CrtAllocator (default) for Writer instantiation
 #include <rapidjson/encodings.h>  // UTF8 (default) for Writer instantiation
@@ -124,9 +124,10 @@ class TritonJson {
 
     // Construct a non-top-level JSON value in a 'document'.
     explicit Value(TritonJson::Value& document, const ValueType type)
-        : value_(new rapidjson::Value(static_cast<rapidjson::Type>(type))),
-          allocator_(&document.document_.GetAllocator())
     {
+      allocator_ = &document.document_.GetAllocator();
+      value_ = new (allocator_->Malloc(sizeof(rapidjson::Value)))
+          rapidjson::Value(static_cast<rapidjson::Type>(type));
     }
 
     // Move constructor.
@@ -244,7 +245,8 @@ class TritonJson {
     }
 
     // Set/overwrite a string member with provided name and value in this object
-    TRITONJSON_STATUSTYPE SetStringObject(const char* name, const std::string& value) 
+    TRITONJSON_STATUSTYPE SetStringObject(
+        const char* name, const std::string& value)
     {
       rapidjson::Value& object = AsMutableValue();
       if (!object.IsObject()) {
@@ -588,7 +590,7 @@ class TritonJson {
       auto itr = object.FindMember(name);
       if (itr != object.MemberEnd()) {
         object.RemoveMember(itr);
-      } // else report success
+      }  // else report success
 
       return TRITONJSON_STATUSSUCCESS;
     }
@@ -667,10 +669,7 @@ class TritonJson {
 
     // Whether the object is null value. Note that false will also be retuned
     // if the object is not a JSON value.
-    bool IsNull() const
-    {
-      return ((value_ != nullptr) && value_->IsNull());
-    }
+    bool IsNull() const { return ((value_ != nullptr) && value_->IsNull()); }
 
     // Return true if the object is an object and it has no members;
     // false otherwise.
@@ -1074,8 +1073,7 @@ class TritonJson {
     void Release()
     {
       if (value_ != nullptr) {
-        delete value_;
-        value_ = nullptr;
+        allocator_->Free(value_);
       }
     }
 
