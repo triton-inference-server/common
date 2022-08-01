@@ -83,7 +83,7 @@ class Logger {
       case Format::kDEFAULT:
         return "default";
       default:
-        return "";
+        return "Invalid format";
     }
   }
 
