@@ -98,12 +98,13 @@ class Logger {
   {
     const std::lock_guard<std::mutex> lock(mutex_);
     file_stream_.close();
+    std::string revert_name(filename_);
     filename_ = filename;
-    if(!filename.empty()) {
+    if(!filename_.empty()) {
       file_stream_.open(filename_, std::ios::app);
       if(file_stream_.fail()) {
-        file_stream_.close();
-        filename_ = "";
+        filename_ = revert_name;
+        file_stream_.open(filename_, std::ios::app);
         return false;
       }
     }
