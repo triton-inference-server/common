@@ -25,14 +25,14 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma once
 
+#include <cerrno>
+#include <cstring>
 #include <fstream>
 #include <iostream>
 #include <mutex>
 #include <sstream>
 #include <string>
 #include <vector>
-#include <cerrno>
-#include <cstring>
 
 namespace triton { namespace common {
 
@@ -106,8 +106,9 @@ class Logger {
       file_stream_.open(filename_, std::ios::app);
       if (file_stream_.fail()) {
         std::stringstream error;
-        error << __FILE__ << " " << __LINE__ << ": Failed to open log file: "
-                  << std::strerror(errno) << std::endl;
+        error << __FILE__ << " " << __LINE__
+              << ": Failed to open log file: " << std::strerror(errno)
+              << std::endl;
         filename_ = revert_name;
         file_stream_.open(filename_, std::ios::app);
         return error.str();
