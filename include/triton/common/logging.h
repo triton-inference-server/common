@@ -102,16 +102,12 @@ class Logger {
     file_stream_.close();
     std::string revert_name(filename_);
     filename_ = filename;
-    std::cerr<<revert_name<<std::endl;
-    std::cerr<<filename_<<std::endl;
     if (!filename_.empty()) {
       file_stream_.open(filename_, std::ios::app);
       if (file_stream_.fail()) {
         std::stringstream error;
-        error << __FILE__ << " " << __LINE__ << ": Failed to open log file "
+        error << __FILE__ << " " << __LINE__ << ": Failed to open log file: "
                   << std::strerror(errno) << std::endl;
-        std::cerr<<error.str()<<std::endl;
-        std::cerr<<revert_name<<std::endl;
         filename_ = revert_name;
         file_stream_.open(filename_, std::ios::app);
         return error.str();
