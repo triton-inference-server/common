@@ -109,6 +109,8 @@ class Logger {
         std::stringstream error;
         error << __FILE__ << " " << __LINE__ << ": Failed to open log file "
                   << e.what() << std::endl;
+        std::cerr<<error.str()<<std::endl;
+        std::cerr<<revert_name<<std::endl;
         filename_ = revert_name;
         file_stream_.open(filename_, std::ios::app);
         return error.str();
