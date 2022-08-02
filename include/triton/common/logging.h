@@ -31,6 +31,8 @@
 #include <sstream>
 #include <string>
 #include <vector>
+#include <cerrno>
+#include <cstring>
 
 namespace triton { namespace common {
 
@@ -103,23 +105,16 @@ class Logger {
     std::cerr<<revert_name<<std::endl;
     std::cerr<<filename_<<std::endl;
     if (!filename_.empty()) {
-      file_stream_.exceptions(std::ofstream::badbit | std::ofstream::failbit);
-      try {
-        file_stream_.open(filename_, std::ios::app);
-      }
-      catch (std::ofstream::failure& e) {
+      file_stream_.open(filename_, std::ios::app);
+      if (file_stream_.fail()) {
         std::stringstream error;
         error << __FILE__ << " " << __LINE__ << ": Failed to open log file "
-                  << e.what() << std::endl;
+                  << std::strerror(errno) << std::endl;
         std::cerr<<error.str()<<std::endl;
         std::cerr<<revert_name<<std::endl;
         filename_ = revert_name;
         file_stream_.open(filename_, std::ios::app);
         return error.str();
-      }
-      catch (...) {
-        std::cerr<<"Missed exception" << std::endl;
-        return "failed to open log file";
       }
     }
     // will return an empty string
