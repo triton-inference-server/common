@@ -94,7 +94,7 @@ class Logger {
   const std::string& LogFile() { return filename_; }
 
   // Set the log output file.
-  bool SetLogFile(const std::string& filename)
+  const std::string& SetLogFile(const std::string& filename)
   {
     const std::lock_guard<std::mutex> lock(mutex_);
     file_stream_.close();
@@ -106,14 +106,16 @@ class Logger {
         file_stream_.open(filename_, std::ios::app);
       }
       catch (std::ofstream::failure& e) {
-        std::cerr << __FILE__ << " " << __LINE__ << ": Failed to open log file "
+        std::stringstream error;
+        error << __FILE__ << " " << __LINE__ << ": Failed to open log file "
                   << e.what() << std::endl;
         filename_ = revert_name;
         file_stream_.open(filename_, std::ios::app);
-        return false;
+        return error.str();
       }
     }
-    return true;
+    // will return an empty string
+    return std::string();
   }
 
   // Log a message.
