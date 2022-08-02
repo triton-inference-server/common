@@ -100,6 +100,8 @@ class Logger {
     file_stream_.close();
     std::string revert_name(filename_);
     filename_ = filename;
+    std::cerr<<revert_name<<std::endl;
+    std::cerr<<filename_<<std::endl;
     if (!filename_.empty()) {
       file_stream_.exceptions(std::ofstream::badbit | std::ofstream::failbit);
       try {
@@ -114,6 +116,10 @@ class Logger {
         filename_ = revert_name;
         file_stream_.open(filename_, std::ios::app);
         return error.str();
+      }
+      catch (...) {
+        std::cerr<<"Missed exception" << std::endl;
+        return "failed to open log file";
       }
     }
     // will return an empty string
