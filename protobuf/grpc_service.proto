@@ -211,6 +211,15 @@ service GRPCInferenceService
   rpc TraceSetting(TraceSettingRequest) returns (TraceSettingResponse)
   {
   }
+
+  //@@  .. cpp:var:: rpc LogSettings(LogSettingsRequest)
+  //@@                   returns (LogSettingsResponse)
+  //@@
+  //@@     Update and get the log settings of the Triton server.
+  //@@
+  rpc LogSettings(LogSettingsRequest) returns (LogSettingsResponse)
+  {
+  }
 }
 
 //@@
@@ -1610,6 +1619,80 @@ message TraceSettingResponse
   //@@
   //@@     The current trace settings, including any changes specified
   //@@     by TraceSettingRequest.
+  //@@
+  map<string, SettingValue> settings = 1;
+}
+
+//@@
+//@@.. cpp:var:: message LogSettingsRequest
+//@@
+//@@   Request message for LogSettings.
+//@@
+message LogSettingsRequest
+{
+  message SettingValue
+  {
+    oneof parameter_choice
+    {
+      //@@    .. cpp:var:: bool bool_param
+      //@@
+      //@@       A boolean parameter value.
+      //@@
+      bool bool_param = 1;
+
+      //@@    .. cpp:var:: uint32 uint32_param
+      //@@
+      //@@       An uint32 parameter value.
+      //@@
+      uint32 uint32_param = 2;
+
+      //@@    .. cpp:var:: string string_param
+      //@@
+      //@@       A string parameter value.
+      //@@
+      string string_param = 3;
+    }
+  }
+  //@@  .. cpp:var:: map<string,SettingValue> settings
+  //@@
+  //@@     The current log settings.
+  //@@
+  map<string, SettingValue> settings = 1;
+}
+
+//@@
+//@@.. cpp:var:: message LogSettingsResponse
+//@@
+//@@   Response message for LogSettings.
+//@@
+message LogSettingsResponse
+{
+  message SettingValue
+  {
+    oneof parameter_choice
+    {
+      //@@    .. cpp:var:: bool bool_param
+      //@@
+      //@@       A boolean parameter value.
+      //@@
+      bool bool_param = 1;
+
+      //@@    .. cpp:var:: uint32 uint32_param
+      //@@
+      //@@       An int32 parameter value.
+      //@@
+      uint32 uint32_param = 2;
+
+      //@@    .. cpp:var:: string string_param
+      //@@
+      //@@       A string parameter value.
+      //@@
+      string string_param = 3;
+    }
+  }
+  //@@  .. cpp:var:: map<string,SettingValue> settings
+  //@@
+  //@@     The current log settings.
   //@@
   map<string, SettingValue> settings = 1;
 }
