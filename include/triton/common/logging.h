@@ -95,7 +95,8 @@ class Logger {
   // Get the log output file name.
   const std::string& LogFile() { return filename_; }
 
-  // Set the log output file.
+  // Set the log output file. Returns an empty string upon
+  // success, else returns an error string.
   const std::string SetLogFile(const std::string& filename)
   {
     const std::lock_guard<std::mutex> lock(mutex_);
