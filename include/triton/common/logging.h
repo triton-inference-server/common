@@ -29,6 +29,9 @@
 #include <sstream>
 #include <string>
 #include <vector>
+#include <cerrno>
+#include <cstring>
+#include <fstream>
 
 namespace triton { namespace common {
 
@@ -73,8 +76,48 @@ class Logger {
   // Get the logging format.
   Format LogFormat() { return format_; }
 
+  // Get the logging format as a string.
+  std::string LogFormatString()
+  {
+    switch (format_) {
+      case Format::kISO8601:
+        return "ISO8601";
+      case Format::kDEFAULT:
+        return "default";
+      default:
+        return "Invalid format";
+    }
+  }
+
   // Set the logging format.
   void SetLogFormat(Format format) { format_ = format; }
+
+  // Get the log output file name.
+  const std::string& LogFile() { return filename_; }
+
+  // Set the log output file. Returns an empty string upon
+  // success, else returns an error string.
+  const std::string SetLogFile(const std::string& filename)
+  {
+    const std::lock_guard<std::mutex> lock(mutex_);
+    file_stream_.close();
+    std::string revert_name(filename_);
+    filename_ = filename;
+    if (!filename_.empty()) {
+      file_stream_.open(filename_, std::ios::app);
+      if (file_stream_.fail()) {
+        std::stringstream error;
+        error << __FILE__ << " " << __LINE__
+              << ": Failed to open log file: " << std::strerror(errno)
+              << std::endl;
+        filename_ = revert_name;
+        file_stream_.open(filename_, std::ios::app);
+        return error.str();
+      }
+    }
+    // will return an empty string
+    return std::string();
+  }
 
   // Log a message.
   void Log(const std::string& msg);
@@ -87,6 +130,8 @@ class Logger {
   uint32_t vlevel_;
   Format format_;
   std::mutex mutex_;
+  std::string filename_;
+  std::ofstream file_stream_;
 };
 
 extern Logger gLogger_;
@@ -103,8 +148,13 @@ extern Logger gLogger_;
 #define LOG_SET_VERBOSE(L)                  \
   triton::common::gLogger_.SetVerboseLevel( \
       static_cast<uint32_t>(std::max(0, (L))))
-#define LOG_SET_FORMAT(F) \
-  triton::common::gLogger_.SetLogFormat((F))
+#define LOG_SET_OUT_FILE(FN) triton::common::gLogger_.SetLogFile((FN))
+#define LOG_SET_FORMAT(F) triton::common::gLogger_.SetLogFormat((F))
+
+#define LOG_VERBOSE_LEVEL triton::common::gLogger_.VerboseLevel()
+#define LOG_FORMAT triton::common::gLogger_.LogFormat()
+#define LOG_FORMAT_STRING triton::common::gLogger_.LogFormatString()
+#define LOG_FILE triton::common::gLogger_.LogFile()
 
 #ifdef TRITON_ENABLE_LOGGING
 
