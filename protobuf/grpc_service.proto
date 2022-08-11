@@ -1036,6 +1036,59 @@ message InferBatchStatistics
 }
 
 //@@
+//@@.. cpp:var:: message InferResponseStat
+//@@
+//@@   Inference response statistics.
+//@@
+message InferResponseStat 
+{
+  //@@  .. cpp:var:: StatisticDuration compute_infer
+  //@@
+  //@@     The count and cumulative duration to perform inference to create a response.
+  //@@
+  StatisticDuration compute_infer = 1;
+
+  //@@  .. cpp:var:: StatisticDuration compute_output
+  //@@
+  //@@     The count and cumulative duration to extract output tensor data
+  //@@     produced by the model framework / backend for the given response index.
+  //@@     For example, this duration should include the time to copy output
+  //@@     tensor data from the GPU.
+  //@@
+  StatisticDuration compute_output = 2;
+
+  //@@  .. cpp:var:: StatisticDuration success
+  //@@
+  //@@     Cumulative count and duration for successful inference
+  //@@     request. The "success" count and cumulative duration includes
+  //@@     cache hits.
+  //@@
+  StatisticDuration success = 3;
+
+  //@@  .. cpp:var:: StatisticDuration fail
+  //@@
+  //@@     Cumulative count and duration for failed inference
+  //@@     request.
+  //@@
+  StatisticDuration fail = 4;
+}
+
+//@@
+//@@.. cpp:var:: message InferResponseStatistics
+//@@
+//@@   Inference response statistics.
+//@@
+message InferResponseStatistics
+{
+  //@@
+  //@@.. cpp:var:: message InferResponseStat (repeated)
+  //@@
+  //@@   Cumalative statistics corresponding to a given number of responses.
+  //@@
+  repeated InferResponseStat responses = 1;
+}
+
+//@@
 //@@.. cpp:var:: message ModelStatistics
 //@@
 //@@   Statistics for a specific model and version.
@@ -1104,6 +1157,15 @@ message ModelStatistics
   //@@     compute).
   //@@
   repeated InferBatchStatistics batch_stats = 7;
+
+  //@@  .. cpp:var:: InferResponseStatistics response_stats (repeated)
+  //@@
+  //@@     The aggregate statistics for each different response that the 
+  //@@     model may produce. The response statistics can provide the
+  //@@     breakdown of the time it takes for the backend to generate
+  //@@     the statistics for each response.
+  //@@
+  repeated InferResponseStatistics response_stats = 8;
 }
 
 //@@
