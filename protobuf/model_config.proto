@@ -897,15 +897,16 @@ message ModelOptimizationPolicy
     //@@       The preferred execution provider to be used if the model instance
     //@@       is deployed on GPU.
     //@@
-    //@@       For ONNX Runtime backend, possible value is "tensorrt" as name,
-    //@@       and no parameters are required.
+    //@@       For ONNX Runtime backend, possible value is "tensorrt".
     //@@
     //@@       For TensorFlow backend, possible values are "tensorrt",
-    //@@       "auto_mixed_precision", "gpu_io".
+    //@@       "auto_mixed_precision", "gpu_io". Tensorflow backend does not
+    //@@       support "INT8" for "precision_mode" parameter.
     //@@
     //@@       For "tensorrt", the following parameters can be specified:
     //@@         "precision_mode": The precision used for optimization.
-    //@@         Allowed values are "FP32" and "FP16". Default value is "FP32".
+    //@@         Allowed values are "FP32", "FP16", and "INT8". Default value is
+    //@@         "FP32".
     //@@
     //@@         "max_cached_engines": The maximum number of cached TensorRT
     //@@         engines in dynamic TensorRT ops. Default value is 100.
