@@ -1170,6 +1170,13 @@ message ModelStatistics
   //@@     statistics for all the requests that generate 5 responses.
   //@@
   repeated InferResponseStatistics response_stats = 8;
+
+  //@@
+  //@@.. cpp:var:: uint64 no_response_count
+  //@@
+  //@@   Cumulative number of requests that a response is not generated.
+  //@@
+  uint64 no_response_count = 9;
 }
 
 //@@
