@@ -1638,7 +1638,10 @@ message ModelWarmup
       //@@
       //@@       The file whose content will be used as raw input data in
       //@@       row-major order. The file must be provided in a sub-directory
-      //@@       'warmup' under the model directory.
+      //@@       'warmup' under the model directory. The file contents should be
+      //@@       in binary format. For TYPE_STRING data-type, an element is
+      //@@       represented by a 4-byte unsigned integer giving the length 
+      //@@       followed by the actual bytes.
       //@@
       string input_data_file = 5;
     }
