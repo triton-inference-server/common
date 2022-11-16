@@ -638,7 +638,7 @@ class TritonJson {
         TRITONJSON_STATUSRETURN(
             std::string("attempt to get members for non-object"));
       }
-      for (const auto& m : object.GetObject()) {
+      for (const auto& m : object.GetObj()) {
         names->push_back(m.name.GetString());
       }
       return TRITONJSON_STATUSSUCCESS;
