@@ -26,6 +26,10 @@
 #pragma once
 
 #ifdef _WIN32
+// Remove GetObject definition from windows.h, which prevents calls to
+// RapidJSON's GetObject.
+// https://github.com/Tencent/rapidjson/issues/1448
+#undef GetObject
 #include <rapidjson/document.h>
 #else
 // Disable class-memaccess warning to facilitate compilation with gcc>7
@@ -638,7 +642,7 @@ class TritonJson {
         TRITONJSON_STATUSRETURN(
             std::string("attempt to get members for non-object"));
       }
-      for (const auto& m : object.GetObj()) {
+      for (const auto& m : object.GetObject()) {
         names->push_back(m.name.GetString());
       }
       return TRITONJSON_STATUSSUCCESS;
