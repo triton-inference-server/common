@@ -160,3 +160,77 @@ if(${TRITON_COMMON_ENABLE_GRPC})
     OPTIONAL
   )
 endif()
+
+#
+# GRPC Health Service
+#
+if(${TRITON_COMMON_ENABLE_GRPC})
+  get_filename_component(health_proto_abspath "health.proto" ABSOLUTE)
+  get_filename_component(health_proto_dir "${health_proto_abspath}" PATH)
+  set(HEALTH_SRCS "health.grpc.pb.cc")
+  set(HEALTH_HDRS "health.grpc.pb.h")
+  if(TRITON_COMMON_ENABLE_PROTOBUF_PYTHON)
+    set(HEALTH_PY "health.grpc.py")
+  endif()
+
+  add_custom_command(
+    OUTPUT "${HEALTH_SRCS}" "${HEALTH_HDRS}"
+    COMMAND ${_PROTOBUF_PROTOC}
+    ARGS
+      --grpc_out "${CMAKE_CURRENT_BINARY_DIR}"
+      --cpp_out "${CMAKE_CURRENT_BINARY_DIR}"
+      -I "${health_proto_dir}"
+      --plugin=protoc-gen-grpc="${_GRPC_CPP_PLUGIN_EXECUTABLE}"
+      "health.proto"
+    DEPENDS "health.proto" proto-library
+  )
+
+  if(TRITON_COMMON_ENABLE_PROTOBUF_PYTHON)
+    find_package(Python REQUIRED COMPONENTS Interpreter)
+    add_custom_command(
+      OUTPUT "${HEALTH_PY}"
+      COMMAND ${Python_EXECUTABLE}
+      ARGS
+        -m grpc_tools.protoc
+        -I "${health_proto_dir}"
+        --grpc_python_out "${CMAKE_CURRENT_BINARY_DIR}"
+        "health.proto"
+      DEPENDS "health.proto" proto-library
+    )
+  endif()
+
+  add_library(
+    health-library EXCLUDE_FROM_ALL OBJECT
+    ${HEALTH_SRCS} ${HEALTH_HDRS}
+  )
+
+  target_include_directories(
+    health-library
+    PUBLIC
+      $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
+  )
+
+  target_compile_options(
+    health-library PRIVATE
+    $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>,$<CXX_COMPILER_ID:GNU>>:
+      -Wall -Wextra -Wno-unused-parameter -Werror>
+    $<$<CXX_COMPILER_ID:MSVC>:/W0 /D_WIN32_WINNT=0x0A00 /EHsc>
+  )
+
+  set_target_properties(
+    health-library
+    PROPERTIES
+      POSITION_INDEPENDENT_CODE ON
+  )
+
+  if(TRITON_COMMON_ENABLE_PROTOBUF_PYTHON)
+    add_custom_target(health-py-library DEPENDS ${HEALTH_PY})
+  endif()
+
+  install(
+    FILES
+      ${CMAKE_CURRENT_BINARY_DIR}/health.grpc.pb.h
+    DESTINATION include
+    OPTIONAL
+  )
+endif()
