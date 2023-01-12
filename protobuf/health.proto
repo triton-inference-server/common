@@ -35,7 +35,8 @@ package grpc.health.v1;
 //@@
 //@@   Request message for HealthCheck
 //@@
-message HealthCheckRequest {
+message HealthCheckRequest
+{
   string service = 1;
 }
 
@@ -44,7 +45,8 @@ message HealthCheckRequest {
 //@@
 //@@   Response message for HealthCheck
 //@@
-message HealthCheckResponse {
+message HealthCheckResponse
+{
   enum ServingStatus {
     UNKNOWN = 0;
     SERVING = 1;
@@ -54,7 +56,8 @@ message HealthCheckResponse {
   ServingStatus status = 1;
 }
 
-service Health {
+service Health
+{
   rpc Check(HealthCheckRequest) returns (HealthCheckResponse);
 
   rpc Watch(HealthCheckRequest) returns (stream HealthCheckResponse);

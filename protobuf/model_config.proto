@@ -1311,7 +1311,8 @@ message ModelSequenceBatching
 
     //@@      .. cpp:var:: int64 dims (repeated)
     //@@
-    //@@         The shape of the state tensor, not including the batch dimension.
+    //@@         The shape of the state tensor, not including the batch
+    //dimension.
     //@@
     repeated int64 dims = 2;
 
@@ -1640,7 +1641,7 @@ message ModelWarmup
       //@@       row-major order. The file must be provided in a sub-directory
       //@@       'warmup' under the model directory. The file contents should be
       //@@       in binary format. For TYPE_STRING data-type, an element is
-      //@@       represented by a 4-byte unsigned integer giving the length 
+      //@@       represented by a 4-byte unsigned integer giving the length
       //@@       followed by the actual bytes.
       //@@
       string input_data_file = 5;

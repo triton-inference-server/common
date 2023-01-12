@@ -208,18 +208,14 @@ service GRPCInferenceService
   //@@
   //@@     Update and get the trace setting of the Triton server.
   //@@
-  rpc TraceSetting(TraceSettingRequest) returns (TraceSettingResponse)
-  {
-  }
+  rpc TraceSetting(TraceSettingRequest) returns (TraceSettingResponse) {}
 
   //@@  .. cpp:var:: rpc LogSettings(LogSettingsRequest)
   //@@                   returns (LogSettingsResponse)
   //@@
   //@@     Update and get the log settings of the Triton server.
   //@@
-  rpc LogSettings(LogSettingsRequest) returns (LogSettingsResponse)
-  {
-  }
+  rpc LogSettings(LogSettingsRequest) returns (LogSettingsResponse) {}
 }
 
 //@@
@@ -927,7 +923,7 @@ message InferStatistics
   //@@  .. cpp:var:: StatisticDuration queue
   //@@
   //@@     The count and cumulative duration that inference requests wait in
-  //@@     scheduling or other queues. The "queue" count and cumulative 
+  //@@     scheduling or other queues. The "queue" count and cumulative
   //@@     duration includes cache hits.
   //@@
   StatisticDuration queue = 3;
@@ -969,7 +965,7 @@ message InferStatistics
   //@@     and extract output tensor data from the Response Cache on a cache
   //@@     hit. For example, this duration should include the time to copy
   //@@     output tensor data from the Response Cache to the response object.
-  //@@     On cache hits, triton does not need to go to the model/backend 
+  //@@     On cache hits, triton does not need to go to the model/backend
   //@@     for the output tensor data, so the "compute_input", "compute_infer",
   //@@     and "compute_output" fields are not updated. Assuming the response
   //@@     cache is enabled for a given model, a cache hit occurs for a
@@ -977,21 +973,24 @@ message InferStatistics
   //@@     model version, model inputs) hashes to an existing entry in the
   //@@     cache. On a cache miss, the request hash and response output tensor
   //@@     data is added to the cache. See response cache docs for more info:
-  //@@     https://github.com/triton-inference-server/server/blob/main/docs/response_cache.md
+  //@@
+  //https://github.com/triton-inference-server/server/blob/main/docs/response_cache.md
   //@@
   StatisticDuration cache_hit = 7;
 
   //@@  .. cpp:var:: StatisticDuration cache_miss
   //@@
   //@@     The count of response cache misses and cumulative duration to lookup
-  //@@     and insert output tensor data from the computed response to the cache.
+  //@@     and insert output tensor data from the computed response to the
+  //cache.
   //@@     For example, this duration should include the time to copy
   //@@     output tensor data from the response object to the Response Cache.
   //@@     Assuming the response cache is enabled for a given model, a cache
   //@@     miss occurs for a request to that model when the request metadata
   //@@     does NOT hash to an existing entry in the cache. See the response
   //@@     cache docs for more info:
-  //@@     https://github.com/triton-inference-server/server/blob/main/docs/response_cache.md
+  //@@
+  //https://github.com/triton-inference-server/server/blob/main/docs/response_cache.md
   //@@
   StatisticDuration cache_miss = 8;
 }
@@ -1702,7 +1701,8 @@ message LogSettingsResponse
 //@@
 //@@   Request message for HealthCheck
 //@@
-message HealthCheckRequest {
+message HealthCheckRequest
+{
   string service = 1;
 }
 
@@ -1711,7 +1711,8 @@ message HealthCheckRequest {
 //@@
 //@@   Response message for HealthCheck
 //@@
-message HealthCheckResponse {
+message HealthCheckResponse
+{
   enum ServingStatus {
     UNKNOWN = 0;
     SERVING = 1;
@@ -1721,7 +1722,8 @@ message HealthCheckResponse {
   ServingStatus status = 1;
 }
 
-service Health {
+service Health
+{
   rpc Check(HealthCheckRequest) returns (HealthCheckResponse);
 
   rpc Watch(HealthCheckRequest) returns (stream HealthCheckResponse);
