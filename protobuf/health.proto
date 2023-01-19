@@ -47,6 +47,11 @@ message HealthCheckRequest
 //@@
 message HealthCheckResponse
 {
+  //@@
+  //@@.. cpp:enum:: ServingStatus
+  //@@
+  //@@   Statuses supported by GRPC's health check.
+  //@@
   enum ServingStatus {
     UNKNOWN = 0;
     SERVING = 1;
@@ -56,9 +61,25 @@ message HealthCheckResponse
   ServingStatus status = 1;
 }
 
+//@@
+//@@.. cpp:var:: service Health
+//@@
+//@@   Health service for GRPC endpoints.
+//@@
 service Health
 {
+  //@@  .. cpp:var:: rpc Check(HealthCheckRequest) returns
+  //@@       (HealthCheckResponse)
+  //@@
+  //@@     Get serving status of the inference server.
+  //@@
   rpc Check(HealthCheckRequest) returns (HealthCheckResponse);
 
+  //@@  .. cpp:var:: rpc Watch(HealthCheckRequest) returns
+  //@@       (stream HealthCheckResponse)
+  //@@
+  //@@     Get current serving status of the inference server and
+  //@@     future status changes. This is not implemented.
+  //@@
   rpc Watch(HealthCheckRequest) returns (stream HealthCheckResponse);
 }
