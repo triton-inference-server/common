@@ -56,7 +56,7 @@ message HealthCheckResponse
     UNKNOWN = 0;
     SERVING = 1;
     NOT_SERVING = 2;
-    SERVICE_UNKNOWN = 3;  // Used only by the Watch method.
+    SERVICE_UNKNOWN = 3;
   }
   ServingStatus status = 1;
 }
@@ -74,12 +74,4 @@ service Health
   //@@     Get serving status of the inference server.
   //@@
   rpc Check(HealthCheckRequest) returns (HealthCheckResponse);
-
-  //@@  .. cpp:var:: rpc Watch(HealthCheckRequest) returns
-  //@@       (stream HealthCheckResponse)
-  //@@
-  //@@     Get current serving status of the inference server and
-  //@@     future status changes. This is not implemented.
-  //@@
-  rpc Watch(HealthCheckRequest) returns (stream HealthCheckResponse);
 }
