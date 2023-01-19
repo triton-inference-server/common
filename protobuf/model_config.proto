@@ -1,4 +1,4 @@
-// Copyright 2018-2022, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// Copyright 2018-2023, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions
@@ -1312,7 +1312,7 @@ message ModelSequenceBatching
     //@@      .. cpp:var:: int64 dims (repeated)
     //@@
     //@@         The shape of the state tensor, not including the batch
-    //dimension.
+    //@@         dimension.
     //@@
     repeated int64 dims = 2;
 
