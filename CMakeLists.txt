@@ -376,7 +376,7 @@ endif()
 if(${TRITON_COMMON_ENABLE_GRPC})
   install(
     TARGETS
-      health-library
+      grpc-health-library
       grpc-service-library
 #      grpc-service-py-library
     EXPORT
