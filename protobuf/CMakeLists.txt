@@ -183,25 +183,25 @@ if(${TRITON_COMMON_ENABLE_GRPC})
   )
 
   add_library(
-    health-library EXCLUDE_FROM_ALL OBJECT
+    grpc-health-library EXCLUDE_FROM_ALL OBJECT
     ${HEALTH_SRCS} ${HEALTH_HDRS}
   )
 
   target_include_directories(
-    health-library
+    grpc-health-library
     PUBLIC
       $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
   )
 
   target_compile_options(
-    health-library PRIVATE
+    grpc-health-library PRIVATE
     $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>,$<CXX_COMPILER_ID:GNU>>:
       -Wall -Wextra -Wno-unused-parameter -Werror>
     $<$<CXX_COMPILER_ID:MSVC>:/W0 /D_WIN32_WINNT=0x0A00 /EHsc>
   )
 
   set_target_properties(
-    health-library
+    grpc-health-library
     PROPERTIES
       POSITION_INDEPENDENT_CODE ON
   )
