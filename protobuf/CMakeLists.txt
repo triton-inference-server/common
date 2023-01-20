@@ -169,9 +169,6 @@ if(${TRITON_COMMON_ENABLE_GRPC})
   get_filename_component(health_proto_dir "${health_proto_abspath}" PATH)
   set(HEALTH_SRCS "health.grpc.pb.cc")
   set(HEALTH_HDRS "health.grpc.pb.h")
-  if(TRITON_COMMON_ENABLE_PROTOBUF_PYTHON)
-    set(HEALTH_PY "health.grpc.py")
-  endif()
 
   add_custom_command(
     OUTPUT "${HEALTH_SRCS}" "${HEALTH_HDRS}"
@@ -184,20 +181,6 @@ if(${TRITON_COMMON_ENABLE_GRPC})
       "health.proto"
     DEPENDS "health.proto" proto-library
   )
-
-  if(TRITON_COMMON_ENABLE_PROTOBUF_PYTHON)
-    find_package(Python REQUIRED COMPONENTS Interpreter)
-    add_custom_command(
-      OUTPUT "${HEALTH_PY}"
-      COMMAND ${Python_EXECUTABLE}
-      ARGS
-        -m grpc_tools.protoc
-        -I "${health_proto_dir}"
-        --grpc_python_out "${CMAKE_CURRENT_BINARY_DIR}"
-        "health.proto"
-      DEPENDS "health.proto" proto-library
-    )
-  endif()
 
   add_library(
     health-library EXCLUDE_FROM_ALL OBJECT
@@ -222,10 +205,6 @@ if(${TRITON_COMMON_ENABLE_GRPC})
     PROPERTIES
       POSITION_INDEPENDENT_CODE ON
   )
-
-  if(TRITON_COMMON_ENABLE_PROTOBUF_PYTHON)
-    add_custom_target(health-py-library DEPENDS ${HEALTH_PY})
-  endif()
 
   install(
     FILES
