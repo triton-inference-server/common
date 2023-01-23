@@ -1,4 +1,4 @@
-# Copyright (c) 2021, NVIDIA CORPORATION. All rights reserved.
+# Copyright (c) 2021-2023, NVIDIA CORPORATION. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
@@ -156,6 +156,59 @@ if(${TRITON_COMMON_ENABLE_GRPC})
   install(
     FILES
       ${CMAKE_CURRENT_BINARY_DIR}/grpc_service.grpc.pb.h
+    DESTINATION include
+    OPTIONAL
+  )
+endif()
+
+#
+# GRPC Health Service
+#
+if(${TRITON_COMMON_ENABLE_GRPC})
+  get_filename_component(health_proto_abspath "health.proto" ABSOLUTE)
+  get_filename_component(health_proto_dir "${health_proto_abspath}" PATH)
+  set(HEALTH_SRCS "health.grpc.pb.cc")
+  set(HEALTH_HDRS "health.grpc.pb.h")
+
+  add_custom_command(
+    OUTPUT "${HEALTH_SRCS}" "${HEALTH_HDRS}"
+    COMMAND ${_PROTOBUF_PROTOC}
+    ARGS
+      --grpc_out "${CMAKE_CURRENT_BINARY_DIR}"
+      --cpp_out "${CMAKE_CURRENT_BINARY_DIR}"
+      -I "${health_proto_dir}"
+      --plugin=protoc-gen-grpc="${_GRPC_CPP_PLUGIN_EXECUTABLE}"
+      "health.proto"
+    DEPENDS "health.proto" proto-library
+  )
+
+  add_library(
+    grpc-health-library EXCLUDE_FROM_ALL OBJECT
+    ${HEALTH_SRCS} ${HEALTH_HDRS}
+  )
+
+  target_include_directories(
+    grpc-health-library
+    PUBLIC
+      $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
+  )
+
+  target_compile_options(
+    grpc-health-library PRIVATE
+    $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>,$<CXX_COMPILER_ID:GNU>>:
+      -Wall -Wextra -Wno-unused-parameter -Werror>
+    $<$<CXX_COMPILER_ID:MSVC>:/W0 /D_WIN32_WINNT=0x0A00 /EHsc>
+  )
+
+  set_target_properties(
+    grpc-health-library
+    PROPERTIES
+      POSITION_INDEPENDENT_CODE ON
+  )
+
+  install(
+    FILES
+      ${CMAKE_CURRENT_BINARY_DIR}/health.grpc.pb.h
     DESTINATION include
     OPTIONAL
   )

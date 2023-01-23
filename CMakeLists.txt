@@ -1,4 +1,4 @@
-# Copyright 2020-2022, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# Copyright 2020-2023, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
@@ -376,6 +376,7 @@ endif()
 if(${TRITON_COMMON_ENABLE_GRPC})
   install(
     TARGETS
+      grpc-health-library
       grpc-service-library
 #      grpc-service-py-library
     EXPORT
