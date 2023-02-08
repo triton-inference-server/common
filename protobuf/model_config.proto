@@ -1560,6 +1560,13 @@ message ModelEnsembling
     //@@     can appear in an output map only once.
     //@@
     map<string, string> output_map = 4;
+
+    //@@  .. cpp:var:: string model_namespace
+    //@@
+    //@@     [RESERVED] currently this field is reserved for internal use, users
+    //@@     must not set any value to this field to avoid unexpected behavior.
+    //@@
+    string model_namespace = 5;
   }
 
   //@@  .. cpp:var:: Step step (repeated)
