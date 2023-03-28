@@ -25,11 +25,10 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 cmake_minimum_required (VERSION 3.18)
-
 add_executable(triton-json-test triton_json_test.cc ../../error.cc)
 target_link_libraries(
   triton-json-test 
-	Test::gtest
+	GTest::gtest
   GTest::gtest_main)
 
 target_include_directories(
@@ -39,6 +38,12 @@ target_include_directories(
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../../include>
   PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}
+)
+
+set_target_properties(
+  triton-json-test
+  PROPERTIES
+    OUTPUT_NAME triton_json_test
 )
 
 install(
