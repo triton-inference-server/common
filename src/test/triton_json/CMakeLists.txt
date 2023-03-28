@@ -27,9 +27,10 @@
 cmake_minimum_required (VERSION 3.18)
 
 add_executable(triton-json-test triton_json_test.cc ../../error.cc)
-target_link_libraries(triton-json-test 
-	GTest::gtest
-        GTest::gtest_main)
+target_link_libraries(
+  triton-json-test 
+	Test::gtest
+  GTest::gtest_main)
 
 target_include_directories(
   triton-json-test
@@ -39,6 +40,7 @@ target_include_directories(
   PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}
 )
+
 install(
     TARGETS triton-json-test
     RUNTIME DESTINATION bin

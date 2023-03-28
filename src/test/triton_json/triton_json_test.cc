@@ -28,12 +28,11 @@
 
 #define TRITONJSON_STATUSTYPE Error
 #define TRITONJSON_STATUSRETURN(M) \
-     return Error(Error::Code::INTERNAL, (M).c_str())
+  return Error(Error::Code::INTERNAL, (M).c_str())
 #define TRITONJSON_STATUSSUCCESS Error()
 
-#include "triton/common/triton_json.h"
 #include "gtest/gtest.h"
-#include <memory>
+#include "triton/common/triton_json.h"
 
 namespace {
 
@@ -55,12 +54,88 @@ TEST(JsonTypeCheck, TestIsBool)
   ASSERT_FALSE(x.IsBool());
 }
 
-TEST(JsonTypeCheck, TestIsObject) {}
-// TEST(JsonTypeCheck, TestIsString) {}
-// TEST(JsonTypeCheck, TestIsArray) {}
-// TEST(JsonTypeCheck, TestIsDouble) {}
-// TEST(JsonTypeCheck, TestIsFloat) {}
-// TEST(JsonTypeCheck, TestIsInt) {}
+TEST(JsonTypeCheck, TestIsObject)
+{
+  triton::common::TritonJson::Value value;
+  value.Parse("{\"x\": {}}");
+
+  triton::common::TritonJson::Value x;
+  ASSERT_TRUE(value.Find("x", &x));
+  ASSERT_TRUE(x.IsObject());
+
+  value.Parse("{\"x\": 2}");
+  ASSERT_TRUE(value.Find("x", &x));
+  ASSERT_FALSE(x.IsObject());
+}
+
+TEST(JsonTypeCheck, TestIsString) {
+  triton::common::TritonJson::Value value;
+  value.Parse("{\"x\": \"123\"}");
+
+  triton::common::TritonJson::Value x;
+  ASSERT_TRUE(value.Find("x", &x));
+  ASSERT_TRUE(x.IsString());
+
+  value.Parse("{\"x\": 2}");
+  ASSERT_TRUE(value.Find("x", &x));
+  ASSERT_FALSE(x.IsString());
+}
+
+TEST(JsonTypeCheck, TestIsArray) {
+  triton::common::TritonJson::Value value;
+  value.Parse("{\"x\": []}");
+
+  triton::common::TritonJson::Value x;
+  ASSERT_TRUE(value.Find("x", &x));
+  ASSERT_TRUE(x.IsArray());
+
+  value.Parse("{\"x\": 2}");
+  ASSERT_TRUE(value.Find("x", &x));
+  ASSERT_FALSE(x.IsArray());
+}
+
+TEST(JsonTypeCheck, TestIsNumber) {
+  triton::common::TritonJson::Value value;
+  value.Parse("{\"x\": 2.0}");
+
+  triton::common::TritonJson::Value x;
+  ASSERT_TRUE(value.Find("x", &x));
+  ASSERT_TRUE(x.IsNumber());
+
+  value.Parse("{\"x\": 2.001}");
+  ASSERT_TRUE(value.Find("x", &x));
+  ASSERT_TRUE(x.IsNumber());
+
+  value.Parse("{\"x\": 2}");
+  ASSERT_TRUE(value.Find("x", &x));
+  ASSERT_TRUE(x.IsNumber());
+
+  value.Parse("{\"x\": \"a\"}");
+  ASSERT_TRUE(value.Find("x", &x));
+  ASSERT_FALSE(x.IsNumber());
+}
+
+TEST(JsonTypeCheck, TestIsInt) {
+  triton::common::TritonJson::Value value;
+  value.Parse("{\"x\": 2.0}");
+
+  triton::common::TritonJson::Value x;
+  ASSERT_TRUE(value.Find("x", &x));
+  ASSERT_FALSE(x.IsInt());
+
+  value.Parse("{\"x\": 2}");
+  ASSERT_TRUE(value.Find("x", &x));
+  ASSERT_TRUE(x.IsInt());
+
+  value.Parse("{\"x\": -2}");
+  ASSERT_TRUE(value.Find("x", &x));
+  ASSERT_TRUE(x.IsInt());
+
+  value.Parse("{\"x\": \"a\"}");
+  ASSERT_TRUE(value.Find("x", &x));
+  ASSERT_FALSE(x.IsInt());
+}
+
 }  // namespace
 
 int

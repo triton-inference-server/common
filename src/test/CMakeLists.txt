@@ -29,7 +29,6 @@ cmake_minimum_required (VERSION 3.18)
 #
 # Unit tests
 #
-
 include(FetchContent)
 
 FetchContent_Declare(

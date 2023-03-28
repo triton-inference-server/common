@@ -927,12 +927,6 @@ class TritonJson {
       return object.IsArray();
     }
 
-    bool IsDouble()
-    {
-      const rapidjson::Value& object = AsValue();
-      return object.IsDouble();
-    }
-
     bool IsObject()
     {
       const rapidjson::Value& object = AsValue();
@@ -951,10 +945,10 @@ class TritonJson {
       return object.IsBool();
     }
 
-    bool IsFloat()
+    bool IsNumber()
     {
       const rapidjson::Value& object = AsValue();
-      return object.IsFloat();
+      return object.IsNumber();
     }
 
     // Get array element at a given index within this array.
