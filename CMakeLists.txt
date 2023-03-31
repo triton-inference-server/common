@@ -64,59 +64,6 @@ target_compile_options(common-compile-settings INTERFACE
 )
 
 #
-# Error
-#
-add_library(
-  triton-common-error
-  src/error.cc
-  )
-
-add_library(
-  TritonCommon::triton-common-error ALIAS triton-common-error
-)
-
-target_include_directories(
-  triton-common-error
-  PUBLIC
-    $<INSTALL_INTERFACE:include>
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-  PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}/src
-)
-
-target_link_libraries(triton-common-error PRIVATE common-compile-settings)
-
-#
-# Logging
-#
-add_library(
-  triton-common-logging
-  src/logging.cc
-)
-
-add_library(
-  TritonCommon::triton-common-logging ALIAS triton-common-logging
-)
-
-target_include_directories(
-  triton-common-logging
-  PUBLIC
-    $<INSTALL_INTERFACE:include>
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-  PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}/src
-)
-
-if(${TRITON_ENABLE_LOGGING})
-  target_compile_definitions(
-    triton-common-logging
-    PRIVATE TRITON_ENABLE_LOGGING=1
-  )
-endif() # TRITON_ENABLE_LOGGING
-
-target_link_libraries(triton-common-logging PRIVATE common-compile-settings)
-
-#
 # SyncQueue
 #
 add_library(
@@ -134,63 +81,6 @@ target_include_directories(
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
 )
 
-#
-# Async Work Queue
-#
-add_library(
-  triton-common-async-work-queue
-  src/async_work_queue.cc
-  src/error.cc
-  src/thread_pool.cc
-)
-
-add_library(
-  TritonCommon::triton-common-async-work-queue ALIAS  triton-common-async-work-queue
-)
-
-target_include_directories(
-  triton-common-async-work-queue
-  PUBLIC
-    $<INSTALL_INTERFACE:include>
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-  PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}/src
-)
-
-target_link_libraries(triton-common-async-work-queue
-  PUBLIC
-    Threads::Threads
-  PRIVATE
-    common-compile-settings
-)
-
-#
-# Thread Pool 
-#
-add_library(
-  triton-common-thread-pool
-  src/thread_pool.cc
-)
-
-add_library(
-  TritonCommon::triton-common-thread-pool ALIAS  triton-common-thread-pool
-)
-
-target_include_directories(
-  triton-common-thread-pool
-  PUBLIC
-    $<INSTALL_INTERFACE:include>
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-  PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}/src
-)
-
-target_link_libraries(triton-common-thread-pool
-  PUBLIC
-    Threads::Threads
-  PRIVATE
-    common-compile-settings
-)
 
 #
 # JSON utilities
@@ -214,69 +104,7 @@ if(TRITON_COMMON_ENABLE_JSON)
   )
 endif()
 
-#
-# Table Printer
-#
-add_library(
-  triton-common-table-printer
-  src/table_printer.cc
-)
-
-add_library(
-  TritonBackend::triton-common-table-printer ALIAS triton-common-table-printer
-)
-
-target_include_directories(
-  triton-common-table-printer
-  PUBLIC
-    $<INSTALL_INTERFACE:include>
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-  PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}/src
-)
-
-target_link_libraries(triton-common-table-printer PRIVATE common-compile-settings)
-
-set_target_properties(
-  triton-common-async-work-queue
-  triton-common-error
-  triton-common-logging
-  triton-common-table-printer
-  triton-common-thread-pool
-  PROPERTIES
-    WINDOWS_EXPORT_ALL_SYMBOLS TRUE
-    POSITION_INDEPENDENT_CODE ON
-)
-
-set_target_properties(
-  triton-common-async-work-queue
-  PROPERTIES
-    OUTPUT_NAME tritonasyncworkqueue
-)
-
-set_target_properties(
-  triton-common-thread-pool
-  PROPERTIES
-    OUTPUT_NAME tritonthreadpool
-)
-
-set_target_properties(
-  triton-common-error
-  PROPERTIES
-    OUTPUT_NAME tritoncommonerror
-)
-
-set_target_properties(
-  triton-common-logging
-  PROPERTIES
-    OUTPUT_NAME tritoncommonlogging
-)
-
-set_target_properties(
-  triton-common-table-printer
-  PROPERTIES
-    OUTPUT_NAME tritontableprinter
-)
+add_subdirectory(src)
 
 #
 # Protobuf and GRPC artifacts

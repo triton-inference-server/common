@@ -1,4 +1,4 @@
-// Copyright 2020-2022, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// Copyright 2020-2023, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions
@@ -913,6 +913,42 @@ class TritonJson {
       }
       *value = v.GetDouble();
       return TRITONJSON_STATUSSUCCESS;
+    }
+
+    bool IsString()
+    {
+      const rapidjson::Value& object = AsValue();
+      return object.IsString();
+    }
+
+    bool IsArray()
+    {
+      const rapidjson::Value& object = AsValue();
+      return object.IsArray();
+    }
+
+    bool IsObject()
+    {
+      const rapidjson::Value& object = AsValue();
+      return object.IsObject();
+    }
+
+    bool IsInt()
+    {
+      const rapidjson::Value& object = AsValue();
+      return object.IsInt64();
+    }
+
+    bool IsBool()
+    {
+      const rapidjson::Value& object = AsValue();
+      return object.IsBool();
+    }
+
+    bool IsNumber()
+    {
+      const rapidjson::Value& object = AsValue();
+      return object.IsNumber();
     }
 
     // Get array element at a given index within this array.
