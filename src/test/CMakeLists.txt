@@ -37,4 +37,7 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(googletest)
 
-add_subdirectory(triton_json triton_json)
+if (TRITON_COMMON_ENABLE_JSON)
+    add_subdirectory(triton_json triton_json)
+endif()
+
