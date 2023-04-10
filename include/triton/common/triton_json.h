@@ -30,6 +30,8 @@
 // RapidJSON's GetObject.
 // https://github.com/Tencent/rapidjson/issues/1448
 #undef GetObject
+// Define NOMINMAX to build successfully with std::min/max
+#define NOMINMAX
 #include <rapidjson/document.h>
 #else
 // Disable class-memaccess warning to facilitate compilation with gcc>7
