@@ -55,6 +55,8 @@ endif()
 
 add_library(common-compile-settings INTERFACE)
 
+target_compile_definitions(common-compile-settings INTERFACE NOMINMAX)
+
 target_compile_features(common-compile-settings INTERFACE cxx_std_11)
 
 target_compile_options(common-compile-settings INTERFACE
