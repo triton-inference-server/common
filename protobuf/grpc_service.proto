@@ -1032,6 +1032,33 @@ message InferBatchStatistics
 }
 
 //@@
+//@@.. cpp:var:: message MemoryUsage
+//@@
+//@@   Memory usage.
+//@@
+message MemoryUsage 
+{
+  //@@  .. cpp:var:: string type
+  //@@
+  //@@     The type of memory, the value can be "CPU", "CPU_PINNED", "GPU".
+  //@@
+  string type = 1;
+
+  //@@  .. cpp:var:: uint64 id
+  //@@
+  //@@     The id of the memory, typically used with "type" to identify
+  //@@     a device that hosts the memory.
+  //@@
+  uint64_t id = 2;
+
+  //@@  .. cpp:var:: uint64 byte_size
+  //@@
+  //@@     The byte size of the memory.
+  //@@
+  uint64_t byte_size = 3;
+}
+
+//@@
 //@@.. cpp:var:: message ModelStatistics
 //@@
 //@@   Statistics for a specific model and version.
@@ -1100,6 +1127,19 @@ message ModelStatistics
   //@@     compute).
   //@@
   repeated InferBatchStatistics batch_stats = 7;
+
+  //@@  .. cpp:var:: MemoryUsage memory_usage (repeated)
+  //@@    
+  //@@     The memory usage detected during model loading, which may be used to
+  //@@     estimate the memory to be released once the model is unloaded. Note
+  //@@     that the estimation is inferenced by the profiling tools and
+  //@@     framework's memory schema, therefore it is advised to perform
+  //@@     experiments to understand the scenario that the reported memory usage
+  //@@     can be relied on. As a starting point, the GPU memory usage for
+  //@@     models in ONNX Runtime backend and TensorRT backend is usually
+  //@@     aligned.
+  //@@
+  repeated MemoryUsage memory_usage = 8;
 }
 
 //@@
