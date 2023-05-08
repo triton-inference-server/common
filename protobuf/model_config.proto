@@ -1799,10 +1799,9 @@ message ModelConfig
 
   //@@  .. cpp:var:: string platform
   //@@
-  //@@     The framework for the model. Possible values are
-  //@@     "tensorrt_plan", "tensorflow_graphdef",
-  //@@     "tensorflow_savedmodel", "onnxruntime_onnx",
-  //@@     "pytorch_libtorch".
+  //@@     Additional backend-specific configuration for the model.
+  //@@     Please refer to the backend documentation on whether this field
+  //@@     should be specified.
   //@@
   string platform = 2;
 
