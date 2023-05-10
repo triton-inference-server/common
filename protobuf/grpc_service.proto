@@ -1044,12 +1044,12 @@ message MemoryUsage
   //@@
   string type = 1;
 
-  //@@  .. cpp:var:: uint64 id
+  //@@  .. cpp:var:: int64 id
   //@@
   //@@     The id of the memory, typically used with "type" to identify
   //@@     a device that hosts the memory.
   //@@
-  uint64 id = 2;
+  int64 id = 2;
 
   //@@  .. cpp:var:: uint64 byte_size
   //@@
