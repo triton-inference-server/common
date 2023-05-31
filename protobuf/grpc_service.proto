@@ -462,6 +462,18 @@ message InferParameter
     //@@       A string parameter value.
     //@@
     string string_param = 3;
+
+    //@@    .. cpp:var:: double double_param
+    //@@
+    //@@       A double parameter value.
+    //@@
+    double double_param = 4;
+
+    //@@    .. cpp:var:: uint64 uint64_param
+    //@@
+    //@@       A uint64 parameter value.
+    //@@
+    uint64 uint64_param = 5;
   }
 }
 
