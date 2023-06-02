@@ -239,6 +239,15 @@ class TritonJson {
       return TRITONJSON_STATUSSUCCESS;
     }
 
+    // Set/overwrite an unsigned integer in a value. This changes the
+    // type of the value to unsigned int.
+    TRITONJSON_STATUSTYPE SetUInt(const uint64_t value)
+    {
+      rapidjson::Value& v = AsMutableValue();
+      v.SetUint64(value);
+      return TRITONJSON_STATUSSUCCESS;
+    }
+
     // Set/overwrite a string in a value. This changes the
     // type of the value to string
     TRITONJSON_STATUSTYPE SetString(const std::string& value)
