@@ -440,8 +440,12 @@ message InferParameter
 {
   //@@  .. cpp:var:: oneof parameter_choice
   //@@
-  //@@     The parameter value can be a string, an int64 or
-  //@@     a boolean
+  //@@     The parameter value can be a string, an int64,
+  //@@     an uint64, a double, or a boolean
+  //@@
+  //@@     Note: double and uint64 are currently
+  //@@           placeholders for future use and
+  //@@           are not supported for custom parameters
   //@@
   oneof parameter_choice
   {
@@ -467,11 +471,15 @@ message InferParameter
     //@@
     //@@       A double parameter value.
     //@@
+    //@@       Not supported for custom parameters
+    //@@
     double double_param = 4;
 
     //@@    .. cpp:var:: uint64 uint64_param
     //@@
     //@@       A uint64 parameter value.
+    //@@
+    //@@       Not supported for custom parameters
     //@@
     uint64 uint64_param = 5;
   }
