@@ -228,6 +228,8 @@ class TritonJson {
       return TRITONJSON_STATUSSUCCESS;
     }
 
+    // FIXME Should have Set* for all types.
+
     // Set/overwrite a signed integer in a value. This changes the
     // type of the value to signed int.
     TRITONJSON_STATUSTYPE SetInt(const int64_t value)
@@ -237,24 +239,6 @@ class TritonJson {
       return TRITONJSON_STATUSSUCCESS;
     }
 
-    // Set/overwrite an unsigned integer in a value. This changes the
-    // type of the value to unsigned int.
-    TRITONJSON_STATUSTYPE SetUInt(const uint64_t value)
-    {
-      rapidjson::Value& v = AsMutableValue();
-      v.SetUint64(value);
-      return TRITONJSON_STATUSSUCCESS;
-    }
-
-    // Set/overwrite a double in a value. This changes the
-    // type of the value to double.
-    TRITONJSON_STATUSTYPE SetDouble(const double value)
-    {
-      rapidjson::Value& v = AsMutableValue();
-      v.SetDouble(value);
-      return TRITONJSON_STATUSSUCCESS;
-    }
-    
     // Set/overwrite a string in a value. This changes the
     // type of the value to string
     TRITONJSON_STATUSTYPE SetString(const std::string& value)
