@@ -1134,7 +1134,7 @@ message ModelDynamicBatching
   //@@
   bool preserve_ordering = 3;
 
-  //@@  .. cpp:var:: uint64 priority_levels
+  //@@  .. cpp:var:: uint32 priority_levels
   //@@
   //@@     The number of priority levels to be enabled for the model,
   //@@     the priority level starts from 1 and 1 is the highest priority.
@@ -1143,14 +1143,14 @@ message ModelDynamicBatching
   //@@     priority 3, etc. Requests with the same priority level will be
   //@@     handled in the order that they are received.
   //@@
-  uint64 priority_levels = 4;
+  uint32 priority_levels = 4;
 
-  //@@  .. cpp:var:: uint64 default_priority_level
+  //@@  .. cpp:var:: uint32 default_priority_level
   //@@
   //@@     The priority level used for requests that don't specify their
   //@@     priority. The value must be in the range [ 1, 'priority_levels' ].
   //@@
-  uint64 default_priority_level = 5;
+  uint32 default_priority_level = 5;
 
   //@@  .. cpp:var:: ModelQueuePolicy default_queue_policy
   //@@
@@ -1161,13 +1161,13 @@ message ModelDynamicBatching
   //@@
   ModelQueuePolicy default_queue_policy = 6;
 
-  //@@  .. cpp:var:: map<uint64, ModelQueuePolicy> priority_queue_policy
+  //@@  .. cpp:var:: map<uint32, ModelQueuePolicy> priority_queue_policy
   //@@
   //@@     Specify the queue policy for the priority level. The default queue
   //@@     policy will be used if a priority level doesn't specify a queue
   //@@     policy.
   //@@
-  map<uint64, ModelQueuePolicy> priority_queue_policy = 7;
+  map<uint32, ModelQueuePolicy> priority_queue_policy = 7;
 }
 
 //@@
