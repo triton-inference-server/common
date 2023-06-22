@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-# Copyright (c) 2018-2020, NVIDIA CORPORATION. All rights reserved.
+# Copyright (c) 2018-2023, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
@@ -65,7 +65,7 @@ def visit(path):
                                          style_config='google')
         return True
     else:
-        args = ['clang-format-6.0', '--style=file', '-i']
+        args = ['clang-format-15', '--style=file', '-i']
         if FLAGS.verbose:
             args.append('-verbose')
         args.append(path)
