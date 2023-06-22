@@ -68,7 +68,8 @@ TEST(JsonTypeCheck, TestIsObject)
   ASSERT_FALSE(x.IsObject());
 }
 
-TEST(JsonTypeCheck, TestIsString) {
+TEST(JsonTypeCheck, TestIsString)
+{
   triton::common::TritonJson::Value value;
   value.Parse("{\"x\": \"123\"}");
 
@@ -81,7 +82,8 @@ TEST(JsonTypeCheck, TestIsString) {
   ASSERT_FALSE(x.IsString());
 }
 
-TEST(JsonTypeCheck, TestIsArray) {
+TEST(JsonTypeCheck, TestIsArray)
+{
   triton::common::TritonJson::Value value;
   value.Parse("{\"x\": []}");
 
@@ -94,7 +96,8 @@ TEST(JsonTypeCheck, TestIsArray) {
   ASSERT_FALSE(x.IsArray());
 }
 
-TEST(JsonTypeCheck, TestIsNumber) {
+TEST(JsonTypeCheck, TestIsNumber)
+{
   triton::common::TritonJson::Value value;
   value.Parse("{\"x\": 2.0}");
 
@@ -115,7 +118,8 @@ TEST(JsonTypeCheck, TestIsNumber) {
   ASSERT_FALSE(x.IsNumber());
 }
 
-TEST(JsonTypeCheck, TestIsInt) {
+TEST(JsonTypeCheck, TestIsInt)
+{
   triton::common::TritonJson::Value value;
   value.Parse("{\"x\": 2.0}");
 

@@ -49,6 +49,7 @@
 #include <rapidjson/rapidjson.h>
 #include <rapidjson/stringbuffer.h>
 #include <rapidjson/writer.h>
+
 #include <string>
 #include <vector>
 
@@ -254,7 +255,7 @@ class TritonJson {
       v.SetDouble(value);
       return TRITONJSON_STATUSSUCCESS;
     }
-    
+
     // Set/overwrite a string in a value. This changes the
     // type of the value to string
     TRITONJSON_STATUSTYPE SetString(const std::string& value)

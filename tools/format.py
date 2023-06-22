@@ -65,7 +65,7 @@ def visit(path):
                                          style_config='google')
         return True
     else:
-        args = ['clang-format-6.0', '--style=file', '-i']
+        args = ['clang-format-15', '--style=file', '-i']
         if FLAGS.verbose:
             args.append('-verbose')
         args.append(path)

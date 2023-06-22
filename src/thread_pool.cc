@@ -25,6 +25,7 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "triton/common/thread_pool.h"
+
 #include <stdexcept>
 
 namespace triton { namespace common {

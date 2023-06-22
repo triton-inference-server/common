@@ -943,7 +943,7 @@ message InferStatistics
   //@@  .. cpp:var:: StatisticDuration queue
   //@@
   //@@     The count and cumulative duration that inference requests wait in
-  //@@     scheduling or other queues. The "queue" count and cumulative 
+  //@@     scheduling or other queues. The "queue" count and cumulative
   //@@     duration includes cache hits.
   //@@
   StatisticDuration queue = 3;
@@ -985,7 +985,7 @@ message InferStatistics
   //@@     and extract output tensor data from the Response Cache on a cache
   //@@     hit. For example, this duration should include the time to copy
   //@@     output tensor data from the Response Cache to the response object.
-  //@@     On cache hits, triton does not need to go to the model/backend 
+  //@@     On cache hits, triton does not need to go to the model/backend
   //@@     for the output tensor data, so the "compute_input", "compute_infer",
   //@@     and "compute_output" fields are not updated. Assuming the response
   //@@     cache is enabled for a given model, a cache hit occurs for a
@@ -993,21 +993,24 @@ message InferStatistics
   //@@     model version, model inputs) hashes to an existing entry in the
   //@@     cache. On a cache miss, the request hash and response output tensor
   //@@     data is added to the cache. See response cache docs for more info:
-  //@@     https://github.com/triton-inference-server/server/blob/main/docs/response_cache.md
+  //@@
+  //https://github.com/triton-inference-server/server/blob/main/docs/response_cache.md
   //@@
   StatisticDuration cache_hit = 7;
 
   //@@  .. cpp:var:: StatisticDuration cache_miss
   //@@
   //@@     The count of response cache misses and cumulative duration to lookup
-  //@@     and insert output tensor data from the computed response to the cache.
+  //@@     and insert output tensor data from the computed response to the
+  //cache.
   //@@     For example, this duration should include the time to copy
   //@@     output tensor data from the response object to the Response Cache.
   //@@     Assuming the response cache is enabled for a given model, a cache
   //@@     miss occurs for a request to that model when the request metadata
   //@@     does NOT hash to an existing entry in the cache. See the response
   //@@     cache docs for more info:
-  //@@     https://github.com/triton-inference-server/server/blob/main/docs/response_cache.md
+  //@@
+  //https://github.com/triton-inference-server/server/blob/main/docs/response_cache.md
   //@@
   StatisticDuration cache_miss = 8;
 }
@@ -1056,7 +1059,7 @@ message InferBatchStatistics
 //@@
 //@@   Memory usage.
 //@@
-message MemoryUsage 
+message MemoryUsage
 {
   //@@  .. cpp:var:: string type
   //@@
@@ -1149,7 +1152,7 @@ message ModelStatistics
   repeated InferBatchStatistics batch_stats = 7;
 
   //@@  .. cpp:var:: MemoryUsage memory_usage (repeated)
-  //@@    
+  //@@
   //@@     The memory usage detected during model loading, which may be used to
   //@@     estimate the memory to be released once the model is unloaded. Note
   //@@     that the estimation is inferenced by the profiling tools and
