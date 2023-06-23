@@ -71,7 +71,7 @@ repos:
   rev: v16.0.5
   hooks:
       - id: clang-format
-        types_or: [c, c++, cuda, proto, textproto]
+        types_or: [c, c++, cuda, proto, textproto, java]
         args: ["-fallback-style=none", "-style=file", "-i"]
 - repo: https://github.com/codespell-project/codespell
   rev: v2.2.4
