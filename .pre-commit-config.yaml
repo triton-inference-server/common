@@ -55,17 +55,14 @@ repos:
   rev: 23.1.0
   hooks:
       - id: black
-        files: python/.*
-        args: [--config, python/pyproject.toml]
+        args: [--line-length=80]
+        types_or: [python, cython]
 - repo: https://github.com/PyCQA/flake8
   rev: 5.0.4
   hooks:
       - id: flake8
-        args: [--config=python/.flake8]
-        files: python/.*$
-        types: [file]
+        args: [--max-line-length=80]
         types_or: [python, cython]
-        exclude: thirdparty
         additional_dependencies: [flake8-force]
 - repo: https://github.com/pre-commit/mirrors-clang-format
   rev: v16.0.5

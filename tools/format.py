@@ -1,6 +1,7 @@
 #!/usr/bin/python
 
-# Copyright (c) 2018-2023, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# Copyright (c) 2018-2023, NVIDIA CORPORATION & AFFILIATES.
+# All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
@@ -32,8 +33,8 @@ import subprocess
 import yapf
 
 FLAGS = None
-FORMAT_EXTS = ('proto', 'cc', 'cu', 'h')
-SKIP_PATHS = ('tools',)
+FORMAT_EXTS = ("proto", "cc", "cu", "h")
+SKIP_PATHS = ("tools",)
 
 
 def visit(path):
@@ -43,10 +44,10 @@ def visit(path):
     valid_ext = False
     python_file = False
     for ext in FORMAT_EXTS:
-        if path.endswith('.' + ext):
+        if path.endswith("." + ext):
             valid_ext = True
             break
-    if path.endswith('.py'):
+    if path.endswith(".py"):
         valid_ext = True
         python_file = True
     if not valid_ext:
@@ -60,14 +61,14 @@ def visit(path):
                 print("skipping due to path prefix: " + path)
             return True
     if python_file:
-        yapf.yapflib.yapf_api.FormatFile(path,
-                                         in_place=True,
-                                         style_config='google')
+        yapf.yapflib.yapf_api.FormatFile(
+            path, in_place=True, style_config="google"
+        )
         return True
     else:
-        args = ['clang-format-15', '--style=file', '-i']
+        args = ["clang-format-15", "--style=file", "-i"]
         if FLAGS.verbose:
-            args.append('-verbose')
+            args.append("-verbose")
         args.append(path)
 
         ret = subprocess.call(args)
@@ -78,24 +79,28 @@ def visit(path):
     return True
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('-v',
-                        '--verbose',
-                        action="store_true",
-                        required=False,
-                        default=False,
-                        help='Enable verbose output')
-    parser.add_argument('paths',
-                        type=str,
-                        nargs='*',
-                        default=None,
-                        help='Directories or files to format')
+    parser.add_argument(
+        "-v",
+        "--verbose",
+        action="store_true",
+        required=False,
+        default=False,
+        help="Enable verbose output",
+    )
+    parser.add_argument(
+        "paths",
+        type=str,
+        nargs="*",
+        default=None,
+        help="Directories or files to format",
+    )
     FLAGS = parser.parse_args()
 
     # Check the version of yapf. Needs a consistent version
     # of yapf to prevent unnecessary changes in the code.
-    if (yapf.__version__ != '0.30.0'):
+    if yapf.__version__ != "0.30.0":
         print("Needs yapf 0.30.0, but got yapf {}".format(yapf.__version__))
 
     if (FLAGS.paths is None) or (len(FLAGS.paths) == 0):
