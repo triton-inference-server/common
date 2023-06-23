@@ -27,7 +27,7 @@
 cmake_minimum_required (VERSION 3.18)
 add_executable(triton-json-test triton_json_test.cc ../../error.cc)
 target_link_libraries(
-  triton-json-test 
+  triton-json-test
 	GTest::gtest
   GTest::gtest_main)
 
