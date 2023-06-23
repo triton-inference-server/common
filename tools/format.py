@@ -94,7 +94,7 @@ if __name__ == '__main__':
     FLAGS = parser.parse_args()
 
     # Check the version of yapf. Needs a consistent version
-    # of yapf to prevent unneccessary changes in the code.
+    # of yapf to prevent unnecessary changes in the code.
     if (yapf.__version__ != '0.30.0'):
         print("Needs yapf 0.30.0, but got yapf {}".format(yapf.__version__))
 

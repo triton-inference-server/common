@@ -149,7 +149,7 @@ TablePrinter::FairShare()
                 line.substr(start_index, end_index - start_index));
           }
 
-          // We need to advance the index for the splitted lines.
+          // We need to advance the index for the split lines.
           line_index += num_rows - 1;
         }
 

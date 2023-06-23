@@ -373,7 +373,7 @@ class TritonJson {
       return TRITONJSON_STATUSSUCCESS;
     }
 
-    // Add a reference to a expicit-length string as a new member to
+    // Add a reference to a explicit-length string as a new member to
     // this value. It is assumed that 'name' and 'value' can be used
     // by reference, it is the caller's responsibility to make sure
     // the lifetime of 'name' and 'value' extend at least as long as
@@ -531,7 +531,7 @@ class TritonJson {
       return TRITONJSON_STATUSSUCCESS;
     }
 
-    // Append a reference to a expicit-length string to this value,
+    // Append a reference to a explicit-length string to this value,
     // which must be an array. It is assumed that 'value' can be used
     // by reference, it is the caller's responsibility to make sure
     // the lifetime of 'value' extends at least as long as the object.
@@ -688,7 +688,7 @@ class TritonJson {
       return false;
     }
 
-    // Whether the object is null value. Note that false will also be retuned
+    // Whether the object is null value. Note that false will also be returned
     // if the object is not a JSON value.
     bool IsNull() const { return ((value_ != nullptr) && value_->IsNull()); }
 
