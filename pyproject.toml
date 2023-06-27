@@ -36,6 +36,7 @@ builtin = "clear"
 quiet-level = 3
 
 [tool.isort]
+profile = "black"
 use_parentheses = true
 multi_line_output = 3
 include_trailing_comma = true
@@ -45,3 +46,8 @@ line_length = 88
 balanced_wrapping = true
 indent = "    "
 skip = ["build"]
+
+[tools.flake8]
+max-line-length = 88
+select = ['C', 'E', 'F', 'W', 'B', 'B950']
+extend-ignore = ['E203', 'E501']
