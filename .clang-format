@@ -35,3 +35,4 @@ BinPackParameters: true
 ConstructorInitializerAllOnOneLineOrOnePerLine: false
 
 IndentCaseLabels: true
+
