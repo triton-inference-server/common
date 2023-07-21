@@ -203,6 +203,7 @@ endif()
 
 if(${TRITON_COMMON_ENABLE_GRPC})
   target_compile_features(grpc-health-library PRIVATE cxx_std_17)
+  target_compile_features(grpc-service-library PRIVATE cxx_std_17)
   install(
     TARGETS
       grpc-health-library
