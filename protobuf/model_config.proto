@@ -1470,7 +1470,13 @@ message ModelSequenceBatching
     //@@       batcher to ensure that the sequence responses are in the correct
     //@@       order.
     //@@
-    //@@       When using decoupled models, setting this to true may block the responses from independent sequences from being returned to the client until the previous request completes, hurting overall performance. If using GRPC streaming protocol, the stream ordering guarantee may be sufficient alone to ensure the responses for each sequence are returned in sequence-order without blocking based on independent requests, depending on the use case.
+    //@@       When using decoupled models, setting this to true may block the
+    //@@       responses from independent sequences from being returned to the
+    //@@       client until the previous request completes, hurting overall
+    //@@       performance. If using GRPC streaming protocol, the stream ordering
+    //@@       guarantee may be sufficient alone to ensure the responses for each
+    //@@       sequence are returned in sequence-order without blocking based on
+    //@@       independent requests, depending on the use case.
     //@@
     bool preserve_ordering = 4;
   }
