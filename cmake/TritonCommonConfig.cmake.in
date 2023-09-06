@@ -43,7 +43,7 @@ check_required_components(triton-common-json
   triton-common-thread-pool
 )
 
-set(TRITONCOMMON_LIBRARIES 
+set(TRITONCOMMON_LIBRARIES
   TritonCommon::triton-common-json
   TritonCommon::triton-common-sync-queue
   TritonCommon::triton-common-async-work-queue

@@ -1,5 +1,4 @@
-#!/bin/bash
-# Copyright (c) 2021, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# Copyright 2023, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
@@ -25,32 +24,25 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-###############################################################################
-#
-# Git pre-commit hook for Triton related projects
-#
-# To install this hook for a project, copy "pre-commit" and "format.py" into
-# ".git/hooks/" directory of the project
-#
-###############################################################################
+[tool.codespell]
+# note: pre-commit passes explicit lists of files here, which this skip file list doesn't override -
+# this is only to allow you to run codespell interactively
+skip = "./.git,./.github"
+# ignore short words, and typename parameters like OffsetT
+ignore-regex = "\\b(.{1,4}|[A-Z]\\w*T)\\b"
+# use the 'clear' dictionary for unambiguous spelling mistakes
+builtin = "clear"
+# disable warnings about binary files and wrong encoding
+quiet-level = 3
 
-###############################################################################
-#
-# Run formatter script
-#
-###############################################################################
-
-# Repo root
-GIT_REPO_ROOT=$(git rev-parse --show-toplevel)
-
-PYTHON_CMD=python3
-FORMATTER_PY=${GIT_REPO_ROOT}/.git/hooks/format.py
-
-CHANGED_FILES="$(git --no-pager diff --name-status --no-color --cached | awk '{ if (match($1, /R[0-9]+/)) { print $3 } else if ($1 != "D") { print $2 } }')"
-
-echo "Running Python auto-format..."
-for CHANGED_FILE in $CHANGED_FILES;
-do
-    ${PYTHON_CMD} ${FORMATTER_PY} ${GIT_REPO_ROOT}/${CHANGED_FILE}
-    git add ${GIT_REPO_ROOT}/${CHANGED_FILE}
-done
+[tool.isort]
+profile = "black"
+use_parentheses = true
+multi_line_output = 3
+include_trailing_comma = true
+force_grid_wrap = 0
+ensure_newline_before_comments = true
+line_length = 88
+balanced_wrapping = true
+indent = "    "
+skip = ["build"]

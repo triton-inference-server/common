@@ -109,7 +109,7 @@ target_link_libraries(triton-common-async-work-queue
 )
 
 #
-# Thread Pool 
+# Thread Pool
 #
 add_library(
   triton-common-thread-pool

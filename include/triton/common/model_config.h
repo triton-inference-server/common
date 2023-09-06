@@ -71,28 +71,28 @@ enum Platform {
 /// \param dims The shape.
 /// \return The number of elements, or -1 if the number of elements
 /// cannot be determined because the shape contains one or more
-/// wilcard dimensions.
+/// wildcard dimensions.
 int64_t GetElementCount(const DimsList& dims);
 
 /// Get the number of elements in a shape.
 /// \param dims The shape.
 /// \return The number of elements, or -1 if the number of elements
 /// cannot be determined because the shape contains one or more
-/// wilcard dimensions.
+/// wildcard dimensions.
 int64_t GetElementCount(const std::vector<int64_t>& dims);
 
 /// Get the number of elements in the shape of a model input.
 /// \param mio The model input.
 /// \return The number of elements, or -1 if the number of elements
 /// cannot be determined because the shape contains one or more
-/// wilcard dimensions.
+/// wildcard dimensions.
 int64_t GetElementCount(const inference::ModelInput& mio);
 
 /// Get the number of elements in the shape of a model output.
 /// \param mio The model output.
 /// \return The number of elements, or -1 if the number of elements
 /// cannot be determined because the shape contains one or more
-/// wilcard dimensions.
+/// wildcard dimensions.
 int64_t GetElementCount(const inference::ModelOutput& mio);
 
 /// Are values of a datatype fixed-size, or variable-sized.
