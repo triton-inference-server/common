@@ -128,7 +128,6 @@ class Logger {
   // Get the mutex.
   std::mutex& GetMutex() { return mutex_; }
 
-
  private:
   std::vector<bool> enables_;
   uint32_t vlevel_;
