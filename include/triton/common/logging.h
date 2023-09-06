@@ -126,10 +126,7 @@ class Logger {
   void Flush();
 
   // Get the mutex.
-  std::mutex& GetMutex()
-    {
-        return mutex_;
-    }
+  std::mutex& GetMutex() { return mutex_; }
 
 
  private:

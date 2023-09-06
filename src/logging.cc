@@ -89,9 +89,10 @@ LogMessage::LogMessage(const char* file, int line, uint32_t level)
         stream_ << level_name_[std::min(level, (uint32_t)Level::kINFO)]
                 << std::setfill('0') << std::setw(2) << system_time.wMonth
                 << std::setw(2) << system_time.wDay << ' ' << std::setw(2)
-                << system_time.wHour << ':' << std::setw(2) << system_time.wMinute
-                << ':' << std::setw(2) << system_time.wSecond << '.'
-                << std::setw(6) << system_time.wMilliseconds * 1000 << ' '
+                << system_time.wHour << ':' << std::setw(2)
+                << system_time.wMinute << ':' << std::setw(2)
+                << system_time.wSecond << '.' << std::setw(6)
+                << system_time.wMilliseconds * 1000 << ' '
                 << static_cast<uint32_t>(GetCurrentProcessId()) << ' ' << path
                 << ':' << line << "] ";
       }
@@ -105,8 +106,8 @@ LogMessage::LogMessage(const char* file, int line, uint32_t level)
         stream_ << level_name_[std::min(level, (uint32_t)Level::kINFO)]
                 << std::setfill('0') << std::setw(2) << (tm_time.tm_mon + 1)
                 << std::setw(2) << tm_time.tm_mday << ' ' << std::setw(2)
-                << tm_time.tm_hour << ':' << std::setw(2) << tm_time.tm_min << ':'
-                << std::setw(2) << tm_time.tm_sec << '.' << std::setw(6)
+                << tm_time.tm_hour << ':' << std::setw(2) << tm_time.tm_min
+                << ':' << std::setw(2) << tm_time.tm_sec << '.' << std::setw(6)
                 << tv.tv_usec << ' ' << static_cast<uint32_t>(getpid()) << ' '
                 << path << ':' << line << "] ";
       }
@@ -122,8 +123,8 @@ LogMessage::LogMessage(const char* file, int line, uint32_t level)
         std::lock_guard<std::mutex> lk(gLogger_.GetMutex());
         stream_ << system_time.wYear << '-' << std::setfill('0') << std::setw(2)
                 << system_time.wMonth << '-' << std::setw(2) << system_time.wDay
-                << 'T' << std::setw(2) << system_time.wHour << ':' << std::setw(2)
-                << system_time.wMinute << ':' << std::setw(2)
+                << 'T' << std::setw(2) << system_time.wHour << ':'
+                << std::setw(2) << system_time.wMinute << ':' << std::setw(2)
                 << system_time.wSecond << "Z "
                 << level_name_[std::min(level, (uint32_t)Level::kINFO)] << ' '
                 << static_cast<uint32_t>(GetCurrentProcessId()) << ' ' << path
