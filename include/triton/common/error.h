@@ -44,7 +44,8 @@ class Error {
     INVALID_ARG,
     UNAVAILABLE,
     UNSUPPORTED,
-    ALREADY_EXISTS
+    ALREADY_EXISTS,
+    CANCELLED
   };
 
   explicit Error(Code code = Code::SUCCESS) : code_(code) {}
