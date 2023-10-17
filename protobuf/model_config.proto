@@ -1463,25 +1463,21 @@ message ModelSequenceBatching
     //@@       Should the dynamic batcher preserve the ordering of responses to
     //@@       match the order of requests received by the scheduler. Default is
     //@@       false. If true, the responses will be returned in the same order
-    // as
-    //@@       the order of requests sent to the scheduler. If false, the
-    // responses
-    //@@       may be returned in arbitrary order. This option is specifically
-    //@@       needed when a sequence of related inference requests (i.e.
-    // inference
-    //@@       requests with the same correlation ID) are sent to the dynamic
-    //@@       batcher to ensure that the sequence responses are in the correct
-    //@@       order.
+    //@@       as the order of requests sent to the scheduler. If false, the
+    //@@       responses may be returned in arbitrary order. This option is
+    //@@       specifically needed when a sequence of related inference requests
+    //@@       (i.e. inference requests with the same correlation ID) are sent
+    //@@       to the dynamic batcher to ensure that the sequence responses are
+    //@@       in the correct order.
     //@@
     //@@       When using decoupled models, setting this to true may block the
     //@@       responses from independent sequences from being returned to the
     //@@       client until the previous request completes, hurting overall
     //@@       performance. If using GRPC streaming protocol, the stream
-    // ordering
-    //@@       guarantee may be sufficient alone to ensure the responses for
-    // each
-    //@@       sequence are returned in sequence-order without blocking based on
-    //@@       independent requests, depending on the use case.
+    //@@       ordering guarantee may be sufficient alone to ensure the
+    //@@       responses for each sequence are returned in sequence-order
+    //@@       without blocking based on independent requests, depending on the
+    //@@       use case.
     //@@
     bool preserve_ordering = 4;
   }
@@ -1537,6 +1533,14 @@ message ModelSequenceBatching
   //@@     in the sequence contains garbage data.
   //@@
   repeated State state = 5;
+
+  //@@  .. cpp:var:: bool generative_sequence
+  //@@
+  //@@     The sequence batcher is expecting the sequence to be generative. A
+  //@@     generative sequence is initiated by single request, the sequence
+  //@@     batcher expects the same request to be "rescheduled" by the model if
+  //@@     the sequence is continuing.
+  bool generative_sequence = 6;
 }
 
 //@@
