@@ -1382,6 +1382,13 @@ message ModelSequenceBatching
     //@@     The optional field to specify the initial state for the model.
     //@@
     repeated InitialState initial_state = 5;
+
+    //@@  .. cpp:var:: bool use_single_buffer
+    //@@
+    //@@     The optional field to use a single buffer for both input and output state.
+    //@@     The default value is false.
+    //@@
+    bool use_single_buffer = 6;
   }
 
   //@@  .. cpp:var:: message StrategyDirect
