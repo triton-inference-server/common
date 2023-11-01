@@ -1842,6 +1842,12 @@ message ModelConfig
   //@@
   string backend = 17;
 
+  //@@  .. cpp:var:: string runtime
+  //@@
+  //@@     The name of the backend library file used by the model.
+  //@@
+  string runtime = 25;
+
   //@@  .. cpp:var:: ModelVersionPolicy version_policy
   //@@
   //@@     Policy indicating which version(s) of the model will be served.
