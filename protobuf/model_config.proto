@@ -1389,6 +1389,17 @@ message ModelSequenceBatching
     //@@     The default value is false.
     //@@
     bool use_single_buffer = 6;
+
+    //@@  .. cpp:var:: bool use_growable_memory
+    //@@
+    //@@     The optional field to allow an implicit state buffer to grow or shrink
+    //@@     when the size changes during a sequence. When using this option Triton
+    //@@     guarantess that it will use the same buffer even if the state size changes.
+    //@@     Currently, this option only applies for implicit state that uses CUDA and
+    //@@     use_single_buffer must be enabled.
+    //@@     The default value is false.
+    //@@
+    bool use_growable_memory = 7;
   }
 
   //@@  .. cpp:var:: message StrategyDirect
