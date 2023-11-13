@@ -1386,28 +1386,31 @@ message ModelSequenceBatching
     //@@  .. cpp:var:: bool use_same_buffer_for_input_output
     //@@
     //@@     The optional field to use a single buffer for both input and output
-    //@@     state. Without this option, Triton uses separate buffers for input
-    //@@     and output state which can be problematic if the state size is
-    //@@     large. This option can help reduce the memory usage when
-    //@@     the state size is large. There is no harm in always enabling
-    //@@     this option if the output state will be written after
-    //@@     the input state is read by the framework. Note that when using this
-    //@@     option, `TRITONBACKEND_StateUpdate` has no effect and the state
-    //@@     will be always updated.
+    //@@     state. Without this option, Triton allocates separate buffers
+    //@@     for input and output state
+    //@@     which can be problematic if the state size is
+    //@@     large. This option reduces the memory usage by allocating a single
+    //@@     buffer. Enabling this option is recommended whenever
+    //@@     the input state is processed before the output state is written.
+    //@@     When enabled the state
+    //@@     will always be updated independent of whether
+    //@@     TRITONBACKEND_StateUpdate is called
+    //@@     (however TRITONBACKEND_StateUpdate should still be called for
+    //@@     completeness).
+    //@@
     //@@     The default value is false.
     //@@
     bool use_same_buffer_for_input_output = 6;
 
     //@@  .. cpp:var:: bool use_growable_memory
     //@@
-    //@@     The optional field to allow an implicit state buffer to grow the
-    //@@     buffer when the size changes during a sequence. When using this
-    //@@     option Triton guarantess that it will use the same allocations
-    //@@     even if the state size changes.
-    //@@     The added size will be appended to the end of the buffer and the
-    //@@     will be preserved. Currently, this option only applies for
-    //@@     implicit state that uses CUDA memory and use_single_buffer must be
-    //@@     existing data enabled.
+    //@@     The optional field to enable an implicit state buffer to grow
+    // without
+    //@@     reallocating or copying existing memory.
+    //@@     Additional memory will be appended to the end of the buffer and
+    //@@     existing data will be preserved.
+    //@@     This option is only available for CUDA memory and requires enabling
+    //@@     use_same_buffer_for_input_output.
     //@@
     //@@     The default value is false.
     //@@
