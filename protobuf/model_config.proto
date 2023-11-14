@@ -1405,12 +1405,13 @@ message ModelSequenceBatching
     //@@  .. cpp:var:: bool use_growable_memory
     //@@
     //@@     The optional field to enable an implicit state buffer to grow
-    // without
-    //@@     reallocating or copying existing memory.
+    //@@     without reallocating or copying existing memory.
     //@@     Additional memory will be appended to the end of the buffer and
     //@@     existing data will be preserved.
     //@@     This option is only available for CUDA memory and requires enabling
-    //@@     use_same_buffer_for_input_output.
+    //@@     use_same_buffer_for_input_output. When using this option,
+    //@@     StateBuffer call will always return CUDA memory even if CPU memory
+    //@@     is provided.
     //@@
     //@@     The default value is false.
     //@@
