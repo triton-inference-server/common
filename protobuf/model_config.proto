@@ -1382,6 +1382,40 @@ message ModelSequenceBatching
     //@@     The optional field to specify the initial state for the model.
     //@@
     repeated InitialState initial_state = 5;
+
+    //@@  .. cpp:var:: bool use_same_buffer_for_input_output
+    //@@
+    //@@     The optional field to use a single buffer for both input and output
+    //@@     state. Without this option, Triton allocates separate buffers
+    //@@     for input and output state
+    //@@     which can be problematic if the state size is
+    //@@     large. This option reduces the memory usage by allocating a single
+    //@@     buffer. Enabling this option is recommended whenever
+    //@@     the input state is processed before the output state is written.
+    //@@     When enabled the state
+    //@@     will always be updated independent of whether
+    //@@     TRITONBACKEND_StateUpdate is called
+    //@@     (however TRITONBACKEND_StateUpdate should still be called for
+    //@@     completeness).
+    //@@
+    //@@     The default value is false.
+    //@@
+    bool use_same_buffer_for_input_output = 6;
+
+    //@@  .. cpp:var:: bool use_growable_memory
+    //@@
+    //@@     The optional field to enable an implicit state buffer to grow
+    //@@     without reallocating or copying existing memory.
+    //@@     Additional memory will be appended to the end of the buffer and
+    //@@     existing data will be preserved.
+    //@@     This option is only available for CUDA memory and requires enabling
+    //@@     use_same_buffer_for_input_output. When using this option,
+    //@@     StateBuffer call will always return CUDA memory even if CPU memory
+    //@@     is requested.
+    //@@
+    //@@     The default value is false.
+    //@@
+    bool use_growable_memory = 7;
   }
 
   //@@  .. cpp:var:: message StrategyDirect
