@@ -1411,7 +1411,7 @@ message ModelSequenceBatching
     //@@     This option is only available for CUDA memory and requires enabling
     //@@     use_same_buffer_for_input_output. When using this option,
     //@@     StateBuffer call will always return CUDA memory even if CPU memory
-    //@@     is provided.
+    //@@     is requested.
     //@@
     //@@     The default value is false.
     //@@
