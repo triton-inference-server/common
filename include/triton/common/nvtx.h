@@ -84,6 +84,7 @@ class NvtxRange {
     attr.color = rgb | 0xff000000;
     attr.messageType = NVTX_MESSAGE_TYPE_ASCII;
     attr.message.ascii = label;
+    return attr;
   }
 };
 
