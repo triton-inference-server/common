@@ -1575,7 +1575,7 @@ message ModelSequenceBatching
   //@@     request and is "rescheduled" by the model until completion.
   //@@     Requests for inflight requests will be batched together
   //@@     and can complete independently. Note this is a beta feature
-  //@@     and requires backend support.
+  //@@     and requires backend support. Default value is false.
   bool iterative_sequence = 6;
 }
 
