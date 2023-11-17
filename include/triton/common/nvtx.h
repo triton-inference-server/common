@@ -82,4 +82,3 @@ class NvtxRange {
 #define GET_NVTX_MACRO(_1, _2, _3, NAME, ...) NAME
 #define NVTX_RANGE(...) \
   GET_NVTX_MACRO(__VA_ARGS__, NVTX_RANGE2, NVTX_RANGE1)(__VA_ARGS__)
-

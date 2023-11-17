@@ -75,4 +75,3 @@ NvtxRange::GetAttributes(const char* label, uint32_t rgb)
 }  // namespace triton::common
 
 #endif  // TRITON_ENABLE_NVTX
-
