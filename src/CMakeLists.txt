@@ -53,6 +53,7 @@ target_link_libraries(triton-common-error PRIVATE common-compile-settings)
 #
 add_library(
   triton-common-logging
+  nvtx.cc
   logging.cc
 )
 
