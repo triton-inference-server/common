@@ -31,17 +31,41 @@
 
 namespace triton { namespace common {
 
+namespace detail {
+
+class NvtxTritonDomain {
+ public:
+  static nvtxDomainHandle_t& GetDomain()
+  {
+    static NvtxTritonDomain inst;
+    return inst.triton_nvtx_domain_;
+  }
+
+ private:
+  NvtxTritonDomain() { triton_nvtx_domain_ = nvtxDomainCreateA("Triton"); }
+
+  ~NvtxTritonDomain() { nvtxDomainDestroy(triton_nvtx_domain_); }
+
+  nvtxDomainHandle_t triton_nvtx_domain_;
+};
+
+}  // namespace detail
+
 // Updates a server stat with duration measured by a C++ scope.
 class NvtxRange {
  public:
-  explicit NvtxRange(const char* label, uint32_t rgb = kNvGreen);
+  explicit NvtxRange(const char* label, uint32_t rgb = kNvGreen)
+  {
+    auto attr = GetAttributes(label, rgb);
+    nvtxDomainRangePushEx(detail::NvtxTritonDomain::GetDomain(), &attr);
+  }
 
   explicit NvtxRange(const std::string& label, uint32_t rgb = kNvGreen)
       : NvtxRange(label.c_str(), rgb)
   {
   }
 
-  ~NvtxRange();
+  ~NvtxRange() { nvtxDomainRangePop(detail::NvtxTritonDomain::GetDomain()); }
 
   static constexpr uint32_t kNvGreen = 0x76b900;
   static constexpr uint32_t kRed = 0xc1121f;
@@ -51,7 +75,16 @@ class NvtxRange {
   static constexpr uint32_t kOrange = 0xfb8500;
 
  private:
-  nvtxEventAttributes_t GetAttributes(const char* label, uint32_t rgb);
+  nvtxEventAttributes_t GetAttributes(const char* label, uint32_t rgb)
+  {
+    nvtxEventAttributes_t attr;
+    attr.version = NVTX_VERSION;
+    attr.size = NVTX_EVENT_ATTRIB_STRUCT_SIZE;
+    attr.colorType = NVTX_COLOR_ARGB;
+    attr.color = rgb | 0xff000000;
+    attr.messageType = NVTX_MESSAGE_TYPE_ASCII;
+    attr.message.ascii = label
+  }
 };
 
 }}  // namespace triton::common

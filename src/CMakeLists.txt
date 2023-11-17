@@ -53,7 +53,6 @@ target_link_libraries(triton-common-error PRIVATE common-compile-settings)
 #
 add_library(
   triton-common-logging
-  nvtx.cc
   logging.cc
 )
 
@@ -76,13 +75,6 @@ if(${TRITON_ENABLE_LOGGING})
     PRIVATE TRITON_ENABLE_LOGGING=1
   )
 endif() # TRITON_ENABLE_LOGGING
-
-if(${TRITON_ENABLE_NVTX})
-  target_compile_definitions(
-          triton-common-logging
-          PRIVATE TRITON_ENABLE_NVTX=1
-  )
-endif() # TRITON_ENABLE_NVTX
 
 target_link_libraries(triton-common-logging PRIVATE common-compile-settings)
 
