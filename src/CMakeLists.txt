@@ -77,6 +77,13 @@ if(${TRITON_ENABLE_LOGGING})
   )
 endif() # TRITON_ENABLE_LOGGING
 
+if(${TRITON_ENABLE_NVTX})
+  target_compile_definitions(
+          triton-common-logging
+          PRIVATE TRITON_ENABLE_NVTX=1
+  )
+endif() # TRITON_ENABLE_NVTX
+
 target_link_libraries(triton-common-logging PRIVATE common-compile-settings)
 
 #
