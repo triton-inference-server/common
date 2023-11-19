@@ -1568,13 +1568,15 @@ message ModelSequenceBatching
   //@@
   repeated State state = 5;
 
-  //@@  .. cpp:var:: bool generative_sequence
+  //@@  .. cpp:var:: bool iterative_sequence
   //@@
-  //@@     The sequence batcher is expecting the sequence to be generative. A
-  //@@     generative sequence is initiated by single request, the sequence
-  //@@     batcher expects the same request to be "rescheduled" by the model if
-  //@@     the sequence is continuing.
-  bool generative_sequence = 6;
+  //@@     Requests for iterative sequences are processed over a number
+  //@@     of iterations. An iterative sequence is initiated by a single
+  //@@     request and is "rescheduled" by the model until completion.
+  //@@     Requests for inflight requests will be batched together
+  //@@     and can complete independently. Note this feature
+  //@@     requires backend support. Default value is false.
+  bool iterative_sequence = 6;
 }
 
 //@@
