@@ -60,7 +60,7 @@ target_compile_features(common-compile-settings INTERFACE cxx_std_11)
 target_compile_options(common-compile-settings INTERFACE
   $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>,$<CXX_COMPILER_ID:GNU>>:
     -Wall -Wextra -Wno-unused-parameter -Wno-type-limits -Werror>
-  $<$<CXX_COMPILER_ID:MSVC>:/W0 /D_WIN32_WINNT=0x0A00 /EHsc>
+  $<$<CXX_COMPILER_ID:MSVC>:/W0 /D_WIN32_WINNT=0x0A00 /EHsc /Zc:preprocessor>
 )
 
 #

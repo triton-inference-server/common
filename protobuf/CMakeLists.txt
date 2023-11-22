@@ -67,7 +67,7 @@ if(${TRITON_COMMON_ENABLE_PROTOBUF})
     proto-library PRIVATE
     $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>,$<CXX_COMPILER_ID:GNU>>:
       -Wall -Wextra -Wno-unused-parameter -Werror>
-    $<$<CXX_COMPILER_ID:MSVC>:/W0 /D_WIN32_WINNT=0x0A00 /EHsc>
+    $<$<CXX_COMPILER_ID:MSVC>:/W0 /D_WIN32_WINNT=0x0A00 /EHsc /Zc:preprocessor>
   )
 
   set_target_properties(
@@ -140,7 +140,7 @@ if(${TRITON_COMMON_ENABLE_GRPC})
     grpc-service-library PRIVATE
     $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>,$<CXX_COMPILER_ID:GNU>>:
       -Wall -Wextra -Wno-unused-parameter -Werror>
-    $<$<CXX_COMPILER_ID:MSVC>:/W0 /D_WIN32_WINNT=0x0A00 /EHsc>
+    $<$<CXX_COMPILER_ID:MSVC>:/W0 /D_WIN32_WINNT=0x0A00 /EHsc /Zc:preprocessor>
   )
 
   set_target_properties(
@@ -197,7 +197,7 @@ if(${TRITON_COMMON_ENABLE_GRPC})
     grpc-health-library PRIVATE
     $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>,$<CXX_COMPILER_ID:GNU>>:
       -Wall -Wextra -Wno-unused-parameter -Werror>
-    $<$<CXX_COMPILER_ID:MSVC>:/W0 /D_WIN32_WINNT=0x0A00 /EHsc>
+    $<$<CXX_COMPILER_ID:MSVC>:/W0 /D_WIN32_WINNT=0x0A00 /EHsc /Zc:preprocessor>
   )
 
   set_target_properties(
