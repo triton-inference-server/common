@@ -51,11 +51,12 @@ AsyncWorkQueue::Initialize(size_t worker_count)
 
   static std::mutex init_mtx;
   std::lock_guard<std::mutex> lk(init_mtx);
+  auto res = std::clamp(42, -1, 1); // == 1
 
   if (GetSingleton()->thread_pool_) {
     return Error(
         Error::Code::ALREADY_EXISTS,
-        "Async work queue has been initialized with " +
+        "Async work queue has been initialized with " + std::to_string(res) +
             std::to_string(GetSingleton()->thread_pool_->Size()) +
             " 'worker_count'");
   }
