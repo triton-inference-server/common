@@ -29,6 +29,25 @@ cmake_minimum_required(VERSION 3.17)
 project(tritoncommon LANGUAGES C CXX)
 
 #
+# C++ standard
+#
+set(TRITON_MIN_CXX_STANDARD 17 CACHE STRING "The minimum C++ standard whose features are requested to build this target.")
+# Unset CMAKE_CXX_STANDARD if it's too low and in the CMakeCache.txt
+if($CACHE{CMAKE_CXX_STANDARD} AND $CACHE{CMAKE_CXX_STANDARD} LESS ${TRITON_MIN_CXX_STANDARD})
+  message(WARNING "Resetting cache value for CMAKE_CXX_STANDARD to ${TRITON_MIN_CXX_STANDARD}")
+  unset(CMAKE_CXX_STANDARD CACHE)
+endif()
+
+# Allow manually specified CMAKE_CXX_STANDARD if it's greater than the minimum
+# required C++ version
+if(DEFINED CMAKE_CXX_STANDARD AND CMAKE_CXX_STANDARD LESS ${TRITON_MIN_CXX_STANDARD})
+  message(FATAL_ERROR "Requested CMAKE_CXX_STANDARD=${CMAKE_CXX_STANDARD} which is less than the minimum C++ standard ${TRITON_MIN_CXX_STANDARD}")
+endif()
+
+set(CMAKE_CXX_STANDARD ${TRITON_MIN_CXX_STANDARD} CACHE STRING "C++ standard to conform to")
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+#
 # Options
 #
 # Some components are expensive to build and have extensive
@@ -54,8 +73,6 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
 endif()
 
 add_library(common-compile-settings INTERFACE)
-
-target_compile_features(common-compile-settings INTERFACE cxx_std_17)
 
 target_compile_options(common-compile-settings INTERFACE
   $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>,$<CXX_COMPILER_ID:GNU>>:
