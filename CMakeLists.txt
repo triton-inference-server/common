@@ -30,13 +30,8 @@ project(tritoncommon LANGUAGES C CXX)
 
 #
 # C++ standard
+#
 set(TRITON_MIN_CXX_STANDARD 17 CACHE STRING "The minimum C++ standard whose features are requested to build this target.")
-
-if (NOT DEFINED CMAKE_CXX_STANDARD OR CMAKE_CXX_STANDARD LESS ${TRITON_MIN_CXX_STANDARD})
-  set(COMMON_CMAKE_CXX_STANDARD ${TRITON_MIN_CXX_STANDARD})
-else()
-  set(COMMON_CMAKE_CXX_STANDARD ${CMAKE_CXX_STANDARD})
-endif()
 
 #
 # Options
@@ -65,7 +60,7 @@ endif()
 
 add_library(common-compile-settings INTERFACE)
 
-target_compile_features(common-compile-settings INTERFACE cxx_std_${COMMON_CMAKE_CXX_STANDARD})
+target_compile_features(common-compile-settings INTERFACE cxx_std_${TRITON_MIN_CXX_STANDARD})
 
 target_compile_options(common-compile-settings INTERFACE
   $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>,$<CXX_COMPILER_ID:GNU>>:
