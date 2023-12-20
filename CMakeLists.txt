@@ -113,7 +113,6 @@ if(${TRITON_COMMON_ENABLE_PROTOBUF} OR ${TRITON_COMMON_ENABLE_GRPC})
   add_subdirectory(protobuf)
 
   set(protobuf_MODULE_COMPATIBLE TRUE CACHE BOOL "protobuf_MODULE_COMPATIBLE" FORCE)
-  find_package(Protobuf CONFIG REQUIRED)
   message(STATUS "Using protobuf ${Protobuf_VERSION}")
 
   #
