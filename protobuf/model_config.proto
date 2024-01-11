@@ -1,4 +1,4 @@
-// Copyright 2018-2023, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// Copyright 2018-2024, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions
@@ -1877,6 +1877,12 @@ message ModelConfig
   //@@     The backend used by the model.
   //@@
   string backend = 17;
+
+  //@@  .. cpp:var:: string runtime
+  //@@
+  //@@     The name of the backend library file used by the model.
+  //@@
+  string runtime = 25;
 
   //@@  .. cpp:var:: ModelVersionPolicy version_policy
   //@@
