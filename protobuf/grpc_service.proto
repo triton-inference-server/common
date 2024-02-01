@@ -471,8 +471,6 @@ message InferParameter
     //@@
     //@@       A double parameter value.
     //@@
-    //@@       Not supported for custom parameters
-    //@@
     double double_param = 4;
 
     //@@    .. cpp:var:: uint64 uint64_param
