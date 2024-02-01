@@ -1,4 +1,4 @@
-// Copyright 2020-2023, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// Copyright 2020-2024, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions
@@ -1014,6 +1014,45 @@ message InferStatistics
 }
 
 //@@
+//@@.. cpp:var:: message InferResponseStatistics
+//@@
+//@@   Statistics per decoupled response.
+//@@
+message InferResponseStatistics
+{
+  //@@  .. cpp:var:: StatisticDuration compute_infer
+  //@@
+  //@@     The count and cumulative duration to compute a response.
+  //@@
+  StatisticDuration compute_infer = 1;
+
+  //@@  .. cpp:var:: StatisticDuration compute_output
+  //@@
+  //@@     The count and cumulative duration to extract the output tensors of a
+  //@@     response.
+  //@@
+  StatisticDuration compute_output = 2;
+
+  //@@  .. cpp:var:: StatisticDuration success
+  //@@
+  //@@     The count and cumulative duration for successful responses.
+  //@@
+  StatisticDuration success = 3;
+
+  //@@  .. cpp:var:: StatisticDuration fail
+  //@@
+  //@@     The count and cumulative duration for failed responses.
+  //@@
+  StatisticDuration fail = 4;
+
+  //@@  .. cpp:var:: StatisticDuration empty_response
+  //@@
+  //@@     The count and cumulative duration for empty responses.
+  //@@
+  StatisticDuration empty_response = 5;
+}
+
+//@@
 //@@.. cpp:var:: message InferBatchStatistics
 //@@
 //@@   Inference batch statistics.
@@ -1161,6 +1200,15 @@ message ModelStatistics
   //@@     aligned.
   //@@
   repeated MemoryUsage memory_usage = 8;
+
+  //@@  .. cpp:var:: map<string, InferResponseStatistics> response_stats
+  //@@
+  //@@     The key and value pairs for all decoupled responses statistics. The
+  //@@     key is a string identifying a set of response statistics aggregated
+  //@@     together (i.e. index of the response sent). The value is the
+  //@@     aggregated response statistics.
+  //@@
+  map<string, InferResponseStatistics> response_stats = 9;
 }
 
 //@@
