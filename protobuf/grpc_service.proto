@@ -1016,7 +1016,7 @@ message InferStatistics
 //@@
 //@@.. cpp:var:: message InferResponseStatistics
 //@@
-//@@   Statistics per decoupled response.
+//@@   Statistics per response.
 //@@
 message InferResponseStatistics
 {
@@ -1203,10 +1203,10 @@ message ModelStatistics
 
   //@@  .. cpp:var:: map<string, InferResponseStatistics> response_stats
   //@@
-  //@@     The key and value pairs for all decoupled responses statistics. The
-  //@@     key is a string identifying a set of response statistics aggregated
-  //@@     together (i.e. index of the response sent). The value is the
-  //@@     aggregated response statistics.
+  //@@     The key and value pairs for all responses statistics. The key is a
+  //@@     string identifying a set of response statistics aggregated together
+  //@@     (i.e. index of the response sent). The value is the aggregated
+  //@@     response statistics.
   //@@
   map<string, InferResponseStatistics> response_stats = 9;
 }
