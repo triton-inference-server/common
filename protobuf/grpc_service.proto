@@ -1050,6 +1050,13 @@ message InferResponseStatistics
   //@@     The count and cumulative duration for empty responses.
   //@@
   StatisticDuration empty_response = 5;
+
+  //@@  .. cpp:var:: StatisticDuration cancel
+  //@@
+  //@@     The count and cumulative duration, for cleaning up resources held by
+  //@@     a cancelled request, for cancelled responses.
+  //@@
+  StatisticDuration cancel = 6;
 }
 
 //@@
