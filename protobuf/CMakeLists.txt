@@ -27,8 +27,16 @@
 cmake_minimum_required (VERSION 3.18)
 
 set(protobuf_MODULE_COMPATIBLE TRUE CACHE BOOL "protobuf_MODULE_COMPATIBLE" FORCE)
+# Only supported module mode for absl as provided 'abslConfig.cmake' only
+find_package(absl REQUIRED)
+message(STATUS "absl_FOUND ${absl_FOUND}")
+message(STATUS "absl_INCLUDE_DIR ${absl_INCLUDE_DIR}")
+message(STATUS "absl_INCLUDE_DIRS ${absl_INCLUDE_DIRS}")
+include_directories(${absl_INCLUDE_DIRS})
+
 find_package(Protobuf CONFIG REQUIRED)
 message(STATUS "Using protobuf ${Protobuf_VERSION}")
+message(STATUS "Protobuf_INCLUDE_DIRS ${Protobuf_INCLUDE_DIRS}")
 include_directories(${Protobuf_INCLUDE_DIRS})
 
 if(${TRITON_COMMON_ENABLE_GRPC})
