@@ -70,7 +70,6 @@ class LogMessage {
 
  private:
   static const std::array<const char*, Level::kINFO + 1> LEVEL_NAMES_;
-  static const std::vector<char> level_name_;
   std::string path_;
   const int line_;
   const uint32_t level_;

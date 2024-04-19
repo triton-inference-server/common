@@ -75,7 +75,7 @@ Logger::Flush()
 }
 
 const std::array<const char*, LogMessage::Level::kINFO + 1>
-    LogMessage::LEVEL_NAMES_{"Error", "Warning", "Info"};
+    LogMessage::LEVEL_NAMES_{"ERROR", "WARNING", "INFO"};
 const std::vector<char> LogMessage::level_name_{'E', 'W', 'I'};
 
 #ifdef _WIN32
@@ -189,11 +189,14 @@ LogMessage::~LogMessage()
     case Logger::Format::kJSONL: {
       TritonJson::Value logMessage(TritonJson::ValueType::OBJECT);
       TritonJson::WriteBuffer buffer;
+      std::stringstream timestamp;
+      LogTimestamp(timestamp);
       logMessage.AddString("file", path_);
       logMessage.AddInt("line", line_);
       logMessage.AddString("level", LEVEL_NAMES_[level_]);
-      logMessage.AddInt("pid", pid_);
+      logMessage.AddInt("process_id", pid_);
       logMessage.AddString("message", message_.str());
+      logMessage.AddString("timestamp", timestamp.str());
       logMessage.Write(&buffer);
       gLogger_.Log(buffer.Contents());
       break;
