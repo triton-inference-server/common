@@ -32,6 +32,17 @@
 #include <sstream>
 #include <string>
 #include <vector>
+#ifdef _WIN32
+// suppress the min and max definitions in Windef.h.
+#define NOMINMAX
+#include <Windows.h>
+#else
+#include <sys/time.h>
+#include <sys/types.h>
+#include <time.h>
+#include <unistd.h>
+#endif
+
 
 namespace triton { namespace common {
 
@@ -41,20 +52,52 @@ class LogMessage {
   // Log levels.
   enum Level { kERROR = 0, kWARNING = 1, kINFO = 2 };
 
-  LogMessage(const char* file, int line, uint32_t level);
+  LogMessage(const char* file, int line, uint32_t level)
+      : path_(file), line_(line),
+        level_(std::min(level, (uint32_t)Level::kINFO)), pid_(GetProcessId())
+  {
+    SetTimestamp();
+    size_t path_start = path_.rfind('/');
+    if (path_start != std::string::npos) {
+      path_ = path_.substr(path_start + 1, std::string::npos);
+    }
+  }
+
+
   ~LogMessage();
 
-  std::stringstream& stream() { return stream_; }
+  std::stringstream& stream() { return message_; }
 
  private:
+  static const std::array<const char*, Level::kINFO + 1> LEVEL_NAMES_;
   static const std::vector<char> level_name_;
-  std::stringstream stream_;
+  std::string path_;
+  const int line_;
+  const uint32_t level_;
+  const uint32_t pid_;
+  void LogPreamble(std::stringstream& stream);
+  void LogTimestamp(std::stringstream& stream);
+
+#ifdef _WIN32
+  SYSTEMTIME timestamp_;
+  void SetTimestamp() { GetSystemTime(&timestamp_); }
+  static uint32_t GetProcessId()
+  {
+    return static_cast<uint32_t>(GetCurrentProcessId());
+  };
+#else
+  struct timeval timestamp_;
+  void SetTimestamp() { gettimeofday(&timestamp_, NULL); }
+  static uint32_t GetProcessId() { return static_cast<uint32_t>(getpid()); };
+#endif
+
+  std::stringstream message_;
 };
 
 // Global logger for messages. Controls how log messages are reported.
 class Logger {
  public:
-  enum class Format { kDEFAULT, kISO8601 };
+  enum class Format { kDEFAULT, kISO8601, kJSONL };
 
   Logger();
 
