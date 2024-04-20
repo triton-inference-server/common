@@ -25,6 +25,7 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma once
 
+
 #ifdef _WIN32
 // Remove GetObject definition from windows.h, which prevents calls to
 // RapidJSON's GetObject.
@@ -108,6 +109,19 @@ class TritonJson {
    private:
     std::string buffer_;
   };
+
+  static std::string EscapeString(const std::string& input)
+  {
+    WriteBuffer writebuffer;
+    const unsigned int writeFlags = rapidjson::kWriteNanAndInfFlag;
+    // Provide default template arguments to pass writeFlags
+    rapidjson::Writer<
+        WriteBuffer, rapidjson::UTF8<>, rapidjson::UTF8<>,
+        rapidjson::CrtAllocator, writeFlags>
+        writer(writebuffer);
+    writer.String(input.c_str());
+    return writebuffer.Contents();
+  }
 
   //
   // Value representing the entire document or an element within a

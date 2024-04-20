@@ -76,7 +76,6 @@ Logger::Flush()
 
 const std::array<const char*, LogMessage::Level::kINFO + 1>
     LogMessage::LEVEL_NAMES_{"ERROR", "WARNING", "INFO"};
-const std::vector<char> LogMessage::level_name_{'E', 'W', 'I'};
 
 #ifdef _WIN32
 
@@ -174,15 +173,16 @@ LogMessage::LogPreamble(std::stringstream& stream)
 
 LogMessage::~LogMessage()
 {
-  gLogger_.SetLogFormat(Logger::Format::kJSONL);
+  //  gLogger_.SetLogFormat(Logger::Format::kJSONL);
 
   switch (gLogger_.LogFormat()) {
     case Logger::Format::kDEFAULT:
     case Logger::Format::kISO8601: {
       std::stringstream preamble;
       LogPreamble(preamble);
-      preamble << message_.rdbuf();
-      message_.str("");
+      //     std::string escaped(message_.str());
+      std::string escaped = TritonJson::EscapeString(message_.str());
+      preamble << escaped;
       gLogger_.Log(preamble.str());
       break;
     }
