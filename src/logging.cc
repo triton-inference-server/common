@@ -32,20 +32,11 @@
 
 #include "triton/common/error.h"
 
-static const uint8_t INTERNAL_ERROR =
-    static_cast<uint8_t>(triton::common::Error::Code::INTERNAL);
-
-static const uint8_t SUCCESS =
-    static_cast<uint8_t>(triton::common::Error::Code::SUCCESS);
-
+// Defined but not used
 #define TRITONJSON_STATUSTYPE uint8_t
-#define TRITONJSON_STATUSRETURN(M)              \
-  do {                                          \
-    LOG_ERROR << (M) << ": " << INTERNAL_ERROR; \
-    return INTERNAL_ERROR;                      \
-  } while (false)
+#define TRITONJSON_STATUSRETURN(M)
+#define TRITONJSON_STATUSSUCCESS 0
 
-#define TRITONJSON_STATUSSUCCESS SUCCESS
 #include "triton/common/triton_json.h"
 
 namespace triton { namespace common {
@@ -55,6 +46,9 @@ Logger gLogger_;
 Logger::Logger()
     : enables_{true, true, true}, vlevel_(0), format_(Format::kDEFAULT)
 {
+  const char* value = std::getenv("TRITONSERVER_ESCAPE_LOG_MESSAGES");
+  escape_log_messages_ =
+      (value && std::strcmp(value, "FALSE") == 0) ? false : true;
 }
 
 void
@@ -74,8 +68,8 @@ Logger::Flush()
   std::cerr << std::flush;
 }
 
-const std::array<const char*, LogMessage::Level::kINFO + 1>
-    LogMessage::LEVEL_NAMES_{"ERROR", "WARNING", "INFO"};
+const std::array<const char*, Logger::Level::kINFO + 1> Logger::LEVEL_NAMES{
+    "E", "W", "I"};
 
 #ifdef _WIN32
 
@@ -92,14 +86,6 @@ LogMessage::LogTimestamp(std::stringstream& stream)
       break;
     }
     case Logger::Format::kISO8601: {
-      stream << timestamp_.wYear << '-' << std::setfill('0') << std::setw(2)
-             << timestamp_.wMonth << '-' << std::setw(2) << timestamp_.wDay
-             << 'T' << std::setw(2) << timestamp_.wHour << ':' << std::setw(2)
-             << timestamp_.wMinute << ':' << std::setw(2) << timestamp_.wSecond
-             << "Z";
-      break;
-    }
-    case Logger::Format::JSONL: {
       stream << timestamp_.wYear << '-' << std::setfill('0') << std::setw(2)
              << timestamp_.wMonth << '-' << std::setw(2) << timestamp_.wDay
              << 'T' << std::setw(2) << timestamp_.wHour << ':' << std::setw(2)
@@ -130,14 +116,6 @@ LogMessage::LogTimestamp(std::stringstream& stream)
              << std::setw(2) << (tm_time.tm_mon + 1) << '-' << std::setw(2)
              << tm_time.tm_mday << 'T' << std::setw(2) << tm_time.tm_hour << ':'
              << std::setw(2) << tm_time.tm_min << ':' << std::setw(2)
-             << tm_time.tm_sec << "Z";
-      break;
-    }
-    case Logger::Format::kJSONL: {
-      stream << (tm_time.tm_year + 1900) << '-' << std::setfill('0')
-             << std::setw(2) << (tm_time.tm_mon + 1) << '-' << std::setw(2)
-             << tm_time.tm_mday << 'T' << std::setw(2) << tm_time.tm_hour << ':'
-             << std::setw(2) << tm_time.tm_min << ':' << std::setw(2)
              << tm_time.tm_sec << '.' << std::setw(6) << timestamp_.tv_usec
              << "Z";
       break;
@@ -152,19 +130,16 @@ LogMessage::LogPreamble(std::stringstream& stream)
 {
   switch (gLogger_.LogFormat()) {
     case Logger::Format::kDEFAULT: {
-      stream << LEVEL_NAMES_[level_][0];
+      stream << Logger::LEVEL_NAMES[level_];
       LogTimestamp(stream);
-      stream << ' ' << pid_ << ' ' << path_ << ':' << line_ << "] ";
+      stream << ' ' << pid_ << " [" << path_ << ':' << line_ << "] ";
 
       break;
     }
     case Logger::Format::kISO8601: {
       LogTimestamp(stream);
-      stream << " " << LEVEL_NAMES_[level_][0] << ' ' << pid_ << ' ' << path_
-             << ':' << line_ << "] ";
-      break;
-    }
-    case Logger::Format::kJSONL: {
+      stream << " " << Logger::LEVEL_NAMES[level_] << ' ' << pid_ << " ["
+             << path_ << ':' << line_ << "] ";
       break;
     }
   }
@@ -173,34 +148,13 @@ LogMessage::LogPreamble(std::stringstream& stream)
 
 LogMessage::~LogMessage()
 {
-  //  gLogger_.SetLogFormat(Logger::Format::kJSONL);
-
-  switch (gLogger_.LogFormat()) {
-    case Logger::Format::kDEFAULT:
-    case Logger::Format::kISO8601: {
-      std::stringstream preamble;
-      LogPreamble(preamble);
-      //     std::string escaped(message_.str());
-      std::string escaped = TritonJson::EscapeString(message_.str());
-      preamble << escaped;
-      gLogger_.Log(preamble.str());
-      break;
-    }
-    case Logger::Format::kJSONL: {
-      TritonJson::Value logMessage(TritonJson::ValueType::OBJECT);
-      TritonJson::WriteBuffer buffer;
-      std::stringstream timestamp;
-      LogTimestamp(timestamp);
-      logMessage.AddString("file", path_);
-      logMessage.AddInt("line", line_);
-      logMessage.AddString("level", LEVEL_NAMES_[level_]);
-      logMessage.AddInt("process_id", pid_);
-      logMessage.AddString("message", message_.str());
-      logMessage.AddString("timestamp", timestamp.str());
-      logMessage.Write(&buffer);
-      gLogger_.Log(buffer.Contents());
-      break;
-    }
-  }
+  std::stringstream preamble;
+  LogPreamble(preamble);
+  std::string escaped_message = escape_log_messages_
+                                    ? TritonJson::EscapeString(message_.str())
+                                    : message_.str();
+  preamble << escaped_message;
+  gLogger_.Log(preamble.str());
 }
+
 }}  // namespace triton::common

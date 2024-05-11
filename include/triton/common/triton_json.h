@@ -110,6 +110,11 @@ class TritonJson {
     std::string buffer_;
   };
 
+  //
+  // Utility to return an escaped version of the
+  // input string
+  //
+
   static std::string EscapeString(const std::string& input)
   {
     WriteBuffer writebuffer;
@@ -119,7 +124,9 @@ class TritonJson {
         WriteBuffer, rapidjson::UTF8<>, rapidjson::UTF8<>,
         rapidjson::CrtAllocator, writeFlags>
         writer(writebuffer);
-    writer.String(input.c_str());
+    if (RAPIDJSON_UNLIKELY(!writer.String(input.c_str()))) {
+      return "Error Escaping String";
+    }
     return writebuffer.Contents();
   }
 

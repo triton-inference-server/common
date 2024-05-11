@@ -32,6 +32,8 @@
 #include <sstream>
 #include <string>
 #include <vector>
+
+#include "table_printer.h"
 #ifdef _WIN32
 // suppress the min and max definitions in Windef.h.
 #define NOMINMAX
@@ -46,74 +48,34 @@
 
 namespace triton { namespace common {
 
-// A log message.
-class LogMessage {
- public:
-  // Log levels.
-  enum Level { kERROR = 0, kWARNING = 1, kINFO = 2 };
-
-  LogMessage(const char* file, int line, uint32_t level)
-      : path_(file), line_(line),
-        level_(std::min(level, (uint32_t)Level::kINFO)), pid_(GetProcessId())
-  {
-    SetTimestamp();
-    size_t path_start = path_.rfind('/');
-    if (path_start != std::string::npos) {
-      path_ = path_.substr(path_start + 1, std::string::npos);
-    }
-  }
-
-
-  ~LogMessage();
-
-  std::stringstream& stream() { return message_; }
-
- private:
-  static const std::array<const char*, Level::kINFO + 1> LEVEL_NAMES_;
-  std::string path_;
-  const int line_;
-  const uint32_t level_;
-  const uint32_t pid_;
-  void LogPreamble(std::stringstream& stream);
-  void LogTimestamp(std::stringstream& stream);
-
-#ifdef _WIN32
-  SYSTEMTIME timestamp_;
-  void SetTimestamp() { GetSystemTime(&timestamp_); }
-  static uint32_t GetProcessId()
-  {
-    return static_cast<uint32_t>(GetCurrentProcessId());
-  };
-#else
-  struct timeval timestamp_;
-  void SetTimestamp() { gettimeofday(&timestamp_, NULL); }
-  static uint32_t GetProcessId() { return static_cast<uint32_t>(getpid()); };
-#endif
-
-  std::stringstream message_;
-};
-
 // Global logger for messages. Controls how log messages are reported.
 class Logger {
  public:
-  enum class Format { kDEFAULT, kISO8601, kJSONL };
+  // Log Formats.
+  enum class Format { kDEFAULT, kISO8601 };
+
+  // Log levels.
+  enum Level { kERROR = 0, kWARNING = 1, kINFO = 2 };
 
   Logger();
 
   // Is a log level enabled.
-  bool IsEnabled(LogMessage::Level level) const { return enables_[level]; }
+  bool IsEnabled(Level level) const { return enables_[level]; }
 
   // Set enable for a log Level.
-  void SetEnabled(LogMessage::Level level, bool enable)
-  {
-    enables_[level] = enable;
-  }
+  void SetEnabled(Level level, bool enable) { enables_[level] = enable; }
 
   // Get the current verbose logging level.
   uint32_t VerboseLevel() const { return vlevel_; }
 
   // Set the current verbose logging level.
   void SetVerboseLevel(uint32_t vlevel) { vlevel_ = vlevel; }
+
+  // Whether to escape log messages
+  // using JSON string escaping rules.
+  // Default is true but can be disabled via an environment variable
+  // TRITONSERVER_ESCAPE_LOG_MESSAGES
+  bool EscapeLogMessages() const { return escape_log_messages_; };
 
   // Get the logging format.
   Format LogFormat() { return format_; }
@@ -167,7 +129,10 @@ class Logger {
   // Flush the log.
   void Flush();
 
+  static const std::array<const char*, Level::kINFO + 1> LEVEL_NAMES;
+
  private:
+  bool escape_log_messages_;
   std::vector<bool> enables_;
   uint32_t vlevel_;
   Format format_;
@@ -178,15 +143,64 @@ class Logger {
 
 extern Logger gLogger_;
 
-#define LOG_ENABLE_INFO(E)             \
-  triton::common::gLogger_.SetEnabled( \
-      triton::common::LogMessage::Level::kINFO, (E))
+// A log message.
+class LogMessage {
+ public:
+  LogMessage(const char* file, int line, uint32_t level)
+      : path_(file), line_(line),
+        level_(std::min(level, (uint32_t)Logger::Level::kINFO)),
+        pid_(GetProcessId()), escape_log_messages_(gLogger_.EscapeLogMessages())
+  {
+    SetTimestamp();
+    size_t path_start = path_.rfind('/');
+    if (path_start != std::string::npos) {
+      path_ = path_.substr(path_start + 1, std::string::npos);
+    }
+  }
+
+  LogMessage(
+      const char* file, int line, uint32_t level, bool escape_log_messages)
+      : LogMessage(file, line, level)
+  {
+    escape_log_messages_ = escape_log_messages;
+  }
+
+  ~LogMessage();
+
+  std::stringstream& stream() { return message_; }
+
+ private:
+  std::string path_;
+  const int line_;
+  const uint32_t level_;
+  const uint32_t pid_;
+  void LogPreamble(std::stringstream& stream);
+  void LogTimestamp(std::stringstream& stream);
+
+#ifdef _WIN32
+  SYSTEMTIME timestamp_;
+  void SetTimestamp() { GetSystemTime(&timestamp_); }
+  static uint32_t GetProcessId()
+  {
+    return static_cast<uint32_t>(GetCurrentProcessId());
+  };
+#else
+  struct timeval timestamp_;
+  void SetTimestamp() { gettimeofday(&timestamp_, NULL); }
+  static uint32_t GetProcessId() { return static_cast<uint32_t>(getpid()); };
+#endif
+  std::stringstream message_;
+  bool escape_log_messages_;
+};
+
+#define LOG_ENABLE_INFO(E) \
+  triton::common::gLogger_.SetEnabled(triton::common::Logger::Level::kINFO, (E))
 #define LOG_ENABLE_WARNING(E)          \
   triton::common::gLogger_.SetEnabled( \
-      triton::common::LogMessage::Level::kWARNING, (E))
+      triton::common::Logger::Level::kWARNING, (E))
 #define LOG_ENABLE_ERROR(E)            \
   triton::common::gLogger_.SetEnabled( \
-      triton::common::LogMessage::Level::kERROR, (E))
+      triton::common::Logger::Level::kERROR, (E))
 #define LOG_SET_VERBOSE(L)                  \
   triton::common::gLogger_.SetVerboseLevel( \
       static_cast<uint32_t>(std::max(0, (L))))
@@ -201,12 +215,11 @@ extern Logger gLogger_;
 #ifdef TRITON_ENABLE_LOGGING
 
 #define LOG_INFO_IS_ON \
-  triton::common::gLogger_.IsEnabled(triton::common::LogMessage::Level::kINFO)
-#define LOG_WARNING_IS_ON             \
-  triton::common::gLogger_.IsEnabled( \
-      triton::common::LogMessage::Level::kWARNING)
+  triton::common::gLogger_.IsEnabled(triton::common::Logger::Level::kINFO)
+#define LOG_WARNING_IS_ON \
+  triton::common::gLogger_.IsEnabled(triton::common::Logger::Level::kWARNING)
 #define LOG_ERROR_IS_ON \
-  triton::common::gLogger_.IsEnabled(triton::common::LogMessage::Level::kERROR)
+  triton::common::gLogger_.IsEnabled(triton::common::Logger::Level::kERROR)
 #define LOG_VERBOSE_IS_ON(L) (triton::common::gLogger_.VerboseLevel() >= (L))
 
 #else
@@ -220,25 +233,25 @@ extern Logger gLogger_;
 #endif  // TRITON_ENABLE_LOGGING
 
 // Macros that use explicitly given filename and line number.
-#define LOG_INFO_FL(FN, LN)                                      \
-  if (LOG_INFO_IS_ON)                                            \
-  triton::common::LogMessage(                                    \
-      (char*)(FN), LN, triton::common::LogMessage::Level::kINFO) \
+#define LOG_INFO_FL(FN, LN)                                  \
+  if (LOG_INFO_IS_ON)                                        \
+  triton::common::LogMessage(                                \
+      (char*)(FN), LN, triton::common::Logger::Level::kINFO) \
       .stream()
-#define LOG_WARNING_FL(FN, LN)                                      \
-  if (LOG_WARNING_IS_ON)                                            \
-  triton::common::LogMessage(                                       \
-      (char*)(FN), LN, triton::common::LogMessage::Level::kWARNING) \
+#define LOG_WARNING_FL(FN, LN)                                  \
+  if (LOG_WARNING_IS_ON)                                        \
+  triton::common::LogMessage(                                   \
+      (char*)(FN), LN, triton::common::Logger::Level::kWARNING) \
       .stream()
-#define LOG_ERROR_FL(FN, LN)                                      \
-  if (LOG_ERROR_IS_ON)                                            \
-  triton::common::LogMessage(                                     \
-      (char*)(FN), LN, triton::common::LogMessage::Level::kERROR) \
+#define LOG_ERROR_FL(FN, LN)                                  \
+  if (LOG_ERROR_IS_ON)                                        \
+  triton::common::LogMessage(                                 \
+      (char*)(FN), LN, triton::common::Logger::Level::kERROR) \
       .stream()
-#define LOG_VERBOSE_FL(L, FN, LN)                                \
-  if (LOG_VERBOSE_IS_ON(L))                                      \
-  triton::common::LogMessage(                                    \
-      (char*)(FN), LN, triton::common::LogMessage::Level::kINFO) \
+#define LOG_VERBOSE_FL(L, FN, LN)                            \
+  if (LOG_VERBOSE_IS_ON(L))                                  \
+  triton::common::LogMessage(                                \
+      (char*)(FN), LN, triton::common::Logger::Level::kINFO) \
       .stream()
 
 // Macros that use current filename and line number.
@@ -247,6 +260,25 @@ extern Logger gLogger_;
 #define LOG_ERROR LOG_ERROR_FL(__FILE__, __LINE__)
 #define LOG_VERBOSE(L) LOG_VERBOSE_FL(L, __FILE__, __LINE__)
 
+#define LOG_TABLE_VERBOSE(L, TABLE)                                        \
+                                                                           \
+  do {                                                                     \
+    if (LOG_VERBOSE_IS_ON(L))                                              \
+      triton::common::LogMessage(                                          \
+          __FILE__, __LINE__, triton::common::Logger::Level::kINFO, false) \
+              .stream()                                                    \
+          << TABLE.PrintTable();                                           \
+  } while (false)
+
+
+#define LOG_TABLE_INFO(TABLE)                                              \
+  do {                                                                     \
+    if (LOG_INFO_IS_ON)                                                    \
+      triton::common::LogMessage(                                          \
+          __FILE__, __LINE__, triton::common::Logger::Level::kINFO, false) \
+              .stream()                                                    \
+          << TABLE.PrintTable();                                           \
+  } while (false)
 
 #define LOG_STATUS_ERROR(X, MSG)                         \
   do {                                                   \
