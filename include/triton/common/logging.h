@@ -55,7 +55,7 @@ class Logger {
   enum class Format { kDEFAULT, kISO8601 };
 
   // Log levels.
-  enum Level { kERROR = 0, kWARNING = 1, kINFO = 2 };
+  enum Level { kERROR = 0, kWARNING = 1, kINFO = 2, kEND };
 
   Logger();
 
@@ -254,6 +254,51 @@ class LogMessage {
       (char*)(FN), LN, triton::common::Logger::Level::kINFO) \
       .stream()
 
+#define LOG_JSON_INFO_FL(FN, LN, PREAMBLE, JSON_CHAR_PTR, SIZE)         \
+                                                                        \
+  do {                                                                  \
+    if (LOG_INFO_IS_ON)                                                 \
+      triton::common::LogMessage(                                       \
+          (char*)(FN), LN, triton::common::Logger::Level::kINFO, false) \
+              .stream()                                                 \
+          << PREAMBLE << '\n'                                           \
+          << std::string({JSON_CHAR_PTR, SIZE});                        \
+  } while (false)
+
+#define LOG_JSON_WARNING_FL(FN, LN, PREAMBLE, JSON_CHAR_PTR, SIZE)         \
+                                                                           \
+  do {                                                                     \
+    if (LOG_WARNING_IS_ON)                                                 \
+      triton::common::LogMessage(                                          \
+          (char*)(FN), LN, triton::common::Logger::Level::kWARNING, false) \
+              .stream()                                                    \
+          << PREAMBLE << '\n'                                              \
+          << std::string({JSON_CHAR_PTR, SIZE});                           \
+  } while (false)
+
+#define LOG_JSON_ERROR_FL(FN, LN, PREAMBLE, JSON_CHAR_PTR, SIZE)         \
+                                                                         \
+  do {                                                                   \
+    if (LOG_ERROR_IS_ON)                                                 \
+      triton::common::LogMessage(                                        \
+          (char*)(FN), LN, triton::common::Logger::Level::kERROR, false) \
+              .stream()                                                  \
+          << PREAMBLE << '\n'                                            \
+          << std::string({JSON_CHAR_PTR, SIZE});                         \
+  } while (false)
+
+#define LOG_JSON_VERBOSE_FL(L, FN, LN, PREAMBLE, JSON_CHAR_PTR, SIZE)   \
+                                                                        \
+  do {                                                                  \
+    if (LOG_VERBOSE_IS_ON(L))                                           \
+      triton::common::LogMessage(                                       \
+          (char*)(FN), LN, triton::common::Logger::Level::kINFO, false) \
+              .stream()                                                 \
+          << PREAMBLE << '\n'                                           \
+          << std::string({JSON_CHAR_PTR, SIZE});                        \
+  } while (false)
+
+
 // Macros that use current filename and line number.
 #define LOG_INFO LOG_INFO_FL(__FILE__, __LINE__)
 #define LOG_WARNING LOG_WARNING_FL(__FILE__, __LINE__)
@@ -270,6 +315,16 @@ class LogMessage {
           << TABLE.PrintTable();                                           \
   } while (false)
 
+#define LOG_PROTOBUF_VERBOSE(L, PREAMBLE, PB_MESSAGE)                      \
+                                                                           \
+  do {                                                                     \
+    if (LOG_VERBOSE_IS_ON(L))                                              \
+      triton::common::LogMessage(                                          \
+          __FILE__, __LINE__, triton::common::Logger::Level::kINFO, false) \
+              .stream()                                                    \
+          << PREAMBLE << '\n'                                              \
+          << PB_MESSAGE.DebugString();                                     \
+  } while (false)
 
 #define LOG_TABLE_INFO(TABLE)                                              \
   do {                                                                     \
