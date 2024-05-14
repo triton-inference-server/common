@@ -74,7 +74,7 @@ class Logger {
   // Whether to escape log messages
   // using JSON string escaping rules.
   // Default is true but can be disabled via an environment variable
-  // TRITONSERVER_ESCAPE_LOG_MESSAGES
+  // TRITON_SERVER_ESCAPE_LOG_MESSAGES
   bool EscapeLogMessages() const { return escape_log_messages_; };
 
   // Get the logging format.
