@@ -266,7 +266,7 @@ class LogMessage {
       triton::common::LogMessage(                                             \
           (char*)(FN), LN, triton::common::Logger::Level::kINFO, false)       \
               .stream()                                                       \
-          << HEADING << '\n'                                                  \
+          << triton::common::TritonJson::EscapeString(HEADING) << '\n'        \
           << std::string({SERVER_MESSAGE_PTR, SIZE});                         \
   } while (false)
 
@@ -278,7 +278,7 @@ class LogMessage {
       triton::common::LogMessage(                                          \
           (char*)(FN), LN, triton::common::Logger::Level::kWARNING, false) \
               .stream()                                                    \
-          << HEADING << '\n'                                               \
+          << triton::common::TritonJson::EscapeString(HEADING) << '\n'     \
           << std::string({SERVER_MESSAGE_PTR, SIZE});                      \
   } while (false)
 
@@ -289,7 +289,7 @@ class LogMessage {
       triton::common::LogMessage(                                              \
           (char*)(FN), LN, triton::common::Logger::Level::kERROR, false)       \
               .stream()                                                        \
-          << HEADING << '\n'                                                   \
+          << triton::common::TritonJson::EscapeString(HEADING) << '\n'         \
           << std::string({SERVER_MESSAGE_PTR, SIZE});                          \
   } while (false)
 
@@ -301,7 +301,7 @@ class LogMessage {
       triton::common::LogMessage(                                       \
           (char*)(FN), LN, triton::common::Logger::Level::kINFO, false) \
               .stream()                                                 \
-          << HEADING << '\n'                                            \
+          << triton::common::TritonJson::EscapeString(HEADING) << '\n'  \
           << std::string({SERVER_MESSAGE_PTR, SIZE});                   \
   } while (false)
 
@@ -351,7 +351,7 @@ class LogMessage {
       triton::common::LogMessage(                                          \
           __FILE__, __LINE__, triton::common::Logger::Level::kINFO, false) \
               .stream()                                                    \
-          << HEADING << '\n'                                               \
+          << triton::common::TritonJson::EscapeString(HEADING) << '\n'     \
           << PB_MESSAGE.DebugString();                                     \
   } while (false)
 
