@@ -271,7 +271,7 @@ class LogMessage {
   } while (false)
 
 #define LOG_SERVER_MESSAGE_WARNING_FL(                                     \
-    FN, LN, HEADINER, SERVER_MESSAGE_PTR, SIZE)                            \
+    FN, LN, HEADING, SERVER_MESSAGE_PTR, SIZE)                             \
                                                                            \
   do {                                                                     \
     if (LOG_WARNING_IS_ON)                                                 \
