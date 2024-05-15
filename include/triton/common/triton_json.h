@@ -25,7 +25,6 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma once
 
-
 #ifdef _WIN32
 // Remove GetObject definition from windows.h, which prevents calls to
 // RapidJSON's GetObject.
