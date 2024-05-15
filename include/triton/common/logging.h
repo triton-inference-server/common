@@ -254,56 +254,69 @@ class LogMessage {
       (char*)(FN), LN, triton::common::Logger::Level::kINFO) \
       .stream()
 
-#define LOG_JSON_INFO_FL(FN, LN, PREAMBLE, JSON_CHAR_PTR, SIZE)         \
-                                                                        \
-  do {                                                                  \
-    if (LOG_INFO_IS_ON)                                                 \
-      triton::common::LogMessage(                                       \
-          (char*)(FN), LN, triton::common::Logger::Level::kINFO, false) \
-              .stream()                                                 \
-          << PREAMBLE << '\n'                                           \
-          << std::string({JSON_CHAR_PTR, SIZE});                        \
+// Macros for use with TRITONSERVER_Message objects
+//
+// Data is assumed to be serialized and escaped already
+// Message objects are logged without further escaping
+
+#define LOG_SERVER_MESSAGE_INFO_FL(FN, LN, HEADING, SERVER_MESSAGE_PTR, SIZE) \
+                                                                              \
+  do {                                                                        \
+    if (LOG_INFO_IS_ON)                                                       \
+      triton::common::LogMessage(                                             \
+          (char*)(FN), LN, triton::common::Logger::Level::kINFO, false)       \
+              .stream()                                                       \
+          << HEADING << '\n'                                                  \
+          << std::string({SERVER_MESSAGE_PTR, SIZE});                         \
   } while (false)
 
-#define LOG_JSON_WARNING_FL(FN, LN, PREAMBLE, JSON_CHAR_PTR, SIZE)         \
+#define LOG_SERVER_MESSAGE_WARNING_FL(                                     \
+    FN, LN, HEADINER, SERVER_MESSAGE_PTR, SIZE)                            \
                                                                            \
   do {                                                                     \
     if (LOG_WARNING_IS_ON)                                                 \
       triton::common::LogMessage(                                          \
           (char*)(FN), LN, triton::common::Logger::Level::kWARNING, false) \
               .stream()                                                    \
-          << PREAMBLE << '\n'                                              \
-          << std::string({JSON_CHAR_PTR, SIZE});                           \
+          << HEADING << '\n'                                               \
+          << std::string({SERVER_MESSAGE_PTR, SIZE});                      \
   } while (false)
 
-#define LOG_JSON_ERROR_FL(FN, LN, PREAMBLE, JSON_CHAR_PTR, SIZE)         \
-                                                                         \
-  do {                                                                   \
-    if (LOG_ERROR_IS_ON)                                                 \
-      triton::common::LogMessage(                                        \
-          (char*)(FN), LN, triton::common::Logger::Level::kERROR, false) \
-              .stream()                                                  \
-          << PREAMBLE << '\n'                                            \
-          << std::string({JSON_CHAR_PTR, SIZE});                         \
+#define LOG_SERVER_MESSAGE_ERROR_FL(FN, LN, HEADING, SERVER_MESSAGE_PTR, SIZE) \
+                                                                               \
+  do {                                                                         \
+    if (LOG_ERROR_IS_ON)                                                       \
+      triton::common::LogMessage(                                              \
+          (char*)(FN), LN, triton::common::Logger::Level::kERROR, false)       \
+              .stream()                                                        \
+          << HEADING << '\n'                                                   \
+          << std::string({SERVER_MESSAGE_PTR, SIZE});                          \
   } while (false)
 
-#define LOG_JSON_VERBOSE_FL(L, FN, LN, PREAMBLE, JSON_CHAR_PTR, SIZE)   \
+#define LOG_SERVER_MESSAGE_VERBOSE_FL(                                  \
+    L, FN, LN, HEADING, SERVER_MESSAGE_PTR, SIZE)                       \
                                                                         \
   do {                                                                  \
     if (LOG_VERBOSE_IS_ON(L))                                           \
       triton::common::LogMessage(                                       \
           (char*)(FN), LN, triton::common::Logger::Level::kINFO, false) \
               .stream()                                                 \
-          << PREAMBLE << '\n'                                           \
-          << std::string({JSON_CHAR_PTR, SIZE});                        \
+          << HEADING << '\n'                                            \
+          << std::string({SERVER_MESSAGE_PTR, SIZE});                   \
   } while (false)
-
 
 // Macros that use current filename and line number.
 #define LOG_INFO LOG_INFO_FL(__FILE__, __LINE__)
 #define LOG_WARNING LOG_WARNING_FL(__FILE__, __LINE__)
 #define LOG_ERROR LOG_ERROR_FL(__FILE__, __LINE__)
 #define LOG_VERBOSE(L) LOG_VERBOSE_FL(L, __FILE__, __LINE__)
+
+// Macros for use with triton::common::table_printer objects
+//
+// Data is assumed to be server / backend generated
+// and not for use with client input.
+//
+// Tables are printed without escaping
 
 #define LOG_TABLE_VERBOSE(L, TABLE)                                        \
                                                                            \
@@ -315,17 +328,6 @@ class LogMessage {
           << TABLE.PrintTable();                                           \
   } while (false)
 
-#define LOG_PROTOBUF_VERBOSE(L, PREAMBLE, PB_MESSAGE)                      \
-                                                                           \
-  do {                                                                     \
-    if (LOG_VERBOSE_IS_ON(L))                                              \
-      triton::common::LogMessage(                                          \
-          __FILE__, __LINE__, triton::common::Logger::Level::kINFO, false) \
-              .stream()                                                    \
-          << PREAMBLE << '\n'                                              \
-          << PB_MESSAGE.DebugString();                                     \
-  } while (false)
-
 #define LOG_TABLE_INFO(TABLE)                                              \
   do {                                                                     \
     if (LOG_INFO_IS_ON)                                                    \
@@ -333,6 +335,24 @@ class LogMessage {
           __FILE__, __LINE__, triton::common::Logger::Level::kINFO, false) \
               .stream()                                                    \
           << TABLE.PrintTable();                                           \
+  } while (false)
+
+
+// Macros for use with protobuf messages
+//
+// Data is serialized via DebugString()
+//
+// Data is printed without further escaping
+
+#define LOG_PROTOBUF_VERBOSE(L, HEADING, PB_MESSAGE)                       \
+                                                                           \
+  do {                                                                     \
+    if (LOG_VERBOSE_IS_ON(L))                                              \
+      triton::common::LogMessage(                                          \
+          __FILE__, __LINE__, triton::common::Logger::Level::kINFO, false) \
+              .stream()                                                    \
+          << HEADING << '\n'                                               \
+          << PB_MESSAGE.DebugString();                                     \
   } while (false)
 
 #define LOG_STATUS_ERROR(X, MSG)                         \
