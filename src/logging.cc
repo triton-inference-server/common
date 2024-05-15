@@ -90,7 +90,7 @@ LogMessage::LogTimestamp(std::stringstream& stream)
              << timestamp_.wMonth << '-' << std::setw(2) << timestamp_.wDay
              << 'T' << std::setw(2) << timestamp_.wHour << ':' << std::setw(2)
              << timestamp_.wMinute << ':' << std::setw(2) << timestamp_.wSecond
-             << '.' << std::setw(6) << timestamp_.wMilliseconds * 1000 << "Z";
+             << "Z";
       break;
     }
   }
@@ -116,8 +116,7 @@ LogMessage::LogTimestamp(std::stringstream& stream)
              << std::setw(2) << (tm_time.tm_mon + 1) << '-' << std::setw(2)
              << tm_time.tm_mday << 'T' << std::setw(2) << tm_time.tm_hour << ':'
              << std::setw(2) << tm_time.tm_min << ':' << std::setw(2)
-             << tm_time.tm_sec << '.' << std::setw(6) << timestamp_.tv_usec
-             << "Z";
+             << tm_time.tm_sec << "Z";
       break;
     }
   }
@@ -132,13 +131,13 @@ LogMessage::LogPreamble(std::stringstream& stream)
     case Logger::Format::kDEFAULT: {
       stream << Logger::LEVEL_NAMES[level_];
       LogTimestamp(stream);
-      stream << ' ' << pid_ << " [" << path_ << ':' << line_ << "] ";
+      stream << ' ' << pid_ << ' ' << path_ << ':' << line_ << "] ";
 
       break;
     }
     case Logger::Format::kISO8601: {
       LogTimestamp(stream);
-      stream << " " << Logger::LEVEL_NAMES[level_] << ' ' << pid_ << " ["
+      stream << " " << Logger::LEVEL_NAMES[level_] << ' ' << pid_ << ' '
              << path_ << ':' << line_ << "] ";
       break;
     }
