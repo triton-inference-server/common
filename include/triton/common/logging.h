@@ -129,7 +129,7 @@ class Logger {
   // Flush the log.
   void Flush();
 
-  static const std::array<const char*, Level::kINFO + 1> LEVEL_NAMES;
+  static const std::array<const char*, Level::kEND> LEVEL_NAMES;
 
  private:
   bool escape_log_messages_;
