@@ -47,8 +47,7 @@ Logger::Logger()
     : enables_{true, true, true}, vlevel_(0), format_(Format::kDEFAULT)
 {
   const char* value = std::getenv(Logger::ESCAPE_ENVIRONMENT_VARIABLE);
-  escape_log_messages_ =
-      (value && std::strcmp(value, "FALSE") == 0) ? false : true;
+  escape_log_messages_ = (value && std::strcmp(value, "0") == 0) ? false : true;
 }
 
 void
