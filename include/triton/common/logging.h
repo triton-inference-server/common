@@ -302,7 +302,7 @@ class LogMessage {
           << PB_MESSAGE.DebugString();                                     \
   } while (false)
 
-// Macros for loggine errors
+// Macros for logging errors
 #define LOG_STATUS_ERROR(X, MSG)                         \
   do {                                                   \
     const Status& status__ = (X);                        \
