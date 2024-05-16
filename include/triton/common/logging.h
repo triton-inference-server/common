@@ -254,57 +254,6 @@ class LogMessage {
       (char*)(FN), LN, triton::common::Logger::Level::kINFO) \
       .stream()
 
-// Macros for use with TRITONSERVER_Message objects
-//
-// Data is assumed to be serialized and escaped already
-// Message objects are logged without further escaping
-
-#define LOG_SERVER_MESSAGE_INFO_FL(FN, LN, HEADING, SERVER_MESSAGE_PTR, SIZE) \
-                                                                              \
-  do {                                                                        \
-    if (LOG_INFO_IS_ON)                                                       \
-      triton::common::LogMessage(                                             \
-          (char*)(FN), LN, triton::common::Logger::Level::kINFO, false)       \
-              .stream()                                                       \
-          << HEADING << '\n'                                                  \
-          << std::string({SERVER_MESSAGE_PTR, SIZE});                         \
-  } while (false)
-
-#define LOG_SERVER_MESSAGE_WARNING_FL(                                     \
-    FN, LN, HEADING, SERVER_MESSAGE_PTR, SIZE)                             \
-                                                                           \
-  do {                                                                     \
-    if (LOG_WARNING_IS_ON)                                                 \
-      triton::common::LogMessage(                                          \
-          (char*)(FN), LN, triton::common::Logger::Level::kWARNING, false) \
-              .stream()                                                    \
-          << HEADING << '\n'                                               \
-          << std::string({SERVER_MESSAGE_PTR, SIZE});                      \
-  } while (false)
-
-#define LOG_SERVER_MESSAGE_ERROR_FL(FN, LN, HEADING, SERVER_MESSAGE_PTR, SIZE) \
-                                                                               \
-  do {                                                                         \
-    if (LOG_ERROR_IS_ON)                                                       \
-      triton::common::LogMessage(                                              \
-          (char*)(FN), LN, triton::common::Logger::Level::kERROR, false)       \
-              .stream()                                                        \
-          << HEADING << '\n'                                                   \
-          << std::string({SERVER_MESSAGE_PTR, SIZE});                          \
-  } while (false)
-
-#define LOG_SERVER_MESSAGE_VERBOSE_FL(                                  \
-    L, FN, LN, HEADING, SERVER_MESSAGE_PTR, SIZE)                       \
-                                                                        \
-  do {                                                                  \
-    if (LOG_VERBOSE_IS_ON(L))                                           \
-      triton::common::LogMessage(                                       \
-          (char*)(FN), LN, triton::common::Logger::Level::kINFO, false) \
-              .stream()                                                 \
-          << HEADING << '\n'                                            \
-          << std::string({SERVER_MESSAGE_PTR, SIZE});                   \
-  } while (false)
-
 // Macros that use current filename and line number.
 #define LOG_INFO LOG_INFO_FL(__FILE__, __LINE__)
 #define LOG_WARNING LOG_WARNING_FL(__FILE__, __LINE__)
@@ -317,7 +266,6 @@ class LogMessage {
 // and not for use with client input.
 //
 // Tables are printed without escaping
-
 #define LOG_TABLE_VERBOSE(L, TABLE)                                        \
                                                                            \
   do {                                                                     \
@@ -343,7 +291,6 @@ class LogMessage {
 // Data is serialized via DebugString()
 //
 // Data is printed without further escaping
-
 #define LOG_PROTOBUF_VERBOSE(L, HEADING, PB_MESSAGE)                       \
                                                                            \
   do {                                                                     \
@@ -355,6 +302,7 @@ class LogMessage {
           << PB_MESSAGE.DebugString();                                     \
   } while (false)
 
+// Macros for loggine errors
 #define LOG_STATUS_ERROR(X, MSG)                         \
   do {                                                   \
     const Status& status__ = (X);                        \
