@@ -48,6 +48,7 @@
 
 namespace triton { namespace common {
 
+
 // Global logger for messages. Controls how log messages are reported.
 class Logger {
  public:
@@ -56,6 +57,9 @@ class Logger {
 
   // Log levels.
   enum Level { kERROR = 0, kWARNING = 1, kINFO = 2, kEND };
+
+  inline static const std::array<const char*, Level::kEND> LEVEL_NAMES{
+      "E", "W", "I"};
 
   Logger();
 
@@ -129,9 +133,11 @@ class Logger {
   // Flush the log.
   void Flush();
 
-  static const std::array<const char*, Level::kEND> LEVEL_NAMES;
 
  private:
+  inline static const char* ESCAPE_ENVIRONMENT_VARIABLE =
+      "TRITON_SERVER_ESCAPE_LOG_MESSAGES";
+
   bool escape_log_messages_;
   std::vector<bool> enables_;
   uint32_t vlevel_;

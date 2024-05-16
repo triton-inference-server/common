@@ -46,7 +46,7 @@ Logger gLogger_;
 Logger::Logger()
     : enables_{true, true, true}, vlevel_(0), format_(Format::kDEFAULT)
 {
-  const char* value = std::getenv("TRITON_SERVER_ESCAPE_LOG_MESSAGES");
+  const char* value = std::getenv(Logger::ESCAPE_ENVIRONMENT_VARIABLE);
   escape_log_messages_ =
       (value && std::strcmp(value, "FALSE") == 0) ? false : true;
 }
@@ -67,9 +67,6 @@ Logger::Flush()
 {
   std::cerr << std::flush;
 }
-
-const std::array<const char*, Logger::Level::kEND> Logger::LEVEL_NAMES{
-    "E", "W", "I"};
 
 #ifdef _WIN32
 
