@@ -133,11 +133,9 @@ class Logger {
   // Flush the log.
   void Flush();
 
-
  private:
   inline static const char* ESCAPE_ENVIRONMENT_VARIABLE =
       "TRITON_SERVER_ESCAPE_LOG_MESSAGES";
-
   bool escape_log_messages_;
   std::vector<bool> enables_;
   uint32_t vlevel_;
