@@ -56,18 +56,24 @@ class Logger {
   enum class Format { kDEFAULT, kISO8601 };
 
   // Log levels.
-  enum Level { kERROR = 0, kWARNING = 1, kINFO = 2, kEND };
+  enum class Level : uint8_t { kERROR = 0, kWARNING = 1, kINFO = 2, kEND };
 
-  inline static const std::array<const char*, Level::kEND> LEVEL_NAMES{
-      "E", "W", "I"};
+  inline static const std::array<const char*, static_cast<uint8_t>(Level::kEND)>
+      LEVEL_NAMES{"E", "W", "I"};
 
   Logger();
 
   // Is a log level enabled.
-  bool IsEnabled(Level level) const { return enables_[level]; }
+  bool IsEnabled(Level level) const
+  {
+    return enables_[static_cast<uint8_t>(level)];
+  }
 
   // Set enable for a log Level.
-  void SetEnabled(Level level, bool enable) { enables_[level] = enable; }
+  void SetEnabled(Level level, bool enable)
+  {
+    enables_[static_cast<uint8_t>(level)] = enable;
+  }
 
   // Get the current verbose logging level.
   uint32_t VerboseLevel() const { return vlevel_; }
@@ -141,7 +147,7 @@ class Logger {
   inline static const char* ESCAPE_ENVIRONMENT_VARIABLE =
       "TRITON_SERVER_ESCAPE_LOG_MESSAGES";
   bool escape_log_messages_;
-  std::vector<bool> enables_;
+  std::array<bool, static_cast<uint8_t>(Level::kEND)> enables_;
   uint32_t vlevel_;
   Format format_;
   std::mutex mutex_;
@@ -154,10 +160,9 @@ extern Logger gLogger_;
 // A log message.
 class LogMessage {
  public:
-  LogMessage(const char* file, int line, uint32_t level)
-      : path_(file), line_(line),
-        level_(std::min(level, (uint32_t)Logger::Level::kINFO)),
-        pid_(GetProcessId()), escape_log_messages_(gLogger_.EscapeLogMessages())
+  LogMessage(const char* file, int line, Logger::Level level)
+      : path_(file), line_(line), level_(level), pid_(GetProcessId()),
+        heading_(nullptr), escape_log_messages_(gLogger_.EscapeLogMessages())
   {
     SetTimestamp();
     size_t path_start = path_.rfind('/');
@@ -167,10 +172,12 @@ class LogMessage {
   }
 
   LogMessage(
-      const char* file, int line, uint32_t level, bool escape_log_messages)
+      const char* file, int line, Logger::Level level, const char* heading,
+      bool escape_log_messages)
       : LogMessage(file, line, level)
   {
     escape_log_messages_ = escape_log_messages;
+    heading_ = heading;
   }
 
   ~LogMessage();
@@ -180,7 +187,7 @@ class LogMessage {
  private:
   std::string path_;
   const int line_;
-  const uint32_t level_;
+  const Logger::Level level_;
   const uint32_t pid_;
   void LogPreamble(std::stringstream& stream);
   void LogTimestamp(std::stringstream& stream);
@@ -198,6 +205,7 @@ class LogMessage {
   static uint32_t GetProcessId() { return static_cast<uint32_t>(getpid()); };
 #endif
   std::stringstream message_;
+  const char* heading_;
   bool escape_log_messages_;
 };
 
@@ -274,23 +282,25 @@ class LogMessage {
 // and not for use with client input.
 //
 // Tables are printed without escaping
-#define LOG_TABLE_VERBOSE(L, TABLE)                                        \
-                                                                           \
-  do {                                                                     \
-    if (LOG_VERBOSE_IS_ON(L))                                              \
-      triton::common::LogMessage(                                          \
-          __FILE__, __LINE__, triton::common::Logger::Level::kINFO, false) \
-              .stream()                                                    \
-          << TABLE.PrintTable();                                           \
+#define LOG_TABLE_VERBOSE(L, TABLE)                                          \
+                                                                             \
+  do {                                                                       \
+    if (LOG_VERBOSE_IS_ON(L))                                                \
+      triton::common::LogMessage(                                            \
+          __FILE__, __LINE__, triton::common::Logger::Level::kINFO, nullptr, \
+          false)                                                             \
+              .stream()                                                      \
+          << TABLE.PrintTable();                                             \
   } while (false)
 
-#define LOG_TABLE_INFO(TABLE)                                              \
-  do {                                                                     \
-    if (LOG_INFO_IS_ON)                                                    \
-      triton::common::LogMessage(                                          \
-          __FILE__, __LINE__, triton::common::Logger::Level::kINFO, false) \
-              .stream()                                                    \
-          << TABLE.PrintTable();                                           \
+#define LOG_TABLE_INFO(TABLE)                                                \
+  do {                                                                       \
+    if (LOG_INFO_IS_ON)                                                      \
+      triton::common::LogMessage(                                            \
+          __FILE__, __LINE__, triton::common::Logger::Level::kINFO, nullptr, \
+          false)                                                             \
+              .stream()                                                      \
+          << TABLE.PrintTable();                                             \
   } while (false)
 
 
@@ -299,15 +309,15 @@ class LogMessage {
 // Data is serialized via DebugString()
 //
 // Data is printed without further escaping
-#define LOG_PROTOBUF_VERBOSE(L, HEADING, PB_MESSAGE)                       \
-                                                                           \
-  do {                                                                     \
-    if (LOG_VERBOSE_IS_ON(L))                                              \
-      triton::common::LogMessage(                                          \
-          __FILE__, __LINE__, triton::common::Logger::Level::kINFO, false) \
-              .stream()                                                    \
-          << HEADING << '\n'                                               \
-          << PB_MESSAGE.DebugString();                                     \
+#define LOG_PROTOBUF_VERBOSE(L, HEADING, PB_MESSAGE)                         \
+                                                                             \
+  do {                                                                       \
+    if (LOG_VERBOSE_IS_ON(L))                                                \
+      triton::common::LogMessage(                                            \
+          __FILE__, __LINE__, triton::common::Logger::Level::kINFO, HEADING, \
+          false)                                                             \
+              .stream()                                                      \
+          << PB_MESSAGE.DebugString();                                       \
   } while (false)
 
 // Macros for logging errors

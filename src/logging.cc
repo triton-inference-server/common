@@ -125,7 +125,7 @@ LogMessage::LogPreamble(std::stringstream& stream)
 {
   switch (gLogger_.LogFormat()) {
     case Logger::Format::kDEFAULT: {
-      stream << Logger::LEVEL_NAMES[level_];
+      stream << Logger::LEVEL_NAMES[static_cast<uint8_t>(level_)];
       LogTimestamp(stream);
       stream << ' ' << pid_ << ' ' << path_ << ':' << line_ << "] ";
 
@@ -133,8 +133,8 @@ LogMessage::LogPreamble(std::stringstream& stream)
     }
     case Logger::Format::kISO8601: {
       LogTimestamp(stream);
-      stream << " " << Logger::LEVEL_NAMES[level_] << ' ' << pid_ << ' '
-             << path_ << ':' << line_ << "] ";
+      stream << " " << Logger::LEVEL_NAMES[static_cast<uint8_t>(level_)] << ' '
+             << pid_ << ' ' << path_ << ':' << line_ << "] ";
       break;
     }
   }
@@ -148,6 +148,12 @@ LogMessage::~LogMessage()
   std::string escaped_message = escape_log_messages_
                                     ? TritonJson::EscapeString(message_.str())
                                     : message_.str();
+  if (heading_ != nullptr) {
+    std::string escaped_heading = gLogger_.EscapeLogMessages()
+                                      ? TritonJson::EscapeString(heading_)
+                                      : heading_;
+    preamble << escaped_heading << '\n';
+  }
   preamble << escaped_message;
   gLogger_.Log(preamble.str());
 }
