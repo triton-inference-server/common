@@ -310,7 +310,6 @@ class LogMessage {
 //
 // Data is printed without further escaping
 #define LOG_PROTOBUF_VERBOSE(L, HEADING, PB_MESSAGE)                         \
-                                                                             \
   do {                                                                       \
     if (LOG_VERBOSE_IS_ON(L))                                                \
       triton::common::LogMessage(                                            \
