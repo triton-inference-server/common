@@ -24,19 +24,16 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include "triton/common/logging.h"
-
 #include <algorithm>
 #include <iomanip>
 #include <iostream>
-
-#include "triton/common/error.h"
 
 // Defined but not used
 #define TRITONJSON_STATUSTYPE uint8_t
 #define TRITONJSON_STATUSRETURN(M)
 #define TRITONJSON_STATUSSUCCESS 0
 
+#include "triton/common/logging.h"
 #include "triton/common/triton_json.h"
 
 namespace triton { namespace common {
