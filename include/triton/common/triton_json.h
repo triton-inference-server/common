@@ -110,6 +110,25 @@ class TritonJson {
   };
 
   //
+  // Utility to serialize input string
+  // as a JSON string value
+
+  static std::string SerializeString(const std::string& input)
+  {
+    WriteBuffer writebuffer;
+    const unsigned int writeFlags = rapidjson::kWriteNanAndInfFlag;
+    // Provide default template arguments to pass writeFlags
+    rapidjson::Writer<
+        WriteBuffer, rapidjson::UTF8<>, rapidjson::UTF8<>,
+        rapidjson::CrtAllocator, writeFlags>
+        writer(writebuffer);
+    if (RAPIDJSON_UNLIKELY(!writer.String(input.c_str()))) {
+      return "Error Serializing String";
+    }
+    return writebuffer.Contents();
+  }
+
+  //
   // Value representing the entire document or an element within a
   // document.
   //
