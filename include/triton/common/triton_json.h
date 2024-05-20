@@ -123,7 +123,7 @@ class TritonJson {
         rapidjson::CrtAllocator, writeFlags>
         writer(writebuffer);
     if (RAPIDJSON_UNLIKELY(!writer.String(input.c_str()))) {
-      return "Error Escaping String";
+      return "Error Serializing String";
     }
     return writebuffer.Contents();
   }
