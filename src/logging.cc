@@ -145,12 +145,12 @@ LogMessage::~LogMessage()
 {
   std::stringstream log_record;
   LogPreamble(log_record);
-  std::string escaped_message = escape_log_messages_
-                                    ? TritonJson::EscapeString(message_.str())
-                                    : message_.str();
+  std::string escaped_message =
+      escape_log_messages_ ? TritonJson::SerializeString(message_.str())
+                           : message_.str();
   if (heading_ != nullptr) {
     std::string escaped_heading = gLogger_.EscapeLogMessages()
-                                      ? TritonJson::EscapeString(heading_)
+                                      ? TritonJson::SerializeString(heading_)
                                       : heading_;
     log_record << escaped_heading << '\n';
   }

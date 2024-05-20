@@ -110,11 +110,10 @@ class TritonJson {
   };
 
   //
-  // Utility to return an escaped version of the
-  // input string
-  //
+  // Utility to serialize input string
+  // as a JSON string value
 
-  static std::string EscapeString(const std::string& input)
+  static std::string SerializeString(const std::string& input)
   {
     WriteBuffer writebuffer;
     const unsigned int writeFlags = rapidjson::kWriteNanAndInfFlag;
