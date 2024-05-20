@@ -160,24 +160,18 @@ extern Logger gLogger_;
 // A log message.
 class LogMessage {
  public:
-  LogMessage(const char* file, int line, Logger::Level level)
+  LogMessage(
+      const char* file, int line, Logger::Level level,
+      const char* heading = nullptr,
+      bool escape_log_messages = gLogger_.EscapeLogMessages())
       : path_(file), line_(line), level_(level), pid_(GetProcessId()),
-        heading_(nullptr), escape_log_messages_(gLogger_.EscapeLogMessages())
+        heading_(heading), escape_log_messages_(escape_log_messages)
   {
     SetTimestamp();
     size_t path_start = path_.rfind('/');
     if (path_start != std::string::npos) {
       path_ = path_.substr(path_start + 1, std::string::npos);
     }
-  }
-
-  LogMessage(
-      const char* file, int line, Logger::Level level, const char* heading,
-      bool escape_log_messages)
-      : LogMessage(file, line, level)
-  {
-    escape_log_messages_ = escape_log_messages;
-    heading_ = heading;
   }
 
   ~LogMessage();
