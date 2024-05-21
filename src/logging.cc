@@ -24,21 +24,17 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include "triton/common/logging.h"
-
-#ifdef _WIN32
-// suppress the min and max definitions in Windef.h.
-#define NOMINMAX
-#include <Windows.h>
-#else
-#include <sys/time.h>
-#include <sys/types.h>
-#include <time.h>
-#include <unistd.h>
-#endif
 #include <algorithm>
 #include <iomanip>
 #include <iostream>
+
+// Defined but not used
+#define TRITONJSON_STATUSTYPE uint8_t
+#define TRITONJSON_STATUSRETURN(M)
+#define TRITONJSON_STATUSSUCCESS 0
+
+#include "triton/common/logging.h"
+#include "triton/common/triton_json.h"
 
 namespace triton { namespace common {
 
@@ -47,6 +43,8 @@ Logger gLogger_;
 Logger::Logger()
     : enables_{true, true, true}, vlevel_(0), format_(Format::kDEFAULT)
 {
+  const char* value = std::getenv(Logger::ESCAPE_ENVIRONMENT_VARIABLE);
+  escape_log_messages_ = (value && std::strcmp(value, "0") == 0) ? false : true;
 }
 
 void
@@ -66,82 +64,95 @@ Logger::Flush()
   std::cerr << std::flush;
 }
 
+#ifdef _WIN32
 
-const std::vector<char> LogMessage::level_name_{'E', 'W', 'I'};
-
-LogMessage::LogMessage(const char* file, int line, uint32_t level)
+void
+LogMessage::LogTimestamp(std::stringstream& stream)
 {
-  std::string path(file);
-  size_t pos = path.rfind('/');
-  if (pos != std::string::npos) {
-    path = path.substr(pos + 1, std::string::npos);
-  }
-
-  // 'L' below is placeholder for showing log level
   switch (gLogger_.LogFormat()) {
     case Logger::Format::kDEFAULT: {
-      // LMMDD hh:mm:ss.ssssss
-#ifdef _WIN32
-      SYSTEMTIME system_time;
-      GetSystemTime(&system_time);
-      stream_ << level_name_[std::min(level, (uint32_t)Level::kINFO)]
-              << std::setfill('0') << std::setw(2) << system_time.wMonth
-              << std::setw(2) << system_time.wDay << ' ' << std::setw(2)
-              << system_time.wHour << ':' << std::setw(2) << system_time.wMinute
-              << ':' << std::setw(2) << system_time.wSecond << '.'
-              << std::setw(6) << system_time.wMilliseconds * 1000 << ' '
-              << static_cast<uint32_t>(GetCurrentProcessId()) << ' ' << path
-              << ':' << line << "] ";
-#else
-      struct timeval tv;
-      gettimeofday(&tv, NULL);
-      struct tm tm_time;
-      gmtime_r(((time_t*)&(tv.tv_sec)), &tm_time);
-      stream_ << level_name_[std::min(level, (uint32_t)Level::kINFO)]
-              << std::setfill('0') << std::setw(2) << (tm_time.tm_mon + 1)
-              << std::setw(2) << tm_time.tm_mday << ' ' << std::setw(2)
-              << tm_time.tm_hour << ':' << std::setw(2) << tm_time.tm_min << ':'
-              << std::setw(2) << tm_time.tm_sec << '.' << std::setw(6)
-              << tv.tv_usec << ' ' << static_cast<uint32_t>(getpid()) << ' '
-              << path << ':' << line << "] ";
-#endif
+      stream << std::setfill('0') << std::setw(2) << timestamp_.wMonth
+             << std::setw(2) << timestamp_.wDay << ' ' << std::setw(2)
+             << timestamp_.wHour << ':' << std::setw(2) << timestamp_.wMinute
+             << ':' << std::setw(2) << timestamp_.wSecond << '.' << std::setw(6)
+             << timestamp_.wMilliseconds * 1000;
       break;
     }
     case Logger::Format::kISO8601: {
-      // YYYY-MM-DDThh:mm:ssZ L
-#ifdef _WIN32
-      SYSTEMTIME system_time;
-      GetSystemTime(&system_time);
-      stream_ << system_time.wYear << '-' << std::setfill('0') << std::setw(2)
-              << system_time.wMonth << '-' << std::setw(2) << system_time.wDay
-              << 'T' << std::setw(2) << system_time.wHour << ':' << std::setw(2)
-              << system_time.wMinute << ':' << std::setw(2)
-              << system_time.wSecond << "Z "
-              << level_name_[std::min(level, (uint32_t)Level::kINFO)] << ' '
-              << static_cast<uint32_t>(GetCurrentProcessId()) << ' ' << path
-              << ':' << line << "] ";
+      stream << timestamp_.wYear << '-' << std::setfill('0') << std::setw(2)
+             << timestamp_.wMonth << '-' << std::setw(2) << timestamp_.wDay
+             << 'T' << std::setw(2) << timestamp_.wHour << ':' << std::setw(2)
+             << timestamp_.wMinute << ':' << std::setw(2) << timestamp_.wSecond
+             << "Z";
+      break;
+    }
+  }
+}
 #else
-      struct timeval tv;
-      gettimeofday(&tv, NULL);
-      struct tm tm_time;
-      gmtime_r(((time_t*)&(tv.tv_sec)), &tm_time);
-      stream_ << (tm_time.tm_year + 1900) << '-' << std::setfill('0')
-              << std::setw(2) << (tm_time.tm_mon + 1) << '-' << std::setw(2)
-              << tm_time.tm_mday << 'T' << std::setw(2) << tm_time.tm_hour
-              << ':' << std::setw(2) << tm_time.tm_min << ':' << std::setw(2)
-              << tm_time.tm_sec << "Z "
-              << level_name_[std::min(level, (uint32_t)Level::kINFO)] << ' '
-              << static_cast<uint32_t>(getpid()) << ' ' << path << ':' << line
-              << "] ";
-#endif
+void
+LogMessage::LogTimestamp(std::stringstream& stream)
+{
+  struct tm tm_time;
+  gmtime_r(((time_t*)&(timestamp_.tv_sec)), &tm_time);
+
+  switch (gLogger_.LogFormat()) {
+    case Logger::Format::kDEFAULT: {
+      stream << std::setfill('0') << std::setw(2) << (tm_time.tm_mon + 1)
+             << std::setw(2) << tm_time.tm_mday << ' ' << std::setw(2)
+             << tm_time.tm_hour << ':' << std::setw(2) << tm_time.tm_min << ':'
+             << std::setw(2) << tm_time.tm_sec << '.' << std::setw(6)
+             << timestamp_.tv_usec;
+      break;
+    }
+    case Logger::Format::kISO8601: {
+      stream << (tm_time.tm_year + 1900) << '-' << std::setfill('0')
+             << std::setw(2) << (tm_time.tm_mon + 1) << '-' << std::setw(2)
+             << tm_time.tm_mday << 'T' << std::setw(2) << tm_time.tm_hour << ':'
+             << std::setw(2) << tm_time.tm_min << ':' << std::setw(2)
+             << tm_time.tm_sec << "Z";
       break;
     }
   }
 }
 
+#endif
+
+void
+LogMessage::LogPreamble(std::stringstream& stream)
+{
+  switch (gLogger_.LogFormat()) {
+    case Logger::Format::kDEFAULT: {
+      stream << Logger::LEVEL_NAMES[static_cast<uint8_t>(level_)];
+      LogTimestamp(stream);
+      stream << ' ' << pid_ << ' ' << path_ << ':' << line_ << "] ";
+
+      break;
+    }
+    case Logger::Format::kISO8601: {
+      LogTimestamp(stream);
+      stream << " " << Logger::LEVEL_NAMES[static_cast<uint8_t>(level_)] << ' '
+             << pid_ << ' ' << path_ << ':' << line_ << "] ";
+      break;
+    }
+  }
+}
+
+
 LogMessage::~LogMessage()
 {
-  gLogger_.Log(stream_.str());
+  std::stringstream log_record;
+  LogPreamble(log_record);
+  std::string escaped_message =
+      escape_log_messages_ ? TritonJson::SerializeString(message_.str())
+                           : message_.str();
+  if (heading_ != nullptr) {
+    std::string escaped_heading = gLogger_.EscapeLogMessages()
+                                      ? TritonJson::SerializeString(heading_)
+                                      : heading_;
+    log_record << escaped_heading << '\n';
+  }
+  log_record << escaped_message;
+  gLogger_.Log(log_record.str());
 }
 
 }}  // namespace triton::common
