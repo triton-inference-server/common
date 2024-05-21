@@ -36,7 +36,7 @@ namespace triton { namespace common {
 //
 class Error {
  public:
-  enum class Code {
+  enum class Code : uint8_t {
     SUCCESS,
     UNKNOWN,
     INTERNAL,
