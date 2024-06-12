@@ -38,6 +38,8 @@
 #ifdef _WIN32
 // exclude winsock apis
 #define WIN32_LEAN_AND_MEAN
+// suppress the min and max definitions in Windef.h.
+#define NOMINMAX
 #include <windows.h>
 #else
 #include <sys/time.h>
