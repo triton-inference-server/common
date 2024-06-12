@@ -36,9 +36,9 @@
 
 #include "table_printer.h"
 #ifdef _WIN32
-// suppress the min and max definitions in Windef.h.
-#define NOMINMAX
-#include <Windows.h>
+// exclude winsock apis
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
 #else
 #include <sys/time.h>
 #include <sys/types.h>
