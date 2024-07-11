@@ -63,11 +63,10 @@ if(${TRITON_COMMON_ENABLE_PROTOBUF})
       $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
   )
 
-  target_compile_options(
-    proto-library PRIVATE
-    $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>,$<CXX_COMPILER_ID:GNU>>:
-      -Wall -Wextra -Wno-unused-parameter -Werror>
-    $<$<CXX_COMPILER_ID:MSVC>:/W0 /D_WIN32_WINNT=0x0A00 /EHsc /Zc:preprocessor>
+  target_link_libraries(
+    proto-library
+    PRIVATE
+      common-compile-settings
   )
 
   set_target_properties(
@@ -136,11 +135,10 @@ if(${TRITON_COMMON_ENABLE_GRPC})
       $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
   )
 
-  target_compile_options(
-    grpc-service-library PRIVATE
-    $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>,$<CXX_COMPILER_ID:GNU>>:
-      -Wall -Wextra -Wno-unused-parameter -Werror>
-    $<$<CXX_COMPILER_ID:MSVC>:/W0 /D_WIN32_WINNT=0x0A00 /EHsc /Zc:preprocessor>
+  target_link_libraries(
+    grpc-service-library
+    PRIVATE
+      common-compile-settings
   )
 
   set_target_properties(
@@ -193,11 +191,10 @@ if(${TRITON_COMMON_ENABLE_GRPC})
       $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
   )
 
-  target_compile_options(
-    grpc-health-library PRIVATE
-    $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>,$<CXX_COMPILER_ID:GNU>>:
-      -Wall -Wextra -Wno-unused-parameter -Werror>
-    $<$<CXX_COMPILER_ID:MSVC>:/W0 /D_WIN32_WINNT=0x0A00 /EHsc /Zc:preprocessor>
+  target_link_libraries(
+    grpc-health-library
+    PRIVATE
+      common-compile-settings
   )
 
   set_target_properties(
