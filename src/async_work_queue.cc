@@ -37,6 +37,8 @@ AsyncWorkQueue*
 AsyncWorkQueue::GetSingleton()
 {
   static AsyncWorkQueue singleton;
+  std::cout << "[DEBUG][common::AsyncWorkQueue] singleton address: "
+            << &singleton << std::endl;
   return &singleton;
 }
 
@@ -61,6 +63,9 @@ AsyncWorkQueue::Initialize(size_t worker_count)
   }
 
   GetSingleton()->thread_pool_.reset(new ThreadPool(worker_count));
+  std::cout << "[DEBUG][common::AsyncWorkQueue] Successfully initialized "
+               "AsyncWorkQueue thread pool with worker_count="
+            << worker_count << std::endl;
   return Error::Success;
 }
 
