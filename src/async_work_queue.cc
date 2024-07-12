@@ -70,7 +70,7 @@ AsyncWorkQueue::Initialize(size_t worker_count)
             << worker_count << std::endl;
   std::cout << "[DEBUG][common::AsyncWorkQueue] singleton thread_pool address "
                "called from core: "
-            << GetSingleton()->thread_pool_ << std::endl;
+            << GetSingleton()->thread_pool_.get() << std::endl;
   return Error::Success;
 }
 
@@ -79,7 +79,7 @@ AsyncWorkQueue::WorkerCount()
 {
   std::cout << "[DEBUG][common::AsyncWorkQueue] singleton thread_pool address "
                "called from backend: "
-            << GetSingleton()->thread_pool_ << std::endl;
+            << GetSingleton()->thread_pool_.get() << std::endl;
 
   if (!GetSingleton()->thread_pool_) {
     std::cout << "[DEBUG][common::AsyncWorkQueue] singleton thread_pool is "
