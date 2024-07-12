@@ -409,6 +409,15 @@ message ModelInput
   //@@     Default value is false.
   //@@
   bool optional = 8;
+
+  //@@  .. cpp:var:: bool is_reformat_free_tensor
+  //@@     
+  //@@     Whether or not the input is a reformat-free tensor to the model. This
+  //@@     field is currently supported only for the TensorRT model. An error 
+  //@@     will be generated if this specification does not comply with underlying
+  //@@     model.
+  //@@
+  bool is_reformat_free_tensor = 9;
 }
 
 //@@
@@ -461,6 +470,15 @@ message ModelOutput
   //@@     model.
   //@@
   bool is_shape_tensor = 6;
+
+  //@@  .. cpp:var:: bool is_reformat_free_tensor
+  //@@     
+  //@@     Whether or not the ouput is a reformat-free tensor to the model. This
+  //@@     field is currently supported only for the TensorRT model. An error 
+  //@@     will be generated if this specification does not comply with underlying
+  //@@     model.
+  //@@
+  bool is_reformat_free_tensor = 9;
 }
 
 //@@  .. cpp:var:: message BatchInput
