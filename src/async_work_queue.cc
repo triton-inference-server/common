@@ -26,6 +26,8 @@
 
 #include "triton/common/async_work_queue.h"
 
+#include <iostream>
+
 namespace triton { namespace common {
 
 AsyncWorkQueue::~AsyncWorkQueue()
