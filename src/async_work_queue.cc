@@ -39,8 +39,8 @@ AsyncWorkQueue*
 AsyncWorkQueue::GetSingleton()
 {
   static AsyncWorkQueue singleton;
-  std::cout << "[DEBUG][common::AsyncWorkQueue] singleton address: "
-            << &singleton << std::endl;
+  // std::cout << "[DEBUG][common::AsyncWorkQueue] singleton address: "
+  //           << &singleton << std::endl;
   return &singleton;
 }
 
