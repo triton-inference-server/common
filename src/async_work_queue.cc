@@ -87,6 +87,9 @@ AsyncWorkQueue::WorkerCount()
               << std::endl;
     return 0;
   }
+
+  std::cout << "[DEBUG][common::AsyncWorkQueue] singleton thread_pool is: "
+            << GetSingleton()->thread_pool_->Size() << std::endl;
   return GetSingleton()->thread_pool_->Size();
 }
 
