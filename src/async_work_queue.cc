@@ -68,6 +68,11 @@ AsyncWorkQueue::Initialize(size_t worker_count)
   std::cout << "[DEBUG][common::AsyncWorkQueue] Successfully initialized "
                "AsyncWorkQueue thread pool with worker_count="
             << worker_count << std::endl;
+
+  std::cout << "[DEBUG][common::AsyncWorkQueue] singleton address "
+               "called from core: "
+            << GetSingleton() << std::endl;
+
   std::cout << "[DEBUG][common::AsyncWorkQueue] singleton thread_pool address "
                "called from core: "
             << GetSingleton()->thread_pool_.get() << std::endl;
@@ -77,6 +82,10 @@ AsyncWorkQueue::Initialize(size_t worker_count)
 size_t
 AsyncWorkQueue::WorkerCount()
 {
+  std::cout << "[DEBUG][common::AsyncWorkQueue] singleton address "
+               "called from WorkerCount(): "
+            << GetSingleton() << std::endl;
+
   std::cout << "[DEBUG][common::AsyncWorkQueue] singleton thread_pool address "
                "called from backend: "
             << GetSingleton()->thread_pool_.get() << std::endl;
