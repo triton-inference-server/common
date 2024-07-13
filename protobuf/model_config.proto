@@ -410,14 +410,14 @@ message ModelInput
   //@@
   bool optional = 8;
 
-  //@@  .. cpp:var:: bool is_reformat_free_tensor
+  //@@  .. cpp:var:: bool is_non_linear_format_io
   //@@     
-  //@@     Whether or not the input is a reformat-free tensor to the model. This
-  //@@     field is currently supported only for the TensorRT model. An error 
-  //@@     will be generated if this specification does not comply with underlying
+  //@@     Indicates whether the input tensor uses a non-linear IO format. This
+  //@@     field is currently supported only for TensorRT models. An error will 
+  //@@     be generated if this specification does not comply with the underlying
   //@@     model.
   //@@
-  bool is_reformat_free_tensor = 9;
+  bool is_non_linear_format_io = 9;
 }
 
 //@@
@@ -471,14 +471,14 @@ message ModelOutput
   //@@
   bool is_shape_tensor = 6;
 
-  //@@  .. cpp:var:: bool is_reformat_free_tensor
+  //@@  .. cpp:var:: bool is_non_linear_format_io
   //@@     
-  //@@     Whether or not the ouput is a reformat-free tensor to the model. This
-  //@@     field is currently supported only for the TensorRT model. An error 
-  //@@     will be generated if this specification does not comply with underlying
+  //@@     Indicates whether the output tensor uses a non-linear IO format. This
+  //@@     field is currently supported only for TensorRT models. An error will 
+  //@@     be generated if this specification does not comply with the underlying
   //@@     model.
   //@@
-  bool is_reformat_free_tensor = 9;
+  bool is_non_linear_format_io = 9;
 }
 
 //@@  .. cpp:var:: message BatchInput
