@@ -478,7 +478,7 @@ message ModelOutput
   //@@     be generated if this specification does not comply with the underlying
   //@@     model.
   //@@
-  bool is_non_linear_format_io = 9;
+  bool is_non_linear_format_io = 7;
 }
 
 //@@  .. cpp:var:: message BatchInput
