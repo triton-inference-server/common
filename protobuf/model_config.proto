@@ -397,7 +397,7 @@ message ModelInput
   //@@     Indicates whether the input tensor uses a non-linear IO format. This
   //@@     field is currently supported only for TensorRT models. An error will
   //@@     be generated if this specification does not comply with the
-  //underlying
+  // underlying
   //@@     model.
   //@@
   bool is_non_linear_format_io = 7;
@@ -477,7 +477,7 @@ message ModelOutput
   //@@     Indicates whether the output tensor uses a non-linear IO format. This
   //@@     field is currently supported only for TensorRT models. An error will
   //@@     be generated if this specification does not comply with the
-  //underlying
+  // underlying
   //@@     model.
   //@@
   bool is_non_linear_format_io = 7;
