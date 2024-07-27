@@ -248,6 +248,15 @@ class TritonJson {
       return TRITONJSON_STATUSSUCCESS;
     }
 
+    // Set/overwrite a boolean in a value. This changes the
+    // type of the value to boolean.
+    TRITONJSON_STATUSTYPE SetBool(const bool value)
+    {
+      rapidjson::Value& v = AsMutableValue();
+      v.SetBool(value);
+      return TRITONJSON_STATUSSUCCESS;
+    }
+
     // Set/overwrite a signed integer in a value. This changes the
     // type of the value to signed int.
     TRITONJSON_STATUSTYPE SetInt(const int64_t value)
