@@ -1902,6 +1902,13 @@ message ModelConfig
   //@@
   string runtime = 25;
 
+  //@@  .. cpp:var:: string runtime
+  //@@
+  //@@     Optional list of additional dependency directories Triton
+  //@@     should search when loading a model.
+  //@@
+  repeated string additional_dependency_dirs = 26;
+
   //@@  .. cpp:var:: ModelVersionPolicy version_policy
   //@@
   //@@     Policy indicating which version(s) of the model will be served.
