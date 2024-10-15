@@ -1920,7 +1920,7 @@ message ModelMetrics
   //@@
   //@@     Optional custom configuration for selected metrics.
   //@@
-  repeated Setting settings = 1;
+  repeated Settisdang settings = 1;
 }
 
 //@@
