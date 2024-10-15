@@ -1870,6 +1870,60 @@ message ModelResponseCache
 }
 
 //@@
+//@@  .. cpp:var:: message ModelMetrics
+//@@
+//@@     The metrics setting for the model.
+//@@
+message ModelMetrics
+{
+  //@@
+  //@@  .. cpp:var:: message Agent
+  //@@
+  //@@     Override metrics setting for this model.
+  //@@
+  message Setting
+  {
+    message Key
+    {
+      //@@  .. cpp:var:: string family_name
+      //@@
+      //@@     The name of the metric family to override
+      //@@     with the custom value.
+      //@@
+      string family_name = 1;
+    }
+
+    message Value
+    {
+      //@@  .. cpp:var:: double buckets
+      //@@
+      //@@     The custom histogram buckets.
+      //@@
+      repeated double buckets = 1;
+    }
+
+    //@@  .. cpp:var:: Key key
+    //@@
+    //@@     The key that defines which metrics to override with value.
+    //@@
+    Key key = 1;
+
+    //@@  .. cpp:var:: Value value
+    //@@
+    //@@     The value to override the metrics defined in key.
+    //@@
+    Value value = 2;
+  }
+
+  //@@
+  //@@  .. cpp::var:: Setting settings
+  //@@
+  //@@     Optional custom configuration for selected metrics.
+  //@@
+  repeated Setting settings = 1;
+}
+
+//@@
 //@@.. cpp:var:: message ModelConfig
 //@@
 //@@   A model configuration.
@@ -2076,4 +2130,10 @@ message ModelConfig
   //@@     model.
   //@@
   ModelResponseCache response_cache = 24;
+
+  //@@  .. cpp:var:: ModelMetrics model_metrics
+  //@@
+  //@@     Optional setting for custom metrics configuration for this model.
+  //@@
+  ModelMetrics model_metrics = 26;
 }
