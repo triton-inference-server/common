@@ -1870,6 +1870,75 @@ message ModelResponseCache
 }
 
 //@@
+//@@  .. cpp:var:: message ModelMetrics
+//@@
+//@@     The metrics setting of this model.
+//@@
+message ModelMetrics
+{
+  //@@
+  //@@  .. cpp:var:: message MetricControl
+  //@@
+  //@@     Override metrics settings of this model.
+  //@@
+  message MetricControl
+  {
+    //@@
+    //@@  .. cpp:var:: message MetricIdentifier
+    //@@
+    //@@     Specify metrics to be overridden with metric_option
+    //@@
+    message MetricIdentifier
+    {
+      //@@  .. cpp:var:: string family
+      //@@
+      //@@     The name of the metric family to override
+      //@@     with the custom value.
+      //@@
+      string family = 1;
+    }
+
+    //@@  .. cpp:var:: message HistogramOptions
+    //@@
+    //@@     Histogram metrics options
+    //@@
+    message HistogramOptions {
+      //@@  .. cpp:var:: double buckets (repeated)
+      //@@
+      //@@     Repeated double type
+      //@@
+      repeated double buckets = 1;
+    }
+
+    //@@  .. cpp:var:: MetricIdentifier metric_identifier
+    //@@
+    //@@     The identifier defining metrics to be overridden with the metric_options
+    //@@
+    MetricIdentifier metric_identifier = 1;
+
+    //@@  .. cpp:var:: oneof metric_options
+    //@@
+    //@@     The value to override the metrics defined in metric_identifier.
+    //@@
+    oneof metric_options
+    {
+        //@@  .. cpp:var:: HistogramOptions histogram_options
+        //@@
+        //@@     The custom histogram options.
+        //@@
+        HistogramOptions histogram_options = 2;
+    }
+  }
+
+  //@@
+  //@@  .. cpp::var:: MetricControl metric_control (repeated)
+  //@@
+  //@@     Optional custom configuration for selected metrics.
+  //@@
+  repeated MetricControl metric_control = 1;
+}
+
+//@@
 //@@.. cpp:var:: message ModelConfig
 //@@
 //@@   A model configuration.
@@ -2076,4 +2145,10 @@ message ModelConfig
   //@@     model.
   //@@
   ModelResponseCache response_cache = 24;
+
+  //@@  .. cpp:var:: ModelMetrics model_metrics
+  //@@
+  //@@     Optional setting for custom metrics configuration for this model.
+  //@@
+  ModelMetrics model_metrics = 26;
 }
