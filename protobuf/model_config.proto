@@ -1886,7 +1886,7 @@ message ModelMetrics
     //@@
     //@@  .. cpp:var:: message MetricIdentifier
     //@@
-    //@@     Specify metrics to be overridden with metric_option
+    //@@     Specify metrics to be overridden with metric_option.
     //@@
     message MetricIdentifier
     {
@@ -1900,19 +1900,21 @@ message ModelMetrics
 
     //@@  .. cpp:var:: message HistogramOptions
     //@@
-    //@@     Histogram metrics options
+    //@@     Histogram metrics options.
     //@@
-    message HistogramOptions {
+    message HistogramOptions
+    {
       //@@  .. cpp:var:: double buckets (repeated)
       //@@
-      //@@     Repeated double type
+      //@@     Repeated double type for histogram bucket boundaries.
       //@@
       repeated double buckets = 1;
     }
 
     //@@  .. cpp:var:: MetricIdentifier metric_identifier
     //@@
-    //@@     The identifier defining metrics to be overridden with the metric_options
+    //@@     The identifier defining metrics to be overridden with the
+    //@@     metric_options.
     //@@
     MetricIdentifier metric_identifier = 1;
 
@@ -1922,11 +1924,11 @@ message ModelMetrics
     //@@
     oneof metric_options
     {
-        //@@  .. cpp:var:: HistogramOptions histogram_options
-        //@@
-        //@@     The custom histogram options.
-        //@@
-        HistogramOptions histogram_options = 2;
+      //@@  .. cpp:var:: HistogramOptions histogram_options
+      //@@
+      //@@     The custom histogram options.
+      //@@
+      HistogramOptions histogram_options = 2;
     }
   }
 
