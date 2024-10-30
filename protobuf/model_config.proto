@@ -1926,7 +1926,7 @@ message ModelMetrics
     {
       //@@  .. cpp:var:: HistogramOptions histogram_options
       //@@
-      //@@     The custom histogram options.
+      //@@     Histogram options.
       //@@
       HistogramOptions histogram_options = 2;
     }
@@ -2151,6 +2151,7 @@ message ModelConfig
   //@@  .. cpp:var:: ModelMetrics model_metrics
   //@@
   //@@     Optional setting for custom metrics configuration for this model.
+  //@@     Application default is applied to metrics that are not specified.
   //@@
   ModelMetrics model_metrics = 26;
 }
