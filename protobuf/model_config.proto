@@ -1895,7 +1895,8 @@ message ModelMetrics
       //@@
       //@@     The name of the metric family to override with the custom value.
       //@@     Check the list of supported metric families
-      //@@     https://github.com/triton-inference-server/server/blob/main/docs/user_guide/metrics.md#histograms
+      //@@
+      // https://github.com/triton-inference-server/server/blob/main/docs/user_guide/metrics.md#histograms
       //@@
       string family = 1;
     }
