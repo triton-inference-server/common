@@ -1872,7 +1872,8 @@ message ModelResponseCache
 //@@
 //@@  .. cpp:var:: message ModelMetrics
 //@@
-//@@     The metrics setting of this model.
+//@@     The metrics setting of this model. Consider reusing this message body
+//@@     for backend metric custom configuration.
 //@@
 message ModelMetrics
 {
@@ -1892,8 +1893,9 @@ message ModelMetrics
     {
       //@@  .. cpp:var:: string family
       //@@
-      //@@     The name of the metric family to override
-      //@@     with the custom value.
+      //@@     The name of the metric family to override with the custom value.
+      //@@     Check the list of supported metric families
+      //@@     https://github.com/triton-inference-server/server/blob/main/docs/user_guide/metrics.md#histograms
       //@@
       string family = 1;
     }
