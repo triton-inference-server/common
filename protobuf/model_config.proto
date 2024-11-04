@@ -1896,7 +1896,7 @@ message ModelMetrics
       //@@     The name of the metric family to override with the custom value.
       //@@     Check the list of supported metric families
       //@@
-      // https://github.com/triton-inference-server/server/blob/main/docs/user_guide/metrics.md#histograms
+      //@@ https://github.com/triton-inference-server/server/blob/main/docs/user_guide/metrics.md#histograms
       //@@
       string family = 1;
     }
@@ -1909,7 +1909,8 @@ message ModelMetrics
     {
       //@@  .. cpp:var:: double buckets (repeated)
       //@@
-      //@@     Repeated double type for histogram bucket boundaries.
+      //@@     Repeated double type in ascending order for histogram bucket
+      //@@     boundaries. For example: [ -5.0, -2, 0, 3.5, 5 ].
       //@@
       repeated double buckets = 1;
     }
