@@ -1910,8 +1910,10 @@ message ModelMetrics
       //@@  .. cpp:var:: double buckets (repeated)
       //@@
       //@@     Repeated double type in ascending order for histogram bucket
-      //@@     boundaries. Each value represents a bucket range less than or
-      //@@     equal to itself. For example, [ -5.0, -2, 0, 3.5, 5 ].
+      //@@     boundaries. Each bucket value represents a range less than or
+      //@@     equal to itself. The range greater than the largest bucket value
+      //@@     is allocated implicitly.
+      //@@     For example, [ -5.0, -2, 0, 3.5, 5 ].
       //@@
       repeated double buckets = 1;
     }
