@@ -25,8 +25,8 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma once
 
-#include <string>
 #include <cstdint>
+#include <string>
 
 namespace triton { namespace common {
 
