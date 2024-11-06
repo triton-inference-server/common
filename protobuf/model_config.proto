@@ -1872,8 +1872,9 @@ message ModelResponseCache
 //@@
 //@@  .. cpp:var:: message ModelMetrics
 //@@
-//@@     The metrics setting of this model. Consider reusing this message body
-//@@     for backend metric custom configuration.
+//@@     The metrics setting of this model.
+//@@     NOTE: Consider reusing this message body for backend metric custom
+//@@     configuration.
 //@@
 message ModelMetrics
 {
