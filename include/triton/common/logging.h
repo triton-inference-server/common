@@ -167,7 +167,7 @@ class LogMessage {
       const char* file, int line, Logger::Level level,
       const char* heading = nullptr,
       bool escape_log_messages = gLogger_.EscapeLogMessages())
-      : path_(file), line_(line), level_(level), pid_(GetProcessId()),
+      : path_(file), line_(line), level_(level), pid_(GetThreadId()),
         heading_(heading), escape_log_messages_(escape_log_messages)
   {
     SetTimestamp();
@@ -199,7 +199,7 @@ class LogMessage {
 #else
   struct timeval timestamp_;
   void SetTimestamp() { gettimeofday(&timestamp_, NULL); }
-  static uint32_t GetProcessId() { return static_cast<uint32_t>(getpid()); };
+  static uint32_t GetThreadId() { return static_cast<uint32_t>(gettid()); };
 #endif
   std::stringstream message_;
   const char* heading_;
