@@ -38,6 +38,7 @@
 #if defined(__GNUC__) && __GNUC__ >= 8
 #pragma GCC diagnostic ignored "-Wclass-memaccess"
 #endif
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 #include <rapidjson/document.h>
 #pragma GCC diagnostic pop
 #endif  // _WIN32
