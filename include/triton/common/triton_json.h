@@ -213,12 +213,9 @@ class TritonJson {
 
         // Show part of the JSON to help debugging
         const size_t preview_length = 100;
-        std::string json_preview = json.substr(0, preview_length);
-        if (json.size() > preview_length) {
-          json_preview += "...";
-        }
+        std::string json_text = json.substr(0);
 
-        error_stream << " JSON Preview: \"" << json_preview << "\"";
+        error_stream << " JSON: \"" << json_text << "\"";
 
         return TRITONJSON_STATUSRETURN(error_stream.str());
       }
