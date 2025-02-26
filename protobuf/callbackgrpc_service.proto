@@ -33,28 +33,172 @@ package inference;
 import "model_config.proto";
 
 //@@
-//@@.. cpp:var:: service InferenceService
+//@@.. cpp:var:: service GRPCInferenceServiceCallback
 //@@
-//@@   Inference Server GRPC endpoints.
+//@@   Inference Server GRPC Callback endpoints.
 //@@
-service GRPCInferenceService
+service GRPCInferenceServiceCallback
 {
-  //@@  .. cpp:var:: rpc ModelInfer(ModelInferRequest) returns
-  //@@       (ModelInferResponse)
+  //@@  .. cpp:var:: rpc ServerLive(ServerLiveRequest) returns
+  //@@       (ServerLiveResponse)
   //@@
-  //@@     Perform inference using a specific model.
+  //@@     Check liveness of the inference server.
   //@@
-  rpc ModelInfer(ModelInferRequest) returns (ModelInferResponse) {}
+  rpc ServerLive(ServerLiveRequest) returns (ServerLiveResponse) {}
 
-  //@@  .. cpp:var:: rpc ModelStreamInfer(stream ModelInferRequest) returns
-  //@@       (stream ModelStreamInferResponse)
+  //@@  .. cpp:var:: rpc ServerReady(ServerReadyRequest) returns
+  //@@       (ServerReadyResponse)
   //@@
-  //@@     Perform streaming inference.
+  //@@     Check readiness of the inference server.
   //@@
-  rpc ModelStreamInfer(stream ModelInferRequest)
-      returns (stream ModelStreamInferResponse)
+  rpc ServerReady(ServerReadyRequest) returns (ServerReadyResponse) {}
+
+  //@@  .. cpp:var:: rpc ModelReady(ModelReadyRequest) returns
+  //@@       (ModelReadyResponse)
+  //@@
+  //@@     Check readiness of a model in the inference server.
+  //@@
+  rpc ModelReady(ModelReadyRequest) returns (ModelReadyResponse) {}
+
+  //@@  .. cpp:var:: rpc ServerMetadata(ServerMetadataRequest) returns
+  //@@       (ServerMetadataResponse)
+  //@@
+  //@@     Get server metadata.
+  //@@
+  rpc ServerMetadata(ServerMetadataRequest) returns (ServerMetadataResponse) {}
+
+  //@@  .. cpp:var:: rpc ModelMetadata(ModelMetadataRequest) returns
+  //@@       (ModelMetadataResponse)
+  //@@
+  //@@     Get model metadata.
+  //@@
+  rpc ModelMetadata(ModelMetadataRequest) returns (ModelMetadataResponse) {}
+
+  //@@  .. cpp:var:: rpc ModelConfig(ModelConfigRequest) returns
+  //@@       (ModelConfigResponse)
+  //@@
+  //@@     Get model configuration.
+  //@@
+  rpc ModelConfig(ModelConfigRequest) returns (ModelConfigResponse) {}
+
+  //@@  .. cpp:var:: rpc ModelStatistics(
+  //@@                     ModelStatisticsRequest)
+  //@@                   returns (ModelStatisticsResponse)
+  //@@
+  //@@     Get the cumulative inference statistics for a model.
+  //@@
+  rpc ModelStatistics(ModelStatisticsRequest) returns (ModelStatisticsResponse)
   {
   }
+
+  //@@  .. cpp:var:: rpc RepositoryIndex(RepositoryIndexRequest) returns
+  //@@       (RepositoryIndexResponse)
+  //@@
+  //@@     Get the index of model repository contents.
+  //@@
+  rpc RepositoryIndex(RepositoryIndexRequest) returns (RepositoryIndexResponse)
+  {
+  }
+
+  //@@  .. cpp:var:: rpc RepositoryModelLoad(RepositoryModelLoadRequest) returns
+  //@@       (RepositoryModelLoadResponse)
+  //@@
+  //@@     Load or reload a model from a repository.
+  //@@
+  rpc RepositoryModelLoad(RepositoryModelLoadRequest)
+      returns (RepositoryModelLoadResponse)
+  {
+  }
+
+  //@@  .. cpp:var:: rpc RepositoryModelUnload(RepositoryModelUnloadRequest)
+  //@@       returns (RepositoryModelUnloadResponse)
+  //@@
+  //@@     Unload a model.
+  //@@
+  rpc RepositoryModelUnload(RepositoryModelUnloadRequest)
+      returns (RepositoryModelUnloadResponse)
+  {
+  }
+
+  //@@  .. cpp:var:: rpc SystemSharedMemoryStatus(
+  //@@                     SystemSharedMemoryStatusRequest)
+  //@@                   returns (SystemSharedMemoryStatusRespose)
+  //@@
+  //@@     Get the status of all registered system-shared-memory regions.
+  //@@
+  rpc SystemSharedMemoryStatus(SystemSharedMemoryStatusRequest)
+      returns (SystemSharedMemoryStatusResponse)
+  {
+  }
+
+  //@@  .. cpp:var:: rpc SystemSharedMemoryRegister(
+  //@@                     SystemSharedMemoryRegisterRequest)
+  //@@                   returns (SystemSharedMemoryRegisterResponse)
+  //@@
+  //@@     Register a system-shared-memory region.
+  //@@
+  rpc SystemSharedMemoryRegister(SystemSharedMemoryRegisterRequest)
+      returns (SystemSharedMemoryRegisterResponse)
+  {
+  }
+
+  //@@  .. cpp:var:: rpc SystemSharedMemoryUnregister(
+  //@@                     SystemSharedMemoryUnregisterRequest)
+  //@@                   returns (SystemSharedMemoryUnregisterResponse)
+  //@@
+  //@@     Unregister a system-shared-memory region.
+  //@@
+  rpc SystemSharedMemoryUnregister(SystemSharedMemoryUnregisterRequest)
+      returns (SystemSharedMemoryUnregisterResponse)
+  {
+  }
+
+  //@@  .. cpp:var:: rpc CudaSharedMemoryStatus(
+  //@@                     CudaSharedMemoryStatusRequest)
+  //@@                   returns (CudaSharedMemoryStatusRespose)
+  //@@
+  //@@     Get the status of all registered CUDA-shared-memory regions.
+  //@@
+  rpc CudaSharedMemoryStatus(CudaSharedMemoryStatusRequest)
+      returns (CudaSharedMemoryStatusResponse)
+  {
+  }
+
+  //@@  .. cpp:var:: rpc CudaSharedMemoryRegister(
+  //@@                     CudaSharedMemoryRegisterRequest)
+  //@@                   returns (CudaSharedMemoryRegisterResponse)
+  //@@
+  //@@     Register a CUDA-shared-memory region.
+  //@@
+  rpc CudaSharedMemoryRegister(CudaSharedMemoryRegisterRequest)
+      returns (CudaSharedMemoryRegisterResponse)
+  {
+  }
+
+  //@@  .. cpp:var:: rpc CudaSharedMemoryUnregister(
+  //@@                     CudaSharedMemoryUnregisterRequest)
+  //@@                   returns (CudaSharedMemoryUnregisterResponse)
+  //@@
+  //@@     Unregister a CUDA-shared-memory region.
+  //@@
+  rpc CudaSharedMemoryUnregister(CudaSharedMemoryUnregisterRequest)
+      returns (CudaSharedMemoryUnregisterResponse)
+  {
+  }
+
+  //@@  .. cpp:var:: rpc TraceSetting(TraceSettingRequest)
+  //@@                   returns (TraceSettingResponse)
+  //@@
+  //@@     Update and get the trace setting of the Triton server.
+  //@@
+  rpc TraceSetting(TraceSettingRequest) returns (TraceSettingResponse) {}
+
+  //@@  .. cpp:var:: rpc LogSettings(LogSettingsRequest)
+  //@@                   returns (LogSettingsResponse)
+  //@@
+  //@@     Update and get the log settings of the Triton server.
+  //@@
+  rpc LogSettings(LogSettingsRequest) returns (LogSettingsResponse) {}
 }
 
 //@@
