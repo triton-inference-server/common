@@ -228,12 +228,14 @@ TablePrinter::TablePrinter(const std::vector<std::string>& headers)
   if (ret && (csbi.dwSize.X != 0)) {
     column_size = csbi.dwSize.X;
   }
+  std::cout << "----------------- TablePrinter::TablePrinter() - _WIN32 - column_size: " << column_size << " -------------" << std::endl;
 #else
   struct winsize terminal_size;
   int status = ioctl(STDOUT_FILENO, TIOCGWINSZ, &terminal_size);
   if ((status == 0) && (terminal_size.ws_col != 0)) {
     column_size = terminal_size.ws_col;
   }
+  std::cout << "----------------- TablePrinter::TablePrinter() - Normal - column_size: " << column_size << " -------------" << std::endl;
 #endif
 
   for (size_t i = 0; i < headers.size(); ++i) {
@@ -242,6 +244,7 @@ TablePrinter::TablePrinter(const std::vector<std::string>& headers)
 
   // Calculate fair share of every column
   size_t number_of_columns = headers.size();
+  std::cout << "----------------- TablePrinter::TablePrinter() - number_of_columns: " << number_of_columns << " -------------" << std::endl;
 
   // Terminal width is the actual terminal width minus two times spaces
   // required before and after each column and number of columns plus 1 for
@@ -254,6 +257,9 @@ TablePrinter::TablePrinter(const std::vector<std::string>& headers)
     shares_.emplace_back(equal_share);
     terminal_width -= equal_share;
   }
+
+  std::cout << "----------------- TablePrinter::TablePrinter() - shares_.size(): " << shares_.size() 
+  << " - terminal_width: " << terminal_width << " - equal_share: " << equal_share << std::endl;
 
   InsertRow(headers);
 }
