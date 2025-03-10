@@ -54,7 +54,9 @@ ThreadPool::ThreadPool(size_t thread_count)
 
       // Execute task - ensure function has a valid target
       if (task) {
+        free_workers_--;
         task();
+        free_workers_++;
       }
     }
   };
@@ -63,6 +65,7 @@ ThreadPool::ThreadPool(size_t thread_count)
   for (size_t i = 0; i < thread_count; ++i) {
     workers_.emplace_back(worker_loop);
   }
+  free_workers_ = thread_count;
 }
 
 ThreadPool::~ThreadPool()
@@ -104,7 +107,7 @@ ThreadPool::EnqueueIfWorkersAvailable(Task&& task)
     if (stop_) {
       return false;
     }
-    if (workers_.size() < 1) {
+    if (free_workers_ < 1) {
       return false;
     }
     task_queue_.push(std::move(task));
