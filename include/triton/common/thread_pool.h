@@ -45,6 +45,7 @@ class ThreadPool {
   // Assigns "task" to the task queue for a worker thread to execute when
   // available. This will not track the return value of the task.
   void Enqueue(Task&& task);
+  bool EnqueueIfWorkersAvailable(Task&& task);
   // Returns the number of threads in thread pool
   size_t Size() { return workers_.size(); }
 

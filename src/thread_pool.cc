@@ -95,4 +95,24 @@ ThreadPool::Enqueue(Task&& task)
   cv_.notify_one();
 }
 
+bool
+ThreadPool::EnqueueIfWorkersAvailable(Task&& task)
+{
+  {
+    std::lock_guard<std::mutex> lk(queue_mtx_);
+    // Don't accept more work if pool is shutting down
+    if (stop_) {
+      return false;
+    }
+    if (workers_.size() < 1) {
+      return false;
+    }
+    task_queue_.push(std::move(task));
+  }
+  // Only wake one thread per task
+  // Todo: DLIS-3859 if ThreadPool gets used more.
+  cv_.notify_one();
+  return true;
+}
+
 }}  // namespace triton::common
