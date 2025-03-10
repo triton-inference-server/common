@@ -107,7 +107,7 @@ ThreadPool::EnqueueIfWorkersAvailable(Task&& task)
     if (stop_) {
       return false;
     }
-    if (free_workers_ > task_queue_.size()) {
+    if (free_workers_ <= task_queue_.size()) {
       return false;
     }
     task_queue_.push(std::move(task));
