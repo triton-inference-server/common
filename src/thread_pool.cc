@@ -56,8 +56,8 @@ ThreadPool::ThreadPool(size_t thread_count)
       // Execute task - ensure function has a valid target
       if (task) {
         task();
-        free_workers_++;
       }
+      free_workers_++;
     }
   };
 
