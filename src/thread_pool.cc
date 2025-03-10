@@ -44,6 +44,7 @@ ThreadPool::ThreadPool(size_t thread_count)
         std::unique_lock<std::mutex> lk(queue_mtx_);
         // Wake if there's a task to do, or the pool has been stopped.
         cv_.wait(lk, [&]() { return !task_queue_.empty() || stop_; });
+        free_workers_--;
         // Exit condition
         if (stop_ && task_queue_.empty()) {
           break;
@@ -54,7 +55,6 @@ ThreadPool::ThreadPool(size_t thread_count)
 
       // Execute task - ensure function has a valid target
       if (task) {
-        free_workers_--;
         task();
         free_workers_++;
       }
@@ -107,7 +107,7 @@ ThreadPool::EnqueueIfWorkersAvailable(Task&& task)
     if (stop_) {
       return false;
     }
-    if (free_workers_ < 1) {
+    if (free_workers_ > task_queue_.size()) {
       return false;
     }
     task_queue_.push(std::move(task));
