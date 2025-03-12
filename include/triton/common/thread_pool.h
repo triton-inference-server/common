@@ -45,13 +45,14 @@ class ThreadPool {
   // Assigns "task" to the task queue for a worker thread to execute when
   // available. This will not track the return value of the task.
   void Enqueue(Task&& task);
-  // Attempts to enqueue a task if the queue is not at capacity. A task will
-  // only be enqueued if the current queue size is less than the total number of
-  // workers. This prevents unbounded queue growth when workers are busy. If the
-  // function returns true, the function is identical to Enqueue. If the
-  // function returns false, the caller is responsible for handling the task
-  // (typically by executing it directly).
-  bool EnqueueIfCapacityAvailable(Task&& task);
+
+  // Returns the number of tasks waiting in the queue
+  size_t QueueSize()
+  {
+    std::lock_guard<std::mutex> lk(queue_mtx_);
+    return task_queue_.size();
+  }
+
   // Returns the number of threads in thread pool
   size_t Size() const { return workers_.size(); }
 
