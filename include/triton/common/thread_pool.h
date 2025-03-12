@@ -1,4 +1,4 @@
-// Copyright 2022, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// Copyright 2022-2025, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions
@@ -45,8 +45,15 @@ class ThreadPool {
   // Assigns "task" to the task queue for a worker thread to execute when
   // available. This will not track the return value of the task.
   void Enqueue(Task&& task);
+  // Attempts to enqueue a task if the queue is not at capacity. A task will
+  // only be enqueued if the current queue size is less than the total number of
+  // workers. This prevents unbounded queue growth when workers are busy. If the
+  // function returns true, the function is identical to Enqueue. If the
+  // function returns false, the caller is responsible for handling the task
+  // (typically by executing it directly).
+  bool EnqueueIfCapacityAvailable(Task&& task);
   // Returns the number of threads in thread pool
-  size_t Size() { return workers_.size(); }
+  size_t Size() const { return workers_.size(); }
 
  private:
   std::queue<Task> task_queue_;
