@@ -54,7 +54,11 @@ class ThreadPool {
   // // function returns false, the caller is responsible for handling the task
   // // (typically by executing it directly).
   // bool EnqueueIfCapacityAvailable(Task&& task);
-  size_t QueueSize() const;
+  size_t QueueSize()
+  {
+    std::lock_guard<std::mutex> lk(queue_mtx_);
+    return task_queue_.size();
+  }
   // Returns the number of threads in thread pool
   size_t Size() const { return workers_.size(); }
 

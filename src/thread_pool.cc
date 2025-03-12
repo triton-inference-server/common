@@ -119,11 +119,5 @@ ThreadPool::Enqueue(Task&& task)
 //   return true;
 // }
 
-size_t
-ThreadPool::QueueSize() const
-{
-  std::lock_guard<std::mutex> lk(queue_mtx_);
-  return task_queue_.size();
-}
 
 }}  // namespace triton::common
