@@ -55,7 +55,7 @@ class ThreadPool {
   std::mutex queue_mtx_;
   std::condition_variable cv_;
   std::vector<std::thread> workers_;
-  std::atomic<size_t> free_workers_;
+  // std::atomic<size_t> free_workers_;
   // If true, tells pool to stop accepting work and tells awake worker threads
   // to exit when no tasks are left on the queue.
   bool stop_ = false;
