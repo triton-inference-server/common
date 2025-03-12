@@ -1,4 +1,4 @@
-// Copyright 2022, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// Copyright 2022-2025, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions
@@ -44,7 +44,6 @@ ThreadPool::ThreadPool(size_t thread_count)
         std::unique_lock<std::mutex> lk(queue_mtx_);
         // Wake if there's a task to do, or the pool has been stopped.
         cv_.wait(lk, [&]() { return !task_queue_.empty() || stop_; });
-        // free_workers_--;
         // Exit condition
         if (stop_ && task_queue_.empty()) {
           break;
@@ -57,7 +56,6 @@ ThreadPool::ThreadPool(size_t thread_count)
       if (task) {
         task();
       }
-      // free_workers_++;
     }
   };
 
@@ -65,7 +63,6 @@ ThreadPool::ThreadPool(size_t thread_count)
   for (size_t i = 0; i < thread_count; ++i) {
     workers_.emplace_back(worker_loop);
   }
-  // free_workers_ = thread_count;
 }
 
 ThreadPool::~ThreadPool()
@@ -99,7 +96,7 @@ ThreadPool::Enqueue(Task&& task)
 }
 
 bool
-ThreadPool::TryEnqueue(Task&& task)
+ThreadPool::EnqueueIfCapacityAvailable(Task&& task)
 {
   {
     std::lock_guard<std::mutex> lk(queue_mtx_);
@@ -108,7 +105,8 @@ ThreadPool::TryEnqueue(Task&& task)
       return false;
     }
 
-    // If size of task queue is greater than or equal to the number of workers, return false
+    // If size of task queue is greater than or equal to the number of workers,
+    // return false.
     if (task_queue_.size() >= workers_.size()) {
       return false;
     }
