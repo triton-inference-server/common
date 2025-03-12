@@ -99,7 +99,7 @@ ThreadPool::Enqueue(Task&& task)
 }
 
 bool
-ThreadPool::EnqueueIfWorkersAvailable(Task&& task)
+ThreadPool::TryEnqueue(Task&& task)
 {
   {
     std::lock_guard<std::mutex> lk(queue_mtx_);
@@ -107,7 +107,8 @@ ThreadPool::EnqueueIfWorkersAvailable(Task&& task)
     if (stop_) {
       return false;
     }
-    // if (free_workers_ <= task_queue_.size()) {
+
+    // If size of task queue is greater than or equal to the number of workers, return false
     if (task_queue_.size() >= workers_.size()) {
       return false;
     }
