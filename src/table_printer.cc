@@ -187,8 +187,10 @@ TablePrinter::AddRow(std::stringstream& table, size_t row_index)
 void
 TablePrinter::AddRowDivider(std::stringstream& table)
 {
+  std::cout << "----------------- TablePrinter::AddRowDivider() Start -------------" << std::endl;
   table << "+";
   for (const auto& share : shares_) {
+    std::cout << "----------------- share:"<< share << " -------------" << std::endl;
     for (size_t i = 0; i < share + 2; i++) table << "-";
     table << "+";
   }
@@ -202,11 +204,17 @@ TablePrinter::PrintTable()
   table << "\n";
 
   FairShare();
+  std::cout << "----------------- TablePrinter::FairShare() completed -------------" << std::endl;
 
   AddRowDivider(table);
+  std::cout << "----------------- 1st TablePrinter::AddRowDivider() completed -------------" << std::endl;
+
   // Add table headers
   AddRow(table, 0);
+  std::cout << "----------------- 1st TablePrinter::AddRow() completed -------------" << std::endl;
+
   AddRowDivider(table);
+  std::cout << "----------------- 2nd TablePrinter::AddRowDivider() completed -------------" << std::endl;
 
   for (size_t j = 1; j < data_.size(); j++) {
     AddRow(table, j);
@@ -262,6 +270,8 @@ TablePrinter::TablePrinter(const std::vector<std::string>& headers)
   << " - terminal_width: " << terminal_width << " - equal_share: " << equal_share << std::endl;
 
   InsertRow(headers);
+
+  PrintTable();
 }
 
 }}  // namespace triton::common
