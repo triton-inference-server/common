@@ -189,10 +189,12 @@ TablePrinter::AddRowDivider(std::stringstream& table)
 {
   std::cout << "----------------- TablePrinter::AddRowDivider() Start -------------" << std::endl;
   table << "+";
+  int count = 1;
   for (const auto& share : shares_) {
-    std::cout << "----------------- share:"<< share << " -------------" << std::endl;
+    std::cout << "----------------- " << count << " share:" << share << " -------------" << std::endl;
     for (size_t i = 0; i < share + 2; i++) table << "-";
     table << "+";
+    count++;
   }
   table << "\n";
 }
