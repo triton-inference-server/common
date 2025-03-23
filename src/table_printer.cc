@@ -243,7 +243,7 @@ TablePrinter::TablePrinter(const std::vector<std::string>& headers)
   struct winsize terminal_size;
   int status = ioctl(STDOUT_FILENO, TIOCGWINSZ, &terminal_size);
   if ((status == 0) && (terminal_size.ws_col != 0)) {
-    column_size = 1;//terminal_size.ws_col;
+    column_size = terminal_size.ws_col;
   }
   std::cout << "----------------- TablePrinter::TablePrinter() - Normal - column_size: " << column_size << " -------------" << std::endl;
 #endif
