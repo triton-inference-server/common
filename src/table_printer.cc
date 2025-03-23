@@ -24,7 +24,7 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include "triton/common/table_printer.h"
+#include "./table_printer.h"
 
 #ifdef _WIN32
 // suppress the min and max definitions in Windef.h.
@@ -243,7 +243,7 @@ TablePrinter::TablePrinter(const std::vector<std::string>& headers)
   struct winsize terminal_size;
   int status = ioctl(STDOUT_FILENO, TIOCGWINSZ, &terminal_size);
   if ((status == 0) && (terminal_size.ws_col != 0)) {
-    column_size = terminal_size.ws_col;
+    column_size = 1;//terminal_size.ws_col;
   }
   std::cout << "----------------- TablePrinter::TablePrinter() - Normal - column_size: " << column_size << " -------------" << std::endl;
 #endif
@@ -259,9 +259,18 @@ TablePrinter::TablePrinter(const std::vector<std::string>& headers)
   // Terminal width is the actual terminal width minus two times spaces
   // required before and after each column and number of columns plus 1 for
   // the pipes between the columns
-  size_t terminal_width =
-      column_size - (2 * number_of_columns) - (number_of_columns + 1);
-  int equal_share = terminal_width / headers.size();
+  size_t min_required = (2 * number_of_columns) + (number_of_columns + 1);
+  // Ensure terminal_width is never negative
+  size_t terminal_width = 0;
+  if (column_size > min_required) {
+    terminal_width = column_size - min_required;
+  } else {
+    // Ensure each column gets at least 1 unit width
+    terminal_width = headers.size();
+  }
+  size_t equal_share = terminal_width / headers.size();
+
+  std::cout << "----------------- terminal_width: " << terminal_width <<  " -------------" << std::endl;
 
   for (size_t i = 0; i < headers.size(); ++i) {
     shares_.emplace_back(equal_share);
@@ -272,8 +281,6 @@ TablePrinter::TablePrinter(const std::vector<std::string>& headers)
   << " - terminal_width: " << terminal_width << " - equal_share: " << equal_share << std::endl;
 
   InsertRow(headers);
-
-  PrintTable();
 }
 
 }}  // namespace triton::common
