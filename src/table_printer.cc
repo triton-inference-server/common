@@ -246,9 +246,16 @@ TablePrinter::TablePrinter(const std::vector<std::string>& headers)
   // Terminal width is the actual terminal width minus two times spaces
   // required before and after each column and number of columns plus 1 for
   // the pipes between the columns
-  size_t terminal_width =
-      column_size - (2 * number_of_columns) - (number_of_columns + 1);
-  int equal_share = terminal_width / headers.size();
+  size_t min_required = (2 * number_of_columns) + (number_of_columns + 1);
+  // Ensure terminal_width is never negative
+  size_t terminal_width = 0;
+  if (column_size > min_required) {
+    terminal_width = column_size - min_required;
+  } else {
+    // Ensure each column gets at least 1 unit width
+    terminal_width = headers.size();
+  }
+  size_t equal_share = terminal_width / headers.size();
 
   for (size_t i = 0; i < headers.size(); ++i) {
     shares_.emplace_back(equal_share);
