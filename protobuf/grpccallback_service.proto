@@ -199,4 +199,11 @@ service GRPCInferenceServiceCallback
   //@@     Update and get the log settings of the Triton server.
   //@@
   rpc LogSettings(LogSettingsRequest) returns (LogSettingsResponse) {}
+
+  //@@  .. cpp:var:: rpc ModelInfer(ModelInferRequest) returns
+  //@@       (ModelInferResponse)
+  //@@
+  //@@     Perform inference using a specific model.
+  //@@
+  rpc ModelInfer(ModelInferRequest) returns (ModelInferResponse) {}
 }
