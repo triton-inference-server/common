@@ -203,7 +203,7 @@ service GRPCInferenceServiceCallback
   //@@  .. cpp:var:: rpc ModelInfer(ModelInferRequest) returns
   //@@       (ModelInferResponse)
   //@@
-  //@@     Perform inference using a specific model.
+  //@@     Perform inference using this specific model.
   //@@
   rpc ModelInfer(ModelInferRequest) returns (ModelInferResponse) {}
 }
