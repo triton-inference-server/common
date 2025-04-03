@@ -47,7 +47,7 @@ class ThreadPool {
   void Enqueue(Task&& task);
 
   // Returns the number of tasks waiting in the queue
-  size_t QueueSize()
+  size_t TaskQueueSize()
   {
     std::lock_guard<std::mutex> lk(queue_mtx_);
     return task_queue_.size();
