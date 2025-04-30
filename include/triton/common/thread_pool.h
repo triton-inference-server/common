@@ -1,4 +1,4 @@
-// Copyright 2022-2025, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// Copyright 2022, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions
@@ -45,16 +45,8 @@ class ThreadPool {
   // Assigns "task" to the task queue for a worker thread to execute when
   // available. This will not track the return value of the task.
   void Enqueue(Task&& task);
-
-  // Returns the number of tasks waiting in the queue
-  size_t TaskQueueSize()
-  {
-    std::lock_guard<std::mutex> lk(queue_mtx_);
-    return task_queue_.size();
-  }
-
   // Returns the number of threads in thread pool
-  size_t Size() const { return workers_.size(); }
+  size_t Size() { return workers_.size(); }
 
  private:
   std::queue<Task> task_queue_;
