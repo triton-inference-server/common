@@ -160,6 +160,58 @@ if(${TRITON_COMMON_ENABLE_GRPC})
 endif()
 
 #
+# GRPC Callback Service
+#
+if(${TRITON_COMMON_ENABLE_GRPC})
+  get_filename_component(grpccallback_proto_abspath "grpccallback_service.proto" ABSOLUTE)
+  get_filename_component(grpccallback_proto_dir "${grpccallback_proto_abspath}" PATH)
+  set(GRPCCALLBACK_SRCS "grpccallback_service.grpc.pb.cc")
+  set(GRPCCALLBACK_HDRS "grpccallback_service.grpc.pb.h")
+
+  add_custom_command(
+    OUTPUT "${GRPCCALLBACK_SRCS}" "${GRPCCALLBACK_HDRS}"
+    COMMAND ${_PROTOBUF_PROTOC}
+    ARGS
+      --grpc_out "${CMAKE_CURRENT_BINARY_DIR}"
+      --cpp_out "${CMAKE_CURRENT_BINARY_DIR}"
+      -I "${grpccallback_proto_dir}"
+      --plugin=protoc-gen-grpc="${_GRPC_CPP_PLUGIN_EXECUTABLE}"
+      "grpccallback_service.proto"
+    DEPENDS "grpccallback_service.proto" proto-library
+  )
+
+  add_library(
+    grpccallback-service-library EXCLUDE_FROM_ALL OBJECT
+    ${GRPCCALLBACK_SRCS} ${GRPCCALLBACK_HDRS}
+  )
+
+  target_include_directories(
+    grpccallback-service-library
+    PUBLIC
+      $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
+  )
+
+  target_link_libraries(
+    grpccallback-service-library
+    PRIVATE
+      common-compile-settings
+  )
+
+  set_target_properties(
+    grpccallback-service-library
+    PROPERTIES
+      POSITION_INDEPENDENT_CODE ON
+  )
+
+  install(
+    FILES
+      ${CMAKE_CURRENT_BINARY_DIR}/grpccallback_service.grpc.pb.h
+    DESTINATION include
+    OPTIONAL
+  )
+endif()
+
+#
 # GRPC Health Service
 #
 if(${TRITON_COMMON_ENABLE_GRPC})
