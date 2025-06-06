@@ -1,4 +1,4 @@
-// Copyright 2018-2022, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// Copyright 2018-2025, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions
@@ -48,12 +48,14 @@ Logger::Logger()
 }
 
 void
-Logger::Log(const std::string& msg)
+Logger::Log(const std::string& msg, const Level level)
 {
   const std::lock_guard<std::mutex> lock(mutex_);
   if (file_stream_.is_open()) {
     file_stream_ << msg << std::endl;
-  } else {
+  } else if (level == Level::kINFO) {
+    std::cout << msg << std::endl;
+  } else {  // kWARNING or kERROR
     std::cerr << msg << std::endl;
   }
 }
@@ -152,7 +154,7 @@ LogMessage::~LogMessage()
     log_record << escaped_heading << '\n';
   }
   log_record << escaped_message;
-  gLogger_.Log(log_record.str());
+  gLogger_.Log(log_record.str(), level_);
 }
 
 }}  // namespace triton::common
