@@ -1659,6 +1659,16 @@ message ModelEnsembling
   //@@     The models and the input / output mappings used within the ensemble.
   //@@
   repeated Step step = 1;
+
+  //@@  .. cpp:var:: uint32 max_inflight_responses
+  //@@
+  //@@     The maximum number of concurrent inflight responses from ensemble
+  //@@     steps to downstream consumers. This limit prevents unbounded memory
+  //@@     growth when decoupled models produce responses faster than downstream
+  //@@     models can consume them. Default value is 0, which indicates that no
+  //@@     limit is enforced (unlimited).
+  //@@
+  uint32 max_inflight_responses = 2;
 }
 
 //@@
