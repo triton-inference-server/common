@@ -56,13 +56,22 @@ namespace triton { namespace common {
 class Logger {
  public:
   // Log Formats.
-  enum class Format { kDEFAULT, kISO8601 };
+  enum class Format { kDEFAULT, kISO8601, kJSON };
 
   // Log levels.
-  enum class Level : uint8_t { kERROR = 0, kWARNING = 1, kINFO = 2, kEND };
+  enum class Level : uint8_t {
+    kERROR = 0,
+    kWARNING = 1,
+    kDEBUG = 2,
+    kINFO = 3,
+    kEND
+  };
 
   inline static const std::array<const char*, static_cast<uint8_t>(Level::kEND)>
-      LEVEL_NAMES{"E", "W", "I"};
+      LEVEL_NAMES{"E", "W", "D", "I"};
+
+  inline static const std::array<const char*, static_cast<uint8_t>(Level::kEND)>
+      LEVEL_FULL_NAMES{"Error", "Warning", "Debug", "Info"};
 
   Logger();
 
@@ -103,6 +112,8 @@ class Logger {
     switch (format_) {
       case Format::kISO8601:
         return "ISO8601";
+      case Format::kJSON:
+        return "JSON";
       case Format::kDEFAULT:
         return "default";
       default:

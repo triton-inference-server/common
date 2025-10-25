@@ -55,6 +55,8 @@ Logger::Log(const std::string& msg, const Level level)
     file_stream_ << msg << std::endl;
   } else if (level == Level::kINFO) {
     std::cout << msg << std::endl;
+  } else if (level == Level::kDEBUG) {
+    std::cout << msg << std::endl;
   } else {  // kWARNING or kERROR
     std::cerr << msg << std::endl;
   }
@@ -112,6 +114,15 @@ LogMessage::LogTimestamp(std::stringstream& stream)
              << tm_time.tm_mday << 'T' << std::setw(2) << tm_time.tm_hour << ':'
              << std::setw(2) << tm_time.tm_min << ':' << std::setw(2)
              << tm_time.tm_sec << "Z";
+
+      break;
+    }
+    case Logger::Format::kJSON: {
+      stream << "\"timestamp\": \"" << (tm_time.tm_year + 1900) << '-'
+             << std::setfill('0') << std::setw(2) << (tm_time.tm_mon + 1) << '-'
+             << std::setw(2) << tm_time.tm_mday << 'T' << std::setw(2)
+             << tm_time.tm_hour << ':' << std::setw(2) << tm_time.tm_min << ':'
+             << std::setw(2) << tm_time.tm_sec << "Z" << '"';
       break;
     }
   }
@@ -136,6 +147,15 @@ LogMessage::LogPreamble(std::stringstream& stream)
              << pid_ << ' ' << path_ << ':' << line_ << "] ";
       break;
     }
+    case Logger::Format::kJSON: {
+      stream << "{ ";
+      LogTimestamp(stream);
+      stream << ", \"log_level\": \""
+             << Logger::LEVEL_FULL_NAMES[static_cast<uint8_t>(level_)]
+             << "\", \"pid\" : \"" << pid_ << "\", \"path\" : \"" << path_
+             << ':' << line_ << "\", ";
+      break;
+    }
   }
 }
 
@@ -153,7 +173,13 @@ LogMessage::~LogMessage()
                                       : heading_;
     log_record << escaped_heading << '\n';
   }
-  log_record << escaped_message;
+
+  if (gLogger_.LogFormat() == Logger::Format::kJSON) {
+    log_record << "\"message\": \"" << escaped_message << "\" }\"";
+  } else {
+    log_record << escaped_message;
+  }
+
   gLogger_.Log(log_record.str(), level_);
 }
 
