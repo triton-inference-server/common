@@ -1665,7 +1665,7 @@ message ModelEnsembling
   //@@     The maximum number of concurrent inflight requests allowed at each
   //@@     ensemble step per inference request.
   //@@     This limit prevents unbounded memory growth when ensemble steps
-  //@@     produce responses faster than downstream steps can consume them.
+  //@@     produce responses faster than downstream steps can consume, e.g. decoupled models.
   //@@     Default value is 0, which indicates that no limit is enforced.
   //@@
   uint32 max_inflight_requests = 2;
