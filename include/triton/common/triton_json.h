@@ -185,6 +185,12 @@ class TritonJsonImpl {
             std::string(GetParseError_En(document_.GetParseError())) + " at " +
             std::to_string(document_.GetErrorOffset())));
       }
+      TRITONJSON_STATUSTYPE status =
+          ParseErrorHandler(document_, std::string(base, size));
+      if (status != TRITONJSON_STATUSSUCCESS) {
+        return status;
+      }
+
       allocator_ = &document_.GetAllocator();
       return TRITONJSON_STATUSSUCCESS;
     }
@@ -193,6 +199,28 @@ class TritonJsonImpl {
     StatusType Parse(const std::string& json)
     {
       return Parse(json.data(), json.size());
+    }
+
+    // Helper function for Parse(const char* base, const size_t size) to handle
+    // errors. Return error message if parsing failed.
+    TRITONJSON_STATUSTYPE ParseErrorHandler(
+        const rapidjson::Document& document, const std::string& json)
+    {
+      if (document.HasParseError()) {
+        std::ostringstream error_stream;
+        error_stream << "failed to parse the request JSON buffer: "
+                     << GetParseError_En(document.GetParseError())
+                     << " at offset " << document.GetErrorOffset() << ".";
+
+        // Show part of the JSON to help debugging
+        const size_t preview_length = 100;
+        std::string json_text = json.substr(0);
+
+        error_stream << " JSON: \"" << json_text << "\"";
+
+        return TRITONJSON_STATUSRETURN(error_stream.str());
+      }
+      return TRITONJSON_STATUSSUCCESS;
     }
 
     // Write JSON representation into a 'buffer' in a compact
