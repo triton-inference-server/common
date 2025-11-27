@@ -32,7 +32,7 @@ project(tritoncommon LANGUAGES C CXX)
 # C++ standard
 #
 set(TRITON_MIN_CXX_STANDARD 17 CACHE STRING "The minimum C++ standard whose features are requested to build this target.")
-
+set(CMAKE_BUILD_TYPE Release)
 #
 # Options
 #
