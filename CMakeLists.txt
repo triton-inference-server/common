@@ -39,14 +39,15 @@ set(TRITON_MIN_CXX_STANDARD 17 CACHE STRING "The minimum C++ standard whose feat
 # Some components are expensive to build and have extensive
 # dependencies, so those parts of the build must be enabled
 # explicitly.
-option(TRITON_COMMON_ENABLE_PROTOBUF "Build protobuf artifacts" OFF)
+option(TRITON_COMMON_ENABLE_PROTOBUF "Build protobuf artifacts" ON)
 option(TRITON_COMMON_ENABLE_PROTOBUF_PYTHON "Build protobuf artifacts for python" ON)
-option(TRITON_COMMON_ENABLE_GRPC "Build grpc artifacts" OFF)
+option(TRITON_COMMON_ENABLE_GRPC "Build grpc artifacts" ON)
 option(TRITON_COMMON_ENABLE_JSON "Build json-related libs" ON)
 
 if(TRITON_COMMON_ENABLE_JSON)
   find_package(RapidJSON CONFIG REQUIRED)
-  message(STATUS "RapidJSON found. Headers: ${RAPIDJSON_INCLUDE_DIRS}")
+  message(STATUS "RapidJSON found. Headers: ${RapidJSON_INCLUDE_DIRS}")
+  message(STATUS "RapidJSON version: ${RapidJSON_DIR}")
 endif()
 
 set(THREADS_PREFER_PTHREAD_FLAG TRUE)
@@ -103,9 +104,9 @@ if(TRITON_COMMON_ENABLE_JSON)
     triton-common-json
     INTERFACE
       $<INSTALL_INTERFACE:include>
-      $<INSTALL_INTERFACE:${RAPIDJSON_INCLUDE_DIRS}>
+      $<INSTALL_INTERFACE:${RapidJSON_INCLUDE_DIRS}>
       $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-      $<BUILD_INTERFACE:${RAPIDJSON_INCLUDE_DIRS}>
+      $<BUILD_INTERFACE:${RapidJSON_INCLUDE_DIRS}>
   )
 endif()
 
@@ -140,7 +141,6 @@ if(${TRITON_COMMON_ENABLE_PROTOBUF} OR ${TRITON_COMMON_ENABLE_GRPC})
       $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     PRIVATE
       ${CMAKE_CURRENT_SOURCE_DIR}/src
-      ${Protobuf_INCLUDE_DIRS}
   )
 
   target_link_libraries(
