@@ -1,0 +1,17 @@
+[requires]
+abseil/20230802.1
+c-ares/1.34.5
+grpc/1.54.3
+openssl/3.6.0
+protobuf/3.21.12
+rapidjson/1.1.0
+re2/20230301
+zlib/1.3.1
+
+
+[generators]
+CMakeDeps
+CMakeToolchain
+
+[layout]
+cmake_layout

@@ -32,7 +32,7 @@ project(tritoncommon LANGUAGES C CXX)
 # C++ standard
 #
 set(TRITON_MIN_CXX_STANDARD 17 CACHE STRING "The minimum C++ standard whose features are requested to build this target.")
-
+set(CMAKE_BUILD_TYPE Release)
 #
 # Options
 #
@@ -46,7 +46,8 @@ option(TRITON_COMMON_ENABLE_JSON "Build json-related libs" ON)
 
 if(TRITON_COMMON_ENABLE_JSON)
   find_package(RapidJSON CONFIG REQUIRED)
-  message(STATUS "RapidJSON found. Headers: ${RAPIDJSON_INCLUDE_DIRS}")
+  message(STATUS "RapidJSON found. Headers: ${RapidJSON_INCLUDE_DIRS}")
+  message(STATUS "RapidJSON version: ${RapidJSON_DIR}")
 endif()
 
 set(THREADS_PREFER_PTHREAD_FLAG TRUE)
@@ -103,9 +104,9 @@ if(TRITON_COMMON_ENABLE_JSON)
     triton-common-json
     INTERFACE
       $<INSTALL_INTERFACE:include>
-      $<INSTALL_INTERFACE:${RAPIDJSON_INCLUDE_DIRS}>
+      $<INSTALL_INTERFACE:${RapidJSON_INCLUDE_DIRS}>
       $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-      $<BUILD_INTERFACE:${RAPIDJSON_INCLUDE_DIRS}>
+      $<BUILD_INTERFACE:${RapidJSON_INCLUDE_DIRS}>
   )
 endif()
 
@@ -140,7 +141,6 @@ if(${TRITON_COMMON_ENABLE_PROTOBUF} OR ${TRITON_COMMON_ENABLE_GRPC})
       $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     PRIVATE
       ${CMAKE_CURRENT_SOURCE_DIR}/src
-      ${Protobuf_INCLUDE_DIRS}
   )
 
   target_link_libraries(
