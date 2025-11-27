@@ -39,9 +39,9 @@ set(TRITON_MIN_CXX_STANDARD 17 CACHE STRING "The minimum C++ standard whose feat
 # Some components are expensive to build and have extensive
 # dependencies, so those parts of the build must be enabled
 # explicitly.
-option(TRITON_COMMON_ENABLE_PROTOBUF "Build protobuf artifacts" ON)
+option(TRITON_COMMON_ENABLE_PROTOBUF "Build protobuf artifacts" OFF)
 option(TRITON_COMMON_ENABLE_PROTOBUF_PYTHON "Build protobuf artifacts for python" ON)
-option(TRITON_COMMON_ENABLE_GRPC "Build grpc artifacts" ON)
+option(TRITON_COMMON_ENABLE_GRPC "Build grpc artifacts" OFF)
 option(TRITON_COMMON_ENABLE_JSON "Build json-related libs" ON)
 
 if(TRITON_COMMON_ENABLE_JSON)
