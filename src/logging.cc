@@ -48,9 +48,22 @@ Logger::Logger()
 }
 
 void
-Logger::Log(const std::string& msg, const Level level)
+Logger::Log(
+    const std::string& msg, const Level level, const char* filename, int line)
 {
   const std::lock_guard<std::mutex> lock(mutex_);
+
+  // Invoke callback if set
+  if (log_callback_ != nullptr) {
+    log_callback_(level, filename, line, msg.c_str(), log_callback_userp_);
+
+    // If callback replaces default logger, don't also write to file/stdout
+    if (replace_default_logger_) {
+      return;
+    }
+  }
+
+  // Default logging behavior
   if (file_stream_.is_open()) {
     file_stream_ << msg << std::endl;
   } else if (level == Level::kINFO) {
@@ -154,7 +167,8 @@ LogMessage::~LogMessage()
     log_record << escaped_heading << '\n';
   }
   log_record << escaped_message;
-  gLogger_.Log(log_record.str(), level_);
+  // Pass source location info to Log() for callback support
+  gLogger_.Log(log_record.str(), level_, path_.c_str(), line_);
 }
 
 }}  // namespace triton::common
