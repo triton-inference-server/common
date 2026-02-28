@@ -50,10 +50,14 @@ using BackendCmdlineConfig = std::vector<std::pair<std::string, std::string>>;
 using BackendCmdlineConfigMap =
     std::unordered_map<std::string, BackendCmdlineConfig>;
 
-/// The value for a dimension in a shape that indicates that that
-/// dimension can take on any size.
+/// Special values used for dimensions and element counts.
+/// WILDCARD_DIM / WILDCARD_SIZE uses -1.
+/// OVERFLOW_SIZE uses -3 instead of -2 so that -2 remains available as a
+/// reserved value for potential future use without changing the meaning of
+/// existing negative return codes.
 constexpr int WILDCARD_DIM = -1;
 constexpr int WILDCARD_SIZE = -1;
+constexpr int INVALID_SIZE = -2;
 constexpr int OVERFLOW_SIZE = -3;
 constexpr int SCHEDULER_DEFAULT_NICE = 5;
 
@@ -73,6 +77,7 @@ enum Platform {
 /// \return The number of elements, or
 /// -1 if the number of elements cannot be determined because the shape
 /// contains one or more wildcard dimensions,
+/// -2 if the shape contains an invalid dimension,
 /// -3 if the number is too large to represent as an int64_t.
 template <typename T>
 std::enable_if_t<
@@ -85,15 +90,16 @@ GetElementCount(const T& dims)
   for (auto dim : dims) {
     if (dim == WILDCARD_DIM) {
       return WILDCARD_SIZE;
+    } else if (dim < 0) {
+      return INVALID_SIZE;  // invalid dim
     }
 
     if (first) {
       cnt = dim;
       first = false;
+    } else if (dim != 0 && cnt > INT64_MAX / dim) {
+      return OVERFLOW_SIZE;
     } else {
-      if (cnt > INT64_MAX / dim) {
-        return OVERFLOW_SIZE;
-      }
       cnt *= dim;
     }
   }
@@ -106,6 +112,7 @@ GetElementCount(const T& dims)
 /// \return The number of elements, or
 /// -1 if the number of elements cannot be determined because the shape
 /// contains one or more wildcard dimensions,
+/// -2 if the shape contains an invalid dimension,
 /// -3 if the number is too large to represent as an int64_t.
 template <typename T>
 std::enable_if_t<
@@ -137,6 +144,7 @@ size_t GetDataTypeByteSize(const inference::DataType dtype);
 /// \param dims The shape.
 /// \return The size, in bytes, of the corresponding tensor, or
 /// -1 if unable to determine the size,
+/// -2 if the shape contains an invalid dimension,
 /// -3 if the number is too large to represent as an int64_t.
 template <
     typename T,
@@ -153,6 +161,8 @@ GetByteSize(const inference::DataType& dtype, const T& dims)
   int64_t cnt = GetElementCount(dims);
   if (cnt == WILDCARD_SIZE) {
     return WILDCARD_SIZE;
+  } else if (cnt == INVALID_SIZE) {
+    return INVALID_SIZE;  // invalid dim
   } else if (
       cnt == OVERFLOW_SIZE || cnt > INT64_MAX / static_cast<int64_t>(dt_size)) {
     return OVERFLOW_SIZE;
@@ -170,6 +180,7 @@ GetByteSize(const inference::DataType& dtype, const T& dims)
 /// \param dims The shape.
 /// \return The size, in bytes, of the corresponding tensor, or
 /// -1 if unable to determine the size,
+/// -2 if the shape contains an invalid dimension,
 /// -3 if the number is too large to represent as an int64_t.
 template <
     typename T,
@@ -186,7 +197,11 @@ GetByteSize(
   int64_t bs = GetByteSize(dtype, dims);
   if (bs == WILDCARD_SIZE) {
     return WILDCARD_SIZE;
-  } else if (bs == OVERFLOW_SIZE || std::max(1, batch_size) > INT64_MAX / bs) {
+  } else if (bs == INVALID_SIZE) {
+    return INVALID_SIZE;  // invalid dim
+  } else if (
+      bs == OVERFLOW_SIZE ||
+      (bs != 0 && std::max(1, batch_size) > INT64_MAX / bs)) {
     return OVERFLOW_SIZE;
   }
 
@@ -197,6 +212,7 @@ GetByteSize(
 /// \param mio The ModelInput protobuf.
 /// \return The size, in bytes, of the corresponding tensor, or
 /// -1 if unable to determine the size,
+/// -2 if the shape contains an invalid dimension,
 /// -3 if the number is too large to represent as an int64_t.
 template <
     typename T, typename = std::enable_if_t<
