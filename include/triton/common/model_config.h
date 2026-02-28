@@ -28,6 +28,9 @@
 #include <google/protobuf/any.pb.h>
 #include <stdint.h>
 
+#include <algorithm>
+#include <type_traits>
+
 #include "model_config.pb.h"
 
 namespace triton { namespace common {
