@@ -1,4 +1,4 @@
-// Copyright 2018-2022, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// Copyright 2018-2026, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions
@@ -28,6 +28,9 @@
 #include <google/protobuf/any.pb.h>
 #include <stdint.h>
 
+#include <algorithm>
+#include <type_traits>
+
 #include "model_config.pb.h"
 
 namespace triton { namespace common {
@@ -50,10 +53,15 @@ using BackendCmdlineConfig = std::vector<std::pair<std::string, std::string>>;
 using BackendCmdlineConfigMap =
     std::unordered_map<std::string, BackendCmdlineConfig>;
 
-/// The value for a dimension in a shape that indicates that that
-/// dimension can take on any size.
+/// Special values used for dimensions and element counts.
+/// WILDCARD_DIM / WILDCARD_SIZE uses -1.
+/// OVERFLOW_SIZE uses -3 instead of -2 so that -2 remains available as a
+/// reserved value for potential future use without changing the meaning of
+/// existing negative return codes.
 constexpr int WILDCARD_DIM = -1;
-
+constexpr int WILDCARD_SIZE = -1;
+constexpr int INVALID_SIZE = -2;
+constexpr int OVERFLOW_SIZE = -3;
 constexpr int SCHEDULER_DEFAULT_NICE = 5;
 
 /// Enumeration for the different platform types.
@@ -69,31 +77,55 @@ enum Platform {
 
 /// Get the number of elements in a shape.
 /// \param dims The shape.
-/// \return The number of elements, or -1 if the number of elements
-/// cannot be determined because the shape contains one or more
-/// wildcard dimensions.
-int64_t GetElementCount(const DimsList& dims);
+/// \return The number of elements, or
+/// -1 if the number of elements cannot be determined because the shape
+/// contains one or more wildcard dimensions,
+/// -2 if the shape contains an invalid dimension,
+/// -3 if the number is too large to represent as an int64_t.
+template <typename T>
+std::enable_if_t<
+    std::is_same_v<T, DimsList> || std::is_same_v<T, std::vector<int64_t>>,
+    int64_t>
+GetElementCount(const T& dims)
+{
+  bool first = true;
+  int64_t cnt = 0;
+  for (auto dim : dims) {
+    if (dim == WILDCARD_DIM) {
+      return WILDCARD_SIZE;
+    } else if (dim < 0) {
+      return INVALID_SIZE;  // invalid dim
+    }
 
-/// Get the number of elements in a shape.
-/// \param dims The shape.
-/// \return The number of elements, or -1 if the number of elements
-/// cannot be determined because the shape contains one or more
-/// wildcard dimensions.
-int64_t GetElementCount(const std::vector<int64_t>& dims);
+    if (first) {
+      cnt = dim;
+      first = false;
+    } else if (dim != 0 && cnt > INT64_MAX / dim) {
+      return OVERFLOW_SIZE;
+    } else {
+      cnt *= dim;
+    }
+  }
+
+  return cnt;
+}
 
 /// Get the number of elements in the shape of a model input.
 /// \param mio The model input.
-/// \return The number of elements, or -1 if the number of elements
-/// cannot be determined because the shape contains one or more
-/// wildcard dimensions.
-int64_t GetElementCount(const inference::ModelInput& mio);
-
-/// Get the number of elements in the shape of a model output.
-/// \param mio The model output.
-/// \return The number of elements, or -1 if the number of elements
-/// cannot be determined because the shape contains one or more
-/// wildcard dimensions.
-int64_t GetElementCount(const inference::ModelOutput& mio);
+/// \return The number of elements, or
+/// -1 if the number of elements cannot be determined because the shape
+/// contains one or more wildcard dimensions,
+/// -2 if the shape contains an invalid dimension,
+/// -3 if the number is too large to represent as an int64_t.
+template <typename T>
+std::enable_if_t<
+    std::is_same_v<T, inference::ModelInput> ||
+        std::is_same_v<T, inference::ModelOutput>,
+    int64_t>
+GetElementCount(const T& mio)
+{
+  return GetElementCount(mio.dims());
+}
 
 /// Are values of a datatype fixed-size, or variable-sized.
 /// \param dtype The data-type.
@@ -113,18 +145,34 @@ size_t GetDataTypeByteSize(const inference::DataType dtype);
 /// shape.
 /// \param dtype The data-type.
 /// \param dims The shape.
-/// \return The size, in bytes, of the corresponding tensor, or -1 if
-/// unable to determine the size.
-int64_t GetByteSize(const inference::DataType& dtype, const DimsList& dims);
+/// \return The size, in bytes, of the corresponding tensor, or
+/// -1 if unable to determine the size,
+/// -2 if the shape contains an invalid dimension,
+/// -3 if the number is too large to represent as an int64_t.
+template <
+    typename T,
+    typename = std::enable_if_t<
+        std::is_same_v<T, DimsList> || std::is_same_v<T, std::vector<int64_t>>>>
+int64_t
+GetByteSize(const inference::DataType& dtype, const T& dims)
+{
+  size_t dt_size = GetDataTypeByteSize(dtype);
+  if (dt_size == 0) {
+    return WILDCARD_SIZE;
+  }
 
-/// Get the size, in bytes, of a tensor based on datatype and
-/// shape.
-/// \param dtype The data-type.
-/// \param dims The shape.
-/// \return The size, in bytes, of the corresponding tensor, or -1 if
-/// unable to determine the size.
-int64_t GetByteSize(
-    const inference::DataType& dtype, const std::vector<int64_t>& dims);
+  int64_t cnt = GetElementCount(dims);
+  if (cnt == WILDCARD_SIZE) {
+    return WILDCARD_SIZE;
+  } else if (cnt == INVALID_SIZE) {
+    return INVALID_SIZE;  // invalid dim
+  } else if (
+      cnt == OVERFLOW_SIZE || cnt > INT64_MAX / static_cast<int64_t>(dt_size)) {
+    return OVERFLOW_SIZE;
+  }
+
+  return cnt * dt_size;
+}
 
 /// Get the size, in bytes, of a tensor based on batch-size, datatype
 /// and shape. A tensor that has empty shape [] and non-zero
@@ -133,36 +181,51 @@ int64_t GetByteSize(
 /// batching.
 /// \param dtype The data-type.
 /// \param dims The shape.
-/// \return The size, in bytes, of the corresponding tensor, or -1 if
-/// unable to determine the size.
-int64_t GetByteSize(
-    const int batch_size, const inference::DataType& dtype,
-    const DimsList& dims);
+/// \return The size, in bytes, of the corresponding tensor, or
+/// -1 if unable to determine the size,
+/// -2 if the shape contains an invalid dimension,
+/// -3 if the number is too large to represent as an int64_t.
+template <
+    typename T,
+    typename = std::enable_if_t<
+        std::is_same_v<T, DimsList> || std::is_same_v<T, std::vector<int64_t>>>>
+int64_t
+GetByteSize(
+    const int batch_size, const inference::DataType& dtype, const T& dims)
+{
+  if (dims.size() == 0) {
+    return batch_size * GetDataTypeByteSize(dtype);
+  }
 
-/// Get the size, in bytes, of a tensor based on batch-size, datatype
-/// and shape. A tensor that has empty shape [] and non-zero
-/// batch-size is sized as a tensor with shape [ batch-size ].
-/// \param batch_size The batch-size. May be 0 to indicate no
-/// batching.
-/// \param dtype The data-type.
-/// \param dims The shape.
-/// \return The size, in bytes, of the corresponding tensor, or -1 if
-/// unable to determine the size.
-int64_t GetByteSize(
-    const int batch_size, const inference::DataType& dtype,
-    const std::vector<int64_t>& dims);
+  int64_t bs = GetByteSize(dtype, dims);
+  if (bs == WILDCARD_SIZE) {
+    return WILDCARD_SIZE;
+  } else if (bs == INVALID_SIZE) {
+    return INVALID_SIZE;  // invalid dim
+  } else if (
+      bs == OVERFLOW_SIZE ||
+      (bs != 0 && std::max(1, batch_size) > INT64_MAX / bs)) {
+    return OVERFLOW_SIZE;
+  }
+
+  return std::max(1, batch_size) * bs;
+}
 
 /// Get the size, in bytes, of a tensor based on ModelInput.
 /// \param mio The ModelInput protobuf.
-/// \return The size, in bytes, of the corresponding tensor, or -1 if
-/// unable to determine the size.
-int64_t GetByteSize(const inference::ModelInput& mio);
-
-/// Get the size, in bytes, of a tensor based on ModelOutput.
-/// \param mio The ModelOutput protobuf.
-/// \return The size, in bytes, of the corresponding tensor, or -1 if
-/// unable to determine the size.
-int64_t GetByteSize(const inference::ModelOutput& mio);
+/// \return The size, in bytes, of the corresponding tensor, or
+/// -1 if unable to determine the size,
+/// -2 if the shape contains an invalid dimension,
+/// -3 if the number is too large to represent as an int64_t.
+template <
+    typename T, typename = std::enable_if_t<
+                    std::is_same_v<T, inference::ModelInput> ||
+                    std::is_same_v<T, inference::ModelOutput>>>
+int64_t
+GetByteSize(const T& mio)
+{
+  return GetByteSize(mio.data_type(), mio.dims());
+}
 
 /// Get the CPU thread nice level associate with a model
 /// configuration's priority.
