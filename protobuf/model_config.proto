@@ -1663,7 +1663,7 @@ message ModelEnsembling
   //@@  .. cpp:var:: uint32 max_inflight_requests
   //@@
   //@@     The maximum number of concurrent in-flight requests allowed at each
-  //@@     ensemble step across all ongoing ensemble requests for this model.
+  //@@     ensemble step across all ongoing ensemble requests for this model instance.
   //@@     This per-step limit prevents unbounded memory growth when
   //@@     ensemble steps produce responses faster than downstream steps can
   //@@     consume them (for example, in decoupled models).
