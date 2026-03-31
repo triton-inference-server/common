@@ -1664,7 +1664,7 @@ message ModelEnsembling
   //@@
   //@@     The maximum number of concurrent in-flight requests allowed at each
   //@@     ensemble step across all ongoing ensemble requests for this model.
-  //@@     This global, per-step limit prevents unbounded memory growth when
+  //@@     This per-step limit prevents unbounded memory growth when
   //@@     ensemble steps produce responses faster than downstream steps can
   //@@     consume them (for example, in decoupled models).
   //@@     The default value is 0, which indicates that no limit is enforced.
