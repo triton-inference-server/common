@@ -140,15 +140,18 @@ if(${TRITON_COMMON_ENABLE_PROTOBUF} OR ${TRITON_COMMON_ENABLE_GRPC})
       $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     PRIVATE
       ${CMAKE_CURRENT_SOURCE_DIR}/src
-      ${Protobuf_INCLUDE_DIRS}
   )
 
+  # PUBLIC: model_config.h includes google/protobuf/*.h and generated .pb.h;
+  # dependents that compile against this header must receive Protobuf include
+  # dirs and generated proto output paths (proto-library).
   target_link_libraries(
     triton-common-model-config
-    PRIVATE
-      common-compile-settings
+    PUBLIC
       protobuf::libprotobuf
       proto-library
+    PRIVATE
+      common-compile-settings
   )
 
   set_target_properties(

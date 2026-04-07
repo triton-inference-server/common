@@ -29,6 +29,7 @@
 #include <stdint.h>
 
 #include <algorithm>
+#include <climits>
 #include <type_traits>
 
 #include "model_config.pb.h"
@@ -82,21 +83,22 @@ enum Platform {
 /// contains one or more wildcard dimensions,
 /// -2 if the shape contains an invalid dimension,
 /// -3 if the number is too large to represent as an int64_t.
-template <typename T>
-std::enable_if_t<
-    std::is_same_v<T, DimsList> || std::is_same_v<T, std::vector<int64_t>>,
-    int64_t>
-GetElementCount(const T& dims)
+inline int64_t
+GetElementCount(const int64_t* dims, const size_t dims_count)
 {
+  bool has_wildcard = false;
   bool first = true;
   int64_t cnt = 0;
-  for (auto dim : dims) {
-    if (dim == WILDCARD_DIM) {
-      return WILDCARD_SIZE;
-    } else if (dim < 0) {
-      return INVALID_SIZE;  // invalid dim
-    }
 
+  for (size_t i = 0; i < dims_count; ++i) {
+    const int64_t dim = dims[i];
+    if (dim == WILDCARD_DIM) {
+      has_wildcard = true;
+      continue;
+    }
+    if (dim < 0) {
+      return INVALID_SIZE;
+    }
     if (first) {
       cnt = dim;
       first = false;
@@ -107,7 +109,20 @@ GetElementCount(const T& dims)
     }
   }
 
+  if (has_wildcard) {
+    return WILDCARD_SIZE;
+  }
+
   return cnt;
+}
+
+template <typename T>
+std::enable_if_t<
+    std::is_same_v<T, DimsList> || std::is_same_v<T, std::vector<int64_t>>,
+    int64_t>
+GetElementCount(const T& dims)
+{
+  return dims.empty() ? 0 : GetElementCount(dims.data(), dims.size());
 }
 
 /// Get the number of elements in the shape of a model input.
