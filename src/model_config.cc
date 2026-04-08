@@ -94,6 +94,7 @@ GetCpuNiceLevel(const inference::ModelConfig& config)
   return nice;
 }
 
+#ifdef TRITON_COMMON_ENABLE_PROTOBUF
 bool
 CompareDims(const DimsList& dims0, const DimsList& dims1)
 {
@@ -109,6 +110,7 @@ CompareDims(const DimsList& dims0, const DimsList& dims1)
 
   return true;
 }
+#endif  // TRITON_COMMON_ENABLE_PROTOBUF
 
 bool
 CompareDims(
@@ -127,6 +129,7 @@ CompareDims(
   return true;
 }
 
+#ifdef TRITON_COMMON_ENABLE_PROTOBUF
 bool
 CompareDimsWithWildcard(const DimsList& dims0, const DimsList& dims1)
 {
@@ -179,6 +182,7 @@ DimsListToString(const DimsList& dims)
   str += "]";
   return str;
 }
+#endif  // TRITON_COMMON_ENABLE_PROTOBUF
 
 std::string
 DimsListToString(const std::vector<int64_t>& dims, const int start_idx)

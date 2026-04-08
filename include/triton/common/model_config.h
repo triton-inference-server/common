@@ -25,22 +25,28 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma once
 
+#ifndef TRITON_COMMON_ENABLE_PROTOBUF
 #include <google/protobuf/any.pb.h>
+
+#include "model_config.pb.h"
+#endif  // TRITON_COMMON_ENABLE_PROTOBUF
+
 #include <stdint.h>
 
 #include <algorithm>
 #include <climits>
 #include <type_traits>
 
-#include "model_config.pb.h"
 
 namespace triton { namespace common {
 
+#ifndef TRITON_COMMON_ENABLE_PROTOBUF
 /// The type for a repeated dims field (used for shape).
 using DimsList = ::google::protobuf::RepeatedField<::google::protobuf::int64>;
 
 /// The type for the metric_tags map.
 using MetricTagsMap = ::google::protobuf::Map<std::string, std::string>;
+#endif  // TRITON_COMMON_ENABLE_PROTOBUF
 
 // Map from a host policy name to <setting, value> map of cmdline
 // settings for the host policy.
@@ -248,6 +254,7 @@ GetByteSize(const T& mio)
 /// \return The nice level.
 int GetCpuNiceLevel(const inference::ModelConfig& config);
 
+#ifdef TRITON_COMMON_ENABLE_PROTOBUF
 /// Compare two model configuration shapes for equality. Wildcard
 /// dimensions (that is, dimensions with size WILDCARD_DIM) are
 /// compared literally so that to be equal the two shapes must both
@@ -256,6 +263,7 @@ int GetCpuNiceLevel(const inference::ModelConfig& config);
 /// \params dims1 The second shape.
 /// \return True if the shapes are equal, false if not equal.
 bool CompareDims(const DimsList& dims0, const DimsList& dims1);
+#endif  // TRITON_COMMON_ENABLE_PROTOBUF
 
 /// Compare two model configuration shapes for equality. Wildcard
 /// dimensions (that is, dimensions with size WILDCARD_DIM) are
@@ -267,6 +275,7 @@ bool CompareDims(const DimsList& dims0, const DimsList& dims1);
 bool CompareDims(
     const std::vector<int64_t>& dims0, const std::vector<int64_t>& dims1);
 
+#ifdef TRITON_COMMON_ENABLE_PROTOBUF
 /// Compare two model configuration shapes for equality. Wildcard
 /// dimensions (that is, dimensions with size WILDCARD_DIM) are
 /// allowed to match with any value. So, a dimension in one shape
@@ -293,6 +302,7 @@ bool CompareDimsWithWildcard(
 /// \return String representation of the DimsList in pattern
 /// "[d0,d1,...,dn]"
 std::string DimsListToString(const DimsList& dims);
+#endif  // TRITON_COMMON_ENABLE_PROTOBUF
 
 /// Convert a vector representing a shape to string representation.
 /// \param dims The vector of dimensions to be converted.
