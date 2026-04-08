@@ -25,7 +25,7 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma once
 
-#ifndef TRITON_COMMON_ENABLE_PROTOBUF
+#ifdef TRITON_COMMON_ENABLE_PROTOBUF
 #include <google/protobuf/any.pb.h>
 
 #include "model_config.pb.h"
@@ -40,7 +40,7 @@
 
 namespace triton { namespace common {
 
-#ifndef TRITON_COMMON_ENABLE_PROTOBUF
+#ifdef TRITON_COMMON_ENABLE_PROTOBUF
 /// The type for a repeated dims field (used for shape).
 using DimsList = ::google::protobuf::RepeatedField<::google::protobuf::int64>;
 
