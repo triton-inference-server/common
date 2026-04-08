@@ -93,7 +93,7 @@ enum Platform {
 /// contains one or more wildcard dimensions,
 /// -2 if the shape contains an invalid dimension,
 /// -3 if the number is too large to represent as an int64_t.
-inline int64_t GetElementCount(const int64_t* dims, const size_t dims_count);
+int64_t GetElementCount(const int64_t* dims, const size_t dims_count);
 
 #ifdef TRITON_COMMON_ENABLE_PROTOBUF
 template <typename T>
