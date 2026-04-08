@@ -138,8 +138,20 @@ if(${TRITON_COMMON_ENABLE_PROTOBUF} OR ${TRITON_COMMON_ENABLE_GRPC})
     PUBLIC
       $<INSTALL_INTERFACE:include>
       $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+      # # model_config.pb.h is generated under add_subdirectory(protobuf); OBJECT
+      # # proto-library usage requirements do not always propagate to dependents.
+      # $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/protobuf>
     PRIVATE
       ${CMAKE_CURRENT_SOURCE_DIR}/src
+  )
+
+  # CMake option TRITON_COMMON_ENABLE_PROTOBUF does not define a preprocessor
+  # symbol; model_config.h uses #ifdef TRITON_COMMON_ENABLE_PROTOBUF for
+  # model_config.pb.h and inference::*. PUBLIC so all dependents match this lib.
+  target_compile_definitions(
+    triton-common-model-config
+    PUBLIC
+      TRITON_COMMON_ENABLE_PROTOBUF=1
   )
 
   # PUBLIC: model_config.h includes google/protobuf/*.h and generated .pb.h;
