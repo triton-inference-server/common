@@ -1,4 +1,4 @@
-# Copyright 2020-2025, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# Copyright 2020-2026, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
@@ -171,7 +171,7 @@ if(${TRITON_COMMON_ENABLE_PROTOBUF} OR ${TRITON_COMMON_ENABLE_GRPC})
     PROPERTIES
       WINDOWS_EXPORT_ALL_SYMBOLS TRUE
       POSITION_INDEPENDENT_CODE ON
-      OUTPUT_NAME tritoncommonmodelconfig
+      OUTPUT_NAME triton-common-model-config
   )
 
 endif()
