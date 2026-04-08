@@ -143,6 +143,7 @@ bool IsFixedSizeDataType(const inference::DataType dtype);
 /// have variable length and so size cannot be determine just from the
 /// type).
 size_t GetDataTypeByteSize(const inference::DataType dtype);
+#endif  // TRITON_COMMON_ENABLE_PROTOBUF
 
 /// Get the size, in bytes, of a tensor based on datatype and
 /// shape.
@@ -152,26 +153,16 @@ size_t GetDataTypeByteSize(const inference::DataType dtype);
 /// -1 if unable to determine the size,
 /// -2 if the shape contains an invalid dimension,
 /// -3 if the number is too large to represent as an int64_t.
+int64_t GetByteSize(
+    const size_t dt_size, const int64_t* dims, const size_t dims_count);
+
+#ifdef TRITON_COMMON_ENABLE_PROTOBUF
 template <typename T, typename = std::enable_if_t<is_dims_container_v<T>>>
 int64_t
 GetByteSize(const inference::DataType& dtype, const T& dims)
 {
   size_t dt_size = GetDataTypeByteSize(dtype);
-  if (dt_size == 0) {
-    return WILDCARD_SIZE;
-  }
-
-  int64_t cnt = GetElementCount(dims);
-  if (cnt == WILDCARD_SIZE) {
-    return WILDCARD_SIZE;
-  } else if (cnt == INVALID_SIZE) {
-    return INVALID_SIZE;  // invalid dim
-  } else if (
-      cnt == OVERFLOW_SIZE || cnt > INT64_MAX / static_cast<int64_t>(dt_size)) {
-    return OVERFLOW_SIZE;
-  }
-
-  return cnt * dt_size;
+  return GetByteSize(dt_size, dims.data(), dims.size());
 }
 
 /// Get the size, in bytes, of a tensor based on batch-size, datatype

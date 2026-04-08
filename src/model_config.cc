@@ -108,6 +108,26 @@ GetElementCount(const int64_t* dims, const size_t dims_count)
   return cnt;
 }
 
+int64_t
+GetByteSize(const size_t dt_size, const int64_t* dims, const size_t dims_count)
+{
+  if (dt_size == 0) {
+    return WILDCARD_SIZE;
+  }
+
+  int64_t cnt = GetElementCount(dims, dims_count);
+  if (cnt == WILDCARD_SIZE) {
+    return WILDCARD_SIZE;
+  } else if (cnt == INVALID_SIZE) {
+    return INVALID_SIZE;  // invalid dim
+  } else if (
+      cnt == OVERFLOW_SIZE || cnt > INT64_MAX / static_cast<int64_t>(dt_size)) {
+    return OVERFLOW_SIZE;
+  }
+
+  return cnt * dt_size;
+}
+
 #ifdef TRITON_COMMON_ENABLE_PROTOBUF
 
 int
