@@ -28,6 +28,7 @@
 
 namespace triton { namespace common {
 
+#ifdef TRITON_COMMON_ENABLE_PROTOBUF
 bool
 IsFixedSizeDataType(const inference::DataType dtype)
 {
@@ -72,6 +73,42 @@ GetDataTypeByteSize(const inference::DataType dtype)
 
   return 0;
 }
+#endif  // TRITON_COMMON_ENABLE_PROTOBUF
+
+int64_t
+GetElementCount(const int64_t* dims, const size_t dims_count)
+{
+  bool has_wildcard = false;
+  bool first = true;
+  int64_t cnt = 0;
+
+  for (size_t i = 0; i < dims_count; ++i) {
+    const int64_t dim = dims[i];
+    if (dim == WILDCARD_DIM) {
+      has_wildcard = true;
+      continue;
+    }
+    if (dim < 0) {
+      return INVALID_SIZE;
+    }
+    if (first) {
+      cnt = dim;
+      first = false;
+    } else if (dim != 0 && cnt > INT64_MAX / dim) {
+      return OVERFLOW_SIZE;
+    } else {
+      cnt *= dim;
+    }
+  }
+
+  if (has_wildcard) {
+    return WILDCARD_SIZE;
+  }
+
+  return cnt;
+}
+
+#ifdef TRITON_COMMON_ENABLE_PROTOBUF
 
 int
 GetCpuNiceLevel(const inference::ModelConfig& config)
@@ -94,7 +131,6 @@ GetCpuNiceLevel(const inference::ModelConfig& config)
   return nice;
 }
 
-#ifdef TRITON_COMMON_ENABLE_PROTOBUF
 bool
 CompareDims(const DimsList& dims0, const DimsList& dims1)
 {
@@ -205,6 +241,7 @@ DimsListToString(const std::vector<int64_t>& dims, const int start_idx)
   return str;
 }
 
+#ifdef TRITON_COMMON_ENABLE_PROTOBUF
 const char*
 DataTypeToProtocolString(const inference::DataType dtype)
 {
@@ -311,5 +348,6 @@ ProtocolStringToDataType(const char* dtype, size_t len)
 
   return inference::DataType::TYPE_INVALID;
 }
+#endif  // TRITON_COMMON_ENABLE_PROTOBUF
 
 }}  // namespace triton::common

@@ -35,8 +35,9 @@
 
 #include <algorithm>
 #include <climits>
-#include <map>
 #include <type_traits>
+#include <unordered_map>
+#include <vector>
 
 
 namespace triton { namespace common {
@@ -90,48 +91,26 @@ enum Platform {
 /// contains one or more wildcard dimensions,
 /// -2 if the shape contains an invalid dimension,
 /// -3 if the number is too large to represent as an int64_t.
-inline int64_t
-GetElementCount(const int64_t* dims, const size_t dims_count)
-{
-  bool has_wildcard = false;
-  bool first = true;
-  int64_t cnt = 0;
+inline int64_t GetElementCount(const int64_t* dims, const size_t dims_count);
 
-  for (size_t i = 0; i < dims_count; ++i) {
-    const int64_t dim = dims[i];
-    if (dim == WILDCARD_DIM) {
-      has_wildcard = true;
-      continue;
-    }
-    if (dim < 0) {
-      return INVALID_SIZE;
-    }
-    if (first) {
-      cnt = dim;
-      first = false;
-    } else if (dim != 0 && cnt > INT64_MAX / dim) {
-      return OVERFLOW_SIZE;
-    } else {
-      cnt *= dim;
-    }
-  }
-
-  if (has_wildcard) {
-    return WILDCARD_SIZE;
-  }
-
-  return cnt;
-}
+#ifdef TRITON_COMMON_ENABLE_PROTOBUF
+template <typename T>
+inline constexpr bool is_dims_container_v =
+    std::is_same_v<T, DimsList> || std::is_same_v<T, std::vector<int64_t>>;
+#else
+template <typename T>
+inline constexpr bool is_dims_container_v =
+    std::is_same_v<T, std::vector<int64_t>>;
+#endif  // TRITON_COMMON_ENABLE_PROTOBUF
 
 template <typename T>
-std::enable_if_t<
-    std::is_same_v<T, DimsList> || std::is_same_v<T, std::vector<int64_t>>,
-    int64_t>
+std::enable_if_t<is_dims_container_v<T>, int64_t>
 GetElementCount(const T& dims)
 {
   return dims.empty() ? 0 : GetElementCount(dims.data(), dims.size());
 }
 
+#ifdef TRITON_COMMON_ENABLE_PROTOBUF
 /// Get the number of elements in the shape of a model input.
 /// \param mio The model input.
 /// \return The number of elements, or
@@ -171,10 +150,7 @@ size_t GetDataTypeByteSize(const inference::DataType dtype);
 /// -1 if unable to determine the size,
 /// -2 if the shape contains an invalid dimension,
 /// -3 if the number is too large to represent as an int64_t.
-template <
-    typename T,
-    typename = std::enable_if_t<
-        std::is_same_v<T, DimsList> || std::is_same_v<T, std::vector<int64_t>>>>
+template <typename T, typename = std::enable_if_t<is_dims_container_v<T>>>
 int64_t
 GetByteSize(const inference::DataType& dtype, const T& dims)
 {
@@ -207,10 +183,7 @@ GetByteSize(const inference::DataType& dtype, const T& dims)
 /// -1 if unable to determine the size,
 /// -2 if the shape contains an invalid dimension,
 /// -3 if the number is too large to represent as an int64_t.
-template <
-    typename T,
-    typename = std::enable_if_t<
-        std::is_same_v<T, DimsList> || std::is_same_v<T, std::vector<int64_t>>>>
+template <typename T, typename = std::enable_if_t<is_dims_container_v<T>>>
 int64_t
 GetByteSize(
     const int batch_size, const inference::DataType& dtype, const T& dims)
@@ -255,7 +228,6 @@ GetByteSize(const T& mio)
 /// \return The nice level.
 int GetCpuNiceLevel(const inference::ModelConfig& config);
 
-#ifdef TRITON_COMMON_ENABLE_PROTOBUF
 /// Compare two model configuration shapes for equality. Wildcard
 /// dimensions (that is, dimensions with size WILDCARD_DIM) are
 /// compared literally so that to be equal the two shapes must both
@@ -312,6 +284,7 @@ std::string DimsListToString(const DimsList& dims);
 std::string DimsListToString(
     const std::vector<int64_t>& dims, const int start_idx = 0);
 
+#ifdef TRITON_COMMON_ENABLE_PROTOBUF
 /// Get the server protocol string representation of a datatype.
 /// \param dtype The data type.
 /// \return The string representation.
@@ -329,5 +302,6 @@ inference::DataType ProtocolStringToDataType(const std::string& dtype);
 /// \param len Length of the string.
 /// \return The data type.
 inference::DataType ProtocolStringToDataType(const char* dtype, size_t len);
+#endif  // TRITON_COMMON_ENABLE_PROTOBUF
 
 }}  // namespace triton::common
