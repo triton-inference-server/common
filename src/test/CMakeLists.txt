@@ -31,11 +31,15 @@ cmake_minimum_required (VERSION 3.31.8)
 #
 include(FetchContent)
 
-FetchContent_Declare(
-  googletest
-  URL https://github.com/google/googletest/archive/9406a60c7839052e4944ea4dbc8344762a89f9bd.zip
-)
-FetchContent_MakeAvailable(googletest)
+# Prefer GTest from Conan / system; fall back to FetchContent for standalone builds.
+find_package(GTest QUIET)
+if(NOT GTest_FOUND)
+  FetchContent_Declare(
+    googletest
+    URL https://github.com/google/googletest/archive/9406a60c7839052e4944ea4dbc8344762a89f9bd.zip
+  )
+  FetchContent_MakeAvailable(googletest)
+endif()
 
 if (TRITON_COMMON_ENABLE_JSON)
     add_subdirectory(triton_json triton_json)

@@ -46,6 +46,16 @@ option(TRITON_COMMON_ENABLE_JSON "Build json-related libs" ON)
 
 if(TRITON_COMMON_ENABLE_JSON)
   find_package(RapidJSON CONFIG REQUIRED)
+  # Conan-generated config uses a target (rapidjson) rather than the
+  # RAPIDJSON_INCLUDE_DIRS variable.  Populate the variable if empty.
+  if(NOT RAPIDJSON_INCLUDE_DIRS)
+    foreach(_rj_target rapidjson RapidJSON::RapidJSON)
+      if(TARGET ${_rj_target})
+        get_target_property(RAPIDJSON_INCLUDE_DIRS ${_rj_target} INTERFACE_INCLUDE_DIRECTORIES)
+        break()
+      endif()
+    endforeach()
+  endif()
   message(STATUS "RapidJSON found. Headers: ${RAPIDJSON_INCLUDE_DIRS}")
 endif()
 

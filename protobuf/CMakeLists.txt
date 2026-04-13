@@ -29,7 +29,15 @@ cmake_minimum_required (VERSION 3.31.8)
 set(protobuf_MODULE_COMPATIBLE TRUE CACHE BOOL "protobuf_MODULE_COMPATIBLE" FORCE)
 find_package(Protobuf CONFIG REQUIRED)
 message(STATUS "Using protobuf ${Protobuf_VERSION}")
-include_directories(${Protobuf_INCLUDE_DIRS})
+# Prefer target-based includes; fall back to variable for non-Conan builds.
+if(TARGET protobuf::libprotobuf)
+  get_target_property(_proto_incs protobuf::libprotobuf INTERFACE_INCLUDE_DIRECTORIES)
+  if(_proto_incs)
+    include_directories(${_proto_incs})
+  endif()
+elseif(Protobuf_INCLUDE_DIRS)
+  include_directories(${Protobuf_INCLUDE_DIRS})
+endif()
 
 if(${TRITON_COMMON_ENABLE_GRPC})
   find_package(gRPC CONFIG REQUIRED)
@@ -65,6 +73,8 @@ if(${TRITON_COMMON_ENABLE_PROTOBUF})
 
   target_link_libraries(
     proto-library
+    PUBLIC
+      protobuf::libprotobuf
     PRIVATE
       common-compile-settings
   )
@@ -137,6 +147,9 @@ if(${TRITON_COMMON_ENABLE_GRPC})
 
   target_link_libraries(
     grpc-service-library
+    PUBLIC
+      protobuf::libprotobuf
+      gRPC::grpc++
     PRIVATE
       common-compile-settings
   )
@@ -193,6 +206,9 @@ if(${TRITON_COMMON_ENABLE_GRPC})
 
   target_link_libraries(
     grpc-health-library
+    PUBLIC
+      protobuf::libprotobuf
+      gRPC::grpc++
     PRIVATE
       common-compile-settings
   )
