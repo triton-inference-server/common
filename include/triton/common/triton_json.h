@@ -178,7 +178,8 @@ class TritonJsonImpl {
         TRITONJSON_STATUSRETURN(
             std::string("JSON parsing only available for top-level document"));
       }
-      const unsigned int parseFlags = rapidjson::kParseNanAndInfFlag | rapidjson::kParseIterativeFlag;
+      const unsigned int parseFlags =
+          rapidjson::kParseNanAndInfFlag | rapidjson::kParseIterativeFlag;
       document_.Parse<parseFlags>(base, size);
       if (document_.HasParseError()) {
         TRITONJSON_STATUSRETURN(std::string(
