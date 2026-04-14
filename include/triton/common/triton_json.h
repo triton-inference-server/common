@@ -47,6 +47,7 @@
 #include <rapidjson/error/en.h>
 #include <rapidjson/prettywriter.h>
 #include <rapidjson/rapidjson.h>
+#include <rapidjson/reader.h>
 #include <rapidjson/stringbuffer.h>
 #include <rapidjson/writer.h>
 
@@ -177,7 +178,7 @@ class TritonJsonImpl {
         TRITONJSON_STATUSRETURN(
             std::string("JSON parsing only available for top-level document"));
       }
-      const unsigned int parseFlags = rapidjson::kParseNanAndInfFlag;
+      const unsigned int parseFlags = rapidjson::kParseNanAndInfFlag | rapidjson::kParseIterativeFlag;
       document_.Parse<parseFlags>(base, size);
       if (document_.HasParseError()) {
         TRITONJSON_STATUSRETURN(std::string(
