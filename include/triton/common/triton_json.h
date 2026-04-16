@@ -774,9 +774,8 @@ class TritonJsonImpl {
     StatusType AsInt(int64_t* value) const
     {
       if ((value_ == nullptr) || !value_->IsInt64()) {
-        TRITONJSON_STATUSRETURN(
-            std::string(
-                "attempt to access JSON non-signed-integer as signed-integer"));
+        TRITONJSON_STATUSRETURN(std::string(
+            "attempt to access JSON non-signed-integer as signed-integer"));
       }
       *value = value_->GetInt64();
       return TRITONJSON_STATUSSUCCESS;
@@ -787,10 +786,8 @@ class TritonJsonImpl {
     StatusType AsUInt(uint64_t* value) const
     {
       if ((value_ == nullptr) || !value_->IsUint64()) {
-        TRITONJSON_STATUSRETURN(
-            std::string(
-                "attempt to access JSON non-unsigned-integer as "
-                "unsigned-integer"));
+        TRITONJSON_STATUSRETURN(std::string(
+            "attempt to access JSON non-unsigned-integer as unsigned-integer"));
       }
       *value = value_->GetUint64();
       return TRITONJSON_STATUSSUCCESS;
@@ -916,9 +913,8 @@ class TritonJsonImpl {
       }
       const auto& v = object[name];
       if (!v.IsInt64()) {
-        TRITONJSON_STATUSRETURN(
-            std::string(
-                "attempt to access JSON non-signed-integer as signed-integer"));
+        TRITONJSON_STATUSRETURN(std::string(
+            "attempt to access JSON non-signed-integer as signed-integer"));
       }
       *value = v.GetInt64();
       return TRITONJSON_STATUSSUCCESS;
@@ -936,10 +932,8 @@ class TritonJsonImpl {
       }
       const auto& v = object[name];
       if (!v.IsUint64()) {
-        TRITONJSON_STATUSRETURN(
-            std::string(
-                "attempt to access JSON non-unsigned-integer as "
-                "unsigned-integer"));
+        TRITONJSON_STATUSRETURN(std::string(
+            "attempt to access JSON non-unsigned-integer as unsigned-integer"));
       }
       *value = v.GetUint64();
       return TRITONJSON_STATUSSUCCESS;
@@ -1110,9 +1104,8 @@ class TritonJsonImpl {
       }
       const auto& v = array[idx];
       if (!v.IsInt64()) {
-        TRITONJSON_STATUSRETURN(
-            std::string(
-                "attempt to access JSON non-signed-integer as signed-integer"));
+        TRITONJSON_STATUSRETURN(std::string(
+            "attempt to access JSON non-signed-integer as signed-integer"));
       }
       *value = v.GetInt64();
       return TRITONJSON_STATUSSUCCESS;
@@ -1130,10 +1123,8 @@ class TritonJsonImpl {
       }
       const auto& v = array[idx];
       if (!v.IsUint64()) {
-        TRITONJSON_STATUSRETURN(
-            std::string(
-                "attempt to access JSON non-unsigned-integer as "
-                "unsigned-integer"));
+        TRITONJSON_STATUSRETURN(std::string(
+            "attempt to access JSON non-unsigned-integer as unsigned-integer"));
       }
       *value = v.GetUint64();
       return TRITONJSON_STATUSSUCCESS;
