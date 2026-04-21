@@ -1,4 +1,4 @@
-// Copyright 2020-2025, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// Copyright 2020-2026, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions
@@ -177,7 +177,10 @@ class TritonJsonImpl {
         TRITONJSON_STATUSRETURN(
             std::string("JSON parsing only available for top-level document"));
       }
-      const unsigned int parseFlags = rapidjson::kParseNanAndInfFlag;
+      // Use iterative parsing so deeply nested JSON does not consume call
+      // stack.
+      const unsigned int parseFlags =
+          rapidjson::kParseNanAndInfFlag | rapidjson::kParseIterativeFlag;
       document_.Parse<parseFlags>(base, size);
       if (document_.HasParseError()) {
         TRITONJSON_STATUSRETURN(std::string(
