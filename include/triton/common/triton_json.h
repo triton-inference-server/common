@@ -1003,8 +1003,9 @@ class TritonJsonImpl {
     bool MemberIsString(const char* name) const
     {
       const rapidjson::Value& object = AsValue();
-      if (!object.IsObject() || !object.HasMember(name))
+      if (!object.IsObject() || !object.HasMember(name)) {
         return false;
+      }
       const auto& v = object[name];
       return v.IsString();
     }
