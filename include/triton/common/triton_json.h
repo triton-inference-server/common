@@ -958,6 +958,65 @@ class TritonJsonImpl {
       return TRITONJSON_STATUSSUCCESS;
     }
 
+    bool MemberIsArray(const char* name) const
+    {
+      const rapidjson::Value& object = AsValue();
+      if (!object.IsObject() || !object.HasMember(name)) {
+        return false;
+      }
+      const auto& v = object[name];
+      return v.IsArray();
+    }
+
+    bool MemberIsArray(const std::string& name) const
+    {
+      return MemberIsArray(name.c_str());
+    }
+
+    bool MemberIsNull(const char* name) const
+    {
+      const rapidjson::Value& object = AsValue();
+      if (!object.IsObject() || !object.HasMember(name)) {
+        return false;
+      }
+      const auto& v = object[name];
+      return v.IsNull();
+    }
+
+    bool MemberIsNull(const std::string& name) const
+    {
+      return MemberIsNull(name.c_str());
+    }
+
+    bool MemberIsObject(const char* name) const
+    {
+      const rapidjson::Value& object = AsValue();
+      if (!object.IsObject() || !object.HasMember(name))
+        return false;
+      const auto& v = object[name];
+      return v.IsObject();
+    }
+
+    bool MemberIsObject(const std::string& name) const
+    {
+      return MemberIsObject(name.c_str());
+    }
+
+    bool MemberIsString(const char* name) const
+    {
+      const rapidjson::Value& object = AsValue();
+      if (!object.IsObject() || !object.HasMember(name)) {
+        return false;
+      }
+      const auto& v = object[name];
+      return v.IsString();
+    }
+
+    bool MemberIsString(const std::string& name) const
+    {
+      return MemberIsString(name.c_str());
+    }
+
     bool IsString()
     {
       const rapidjson::Value& object = AsValue();
