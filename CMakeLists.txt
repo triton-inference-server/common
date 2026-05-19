@@ -46,7 +46,7 @@ option(TRITON_COMMON_ENABLE_JSON "Build json-related libs" ON)
 
 if(TRITON_COMMON_ENABLE_JSON)
   find_package(RapidJSON CONFIG REQUIRED)
-  message(STATUS "RapidJSON found. Headers: ${RAPIDJSON_INCLUDE_DIRS}")
+  message(STATUS "RapidJSON found. Headers: ${RapidJSON_INCLUDE_DIRS}")
 endif()
 
 set(THREADS_PREFER_PTHREAD_FLAG TRUE)
@@ -103,9 +103,9 @@ if(TRITON_COMMON_ENABLE_JSON)
     triton-common-json
     INTERFACE
       $<INSTALL_INTERFACE:include>
-      $<INSTALL_INTERFACE:${RAPIDJSON_INCLUDE_DIRS}>
+      $<INSTALL_INTERFACE:${RapidJSON_INCLUDE_DIRS}>
       $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-      $<BUILD_INTERFACE:${RAPIDJSON_INCLUDE_DIRS}>
+      $<BUILD_INTERFACE:${RapidJSON_INCLUDE_DIRS}>
   )
 endif()
 
