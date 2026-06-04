@@ -64,6 +64,20 @@ class Logger {
   inline static const std::array<const char*, static_cast<uint8_t>(Level::kEND)>
       LEVEL_NAMES{"E", "W", "I"};
 
+  // Type for log callback function.
+  // When set, this callback is invoked for each log message instead of
+  // (or in addition to) writing to file/stdout/stderr.
+  //
+  // Parameters:
+  //   level - The log level (kERROR, kWARNING, kINFO)
+  //   filename - Source file where the log originated
+  //   line - Line number in the source file
+  //   msg - The formatted log message
+  //   userp - User-provided pointer passed to SetLogCallback
+  typedef void (*LogCallbackFn)(
+      Level level, const char* filename, int line, const char* msg,
+      void* userp);
+
   Logger();
 
   // Is a log level enabled.
@@ -140,8 +154,32 @@ class Logger {
     return std::string();
   }
 
-  // Log a message.
-  void Log(const std::string& msg, const Logger::Level level);
+  // Set a callback function to receive log messages.
+  // When set, the callback will be invoked for each log message.
+  // If 'replace_default_logger' is true, the callback replaces the
+  // default logging behavior. If false, the callback is called
+  // in addition to the default logging.
+  //
+  // Parameters:
+  //   callback_fn - The callback function to invoke, or nullptr to disable
+  //   userp - User-provided pointer passed to callback
+  //   replace_default_logger - If true, callback replaces default logging
+  void SetLogCallback(
+      LogCallbackFn callback_fn, void* userp, bool replace_default_logger)
+  {
+    const std::lock_guard<std::mutex> lock(mutex_);
+    log_callback_ = callback_fn;
+    log_callback_userp_ = userp;
+    replace_default_logger_ = replace_default_logger;
+  }
+
+  // Get the current log callback function.
+  LogCallbackFn LogCallback() const { return log_callback_; }
+
+  // Log a message. Extended version that includes source location.
+  void Log(
+      const std::string& msg, const Logger::Level level,
+      const char* filename = nullptr, int line = 0);
 
   // Flush the log.
   void Flush();
@@ -156,6 +194,11 @@ class Logger {
   std::mutex mutex_;
   std::string filename_;
   std::ofstream file_stream_;
+
+  // Log callback support
+  LogCallbackFn log_callback_ = nullptr;
+  void* log_callback_userp_ = nullptr;
+  bool replace_default_logger_ = false;
 };
 
 extern Logger gLogger_;
@@ -219,6 +262,9 @@ class LogMessage {
       static_cast<uint32_t>(std::max(0, (L))))
 #define LOG_SET_OUT_FILE(FN) triton::common::gLogger_.SetLogFile((FN))
 #define LOG_SET_FORMAT(F) triton::common::gLogger_.SetLogFormat((F))
+#define LOG_SET_CALLBACK(CB, USERP, REPLACE) \
+  triton::common::gLogger_.SetLogCallback((CB), (USERP), (REPLACE))
+#define LOG_CALLBACK triton::common::gLogger_.LogCallback()
 
 #define LOG_VERBOSE_LEVEL triton::common::gLogger_.VerboseLevel()
 #define LOG_FORMAT triton::common::gLogger_.LogFormat()
