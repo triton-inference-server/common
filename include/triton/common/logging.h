@@ -26,9 +26,12 @@
 #pragma once
 
 #include <array>
+#include <atomic>
 #include <cerrno>
+#include <cstdint>
 #include <cstring>
 #include <fstream>
+#include <functional>
 #include <mutex>
 #include <sstream>
 #include <string>
@@ -140,6 +143,50 @@ class Logger {
     return std::string();
   }
 
+  // ---- Structured log callback ------------------------------------------
+  // Lets an embedding host (e.g. an in-process runtime such as Dynamo)
+  // receive every enabled log record as structured fields and route it into
+  // its own logging pipeline, instead of parsing the formatted stderr/file
+  // output.
+  //
+  // The callback receives: (level, file, line, timestamp_us, message) where
+  // timestamp_us is microseconds since the Unix epoch and message is the RAW
+  // (unescaped, unformatted) log text — the host owns any re-formatting.
+  //
+  // Contract: the callback is invoked synchronously from the thread that
+  // produced the log record, OUTSIDE the logger output mutex. It MUST be
+  // lightweight, thread-safe, and must not throw. Heavy work (network I/O,
+  // etc.) should be offloaded by the host. Register before the server begins
+  // serving; registration is process-global (mirrors the other log options).
+  using LogCallbackFn = std::function<void(
+      Level level, const char* file, int line, uint64_t timestamp_us,
+      const char* message)>;
+
+  // Register the callback, or clear it by passing an empty function. While a
+  // callback is registered, records are routed ONLY to it and the default
+  // stderr/file sink is bypassed, so the host owns the single output stream.
+  void SetLogCallback(LogCallbackFn callback)
+  {
+    const std::lock_guard<std::mutex> lock(callback_mutex_);
+    callback_ = std::move(callback);
+    has_callback_.store(
+        static_cast<bool>(callback_), std::memory_order_release);
+  }
+
+  // Cheap check used on the logging hot path before doing any callback work.
+  bool HasLogCallback() const
+  {
+    return has_callback_.load(std::memory_order_acquire);
+  }
+
+  // Returns a copy of the callback so it can be invoked without holding a
+  // lock during the (potentially slow) call. Empty function if unset.
+  LogCallbackFn GetLogCallback()
+  {
+    const std::lock_guard<std::mutex> lock(callback_mutex_);
+    return callback_;
+  }
+
   // Log a message.
   void Log(const std::string& msg, const Logger::Level level);
 
@@ -156,6 +203,11 @@ class Logger {
   std::mutex mutex_;
   std::string filename_;
   std::ofstream file_stream_;
+  // Structured log callback state. 'has_callback_' is an atomic fast-path
+  // flag so the no-callback case (normal Triton) costs only one load.
+  std::atomic<bool> has_callback_{false};
+  LogCallbackFn callback_;
+  std::mutex callback_mutex_;
 };
 
 extern Logger gLogger_;
@@ -219,6 +271,7 @@ class LogMessage {
       static_cast<uint32_t>(std::max(0, (L))))
 #define LOG_SET_OUT_FILE(FN) triton::common::gLogger_.SetLogFile((FN))
 #define LOG_SET_FORMAT(F) triton::common::gLogger_.SetLogFormat((F))
+#define LOG_SET_CALLBACK(CB) triton::common::gLogger_.SetLogCallback((CB))
 
 #define LOG_VERBOSE_LEVEL triton::common::gLogger_.VerboseLevel()
 #define LOG_FORMAT triton::common::gLogger_.LogFormat()

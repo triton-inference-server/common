@@ -142,6 +142,44 @@ LogMessage::LogPreamble(std::stringstream& stream)
 
 LogMessage::~LogMessage()
 {
+  // When a structured callback is registered, deliver the record to it and
+  // skip the default formatting and sink entirely. This lets an embedding host
+  // (e.g. Dynamo) route Triton's logs into its own pipeline as a single stream.
+  // The callback gets the RAW message plus structured fields and owns any
+  // re-formatting/escaping. It is invoked outside the logger output mutex so a
+  // slow callback does not serialize all logging, and it must never throw
+  // (a logging path cannot be allowed to crash the server).
+  if (gLogger_.HasLogCallback()) {
+    Logger::LogCallbackFn callback = gLogger_.GetLogCallback();
+    // 'callback' can be empty if it was cleared between HasLogCallback() and
+    // GetLogCallback(); in that case fall through to the default sink rather
+    // than drop the record.
+    if (callback) {
+#ifdef _WIN32
+      // SYSTEMTIME -> epoch microseconds conversion is left as a follow-up;
+      // 0 signals "timestamp unavailable" to the host.
+      uint64_t timestamp_us = 0;
+#else
+      uint64_t timestamp_us =
+          static_cast<uint64_t>(timestamp_.tv_sec) * 1000000ULL +
+          static_cast<uint64_t>(timestamp_.tv_usec);
+#endif
+      std::string raw_message =
+          (heading_ != nullptr)
+              ? (std::string(heading_) + "\n" + message_.str())
+              : message_.str();
+      try {
+        callback(
+            level_, path_.c_str(), line_, timestamp_us, raw_message.c_str());
+      }
+      catch (...) {
+      }
+      return;
+    }
+  }
+
+  // Default sink: format the record (preamble + escaped message) and write it
+  // to the configured file, or to stdout (INFO) / stderr (WARNING, ERROR).
   std::stringstream log_record;
   LogPreamble(log_record);
   std::string escaped_message =
