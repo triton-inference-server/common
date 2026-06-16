@@ -1235,13 +1235,13 @@ message ModelStatisticsResponse
 //@@
 //@@.. cpp:var:: message ModelRepositoryParameter
 //@@
-//@@   An model repository parameter value.
+//@@   A model repository parameter value.
 //@@
 message ModelRepositoryParameter
 {
   //@@  .. cpp:var:: oneof parameter_choice
   //@@
-  //@@     The parameter value can be a string, an int64 or
+  //@@     The parameter value can be a string, an int64, a bytes or
   //@@     a boolean
   //@@
   oneof parameter_choice
