@@ -158,9 +158,12 @@ class Logger {
   // lightweight, thread-safe, and must not throw. Heavy work (network I/O,
   // etc.) should be offloaded by the host. Register before the server begins
   // serving; registration is process-global (mirrors the other log options).
+  // 'is_verbose' is true for a LOG_VERBOSE record (which Triton emits at the
+  // INFO 'level' internally) and false otherwise, so the host can report
+  // verbose records distinctly from plain INFO.
   using LogCallbackFn = std::function<void(
-      Level level, const char* file, int line, uint64_t timestamp_us,
-      const char* message)>;
+      Level level, bool is_verbose, const char* file, int line,
+      uint64_t timestamp_us, const char* message)>;
 
   // Register the callback, or clear it by passing an empty function. While a
   // callback is registered, records are routed ONLY to it and the default
@@ -231,6 +234,16 @@ class LogMessage {
 
   ~LogMessage();
 
+  // Mark this record as verbose. Triton emits LOG_VERBOSE at the INFO 'level',
+  // so this lets a structured log callback report verbose records distinctly.
+  // It does not affect the default sink's output (which still uses 'level_').
+  // Chainable so it composes with the logging macros.
+  LogMessage& SetVerbose()
+  {
+    is_verbose_ = true;
+    return *this;
+  }
+
   std::stringstream& stream() { return message_; }
 
  private:
@@ -256,6 +269,9 @@ class LogMessage {
   std::stringstream message_;
   const char* heading_;
   bool escape_log_messages_;
+  // true for LOG_VERBOSE records (emitted at the INFO 'level'), false
+  // otherwise.
+  bool is_verbose_ = false;
 };
 
 #define LOG_ENABLE_INFO(E) \
@@ -318,6 +334,7 @@ class LogMessage {
   if (LOG_VERBOSE_IS_ON(L))                                  \
   triton::common::LogMessage(                                \
       (char*)(FN), LN, triton::common::Logger::Level::kINFO) \
+      .SetVerbose()                                          \
       .stream()
 
 // Macros that use current filename and line number.
@@ -339,6 +356,7 @@ class LogMessage {
       triton::common::LogMessage(                                            \
           __FILE__, __LINE__, triton::common::Logger::Level::kINFO, nullptr, \
           false)                                                             \
+              .SetVerbose()                                                  \
               .stream()                                                      \
           << TABLE.PrintTable();                                             \
   } while (false)
@@ -365,6 +383,7 @@ class LogMessage {
       triton::common::LogMessage(                                            \
           __FILE__, __LINE__, triton::common::Logger::Level::kINFO, HEADING, \
           false)                                                             \
+              .SetVerbose()                                                  \
               .stream()                                                      \
           << PB_MESSAGE.DebugString();                                       \
   } while (false)

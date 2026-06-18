@@ -170,7 +170,8 @@ LogMessage::~LogMessage()
               : message_.str();
       try {
         callback(
-            level_, path_.c_str(), line_, timestamp_us, raw_message.c_str());
+            level_, is_verbose_, path_.c_str(), line_, timestamp_us,
+            raw_message.c_str());
       }
       catch (...) {
       }

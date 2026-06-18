@@ -24,13 +24,14 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+#include "triton/common/logging.h"
+
 #include <iostream>
 #include <sstream>
 #include <string>
 #include <vector>
 
 #include "gtest/gtest.h"
-#include "triton/common/logging.h"
 
 namespace tc = triton::common;
 
@@ -38,6 +39,7 @@ namespace {
 
 struct CapturedRecord {
   tc::Logger::Level level;
+  bool is_verbose;
   std::string file;
   int line;
   uint64_t timestamp_us;
@@ -57,13 +59,13 @@ class LogCallbackTest : public ::testing::Test {
 TEST_F(LogCallbackTest, ReceivesStructuredRecord)
 {
   std::vector<CapturedRecord> records;
-  tc::gLogger_.SetLogCallback(
-      [&records](
-          tc::Logger::Level level, const char* file, int line, uint64_t ts,
-          const char* msg) {
-        records.push_back(
-            {level, file ? file : "", line, ts, msg ? msg : ""});
-      });
+  tc::gLogger_.SetLogCallback([&records](
+                                  tc::Logger::Level level, bool is_verbose,
+                                  const char* file, int line, uint64_t ts,
+                                  const char* msg) {
+    records.push_back(
+        {level, is_verbose, file ? file : "", line, ts, msg ? msg : ""});
+  });
   EXPECT_TRUE(tc::gLogger_.HasLogCallback());
 
   const int emit_line = __LINE__ + 1;
@@ -72,6 +74,7 @@ TEST_F(LogCallbackTest, ReceivesStructuredRecord)
 
   ASSERT_EQ(records.size(), 1u);
   EXPECT_EQ(records[0].level, tc::Logger::Level::kERROR);
+  EXPECT_FALSE(records[0].is_verbose);  // not a verbose record
   EXPECT_EQ(records[0].line, emit_line);
   // LogMessage reduces the path to its basename.
   EXPECT_NE(records[0].file.find("logging_test"), std::string::npos);
@@ -80,6 +83,30 @@ TEST_F(LogCallbackTest, ReceivesStructuredRecord)
 #ifndef _WIN32
   EXPECT_GT(records[0].timestamp_us, 0u);
 #endif
+}
+
+TEST_F(LogCallbackTest, ReportsVerboseFlag)
+{
+  // LOG_VERBOSE records are emitted at the INFO 'level' but marked verbose via
+  // SetVerbose (exactly what the LOG_VERBOSE macros do). The callback must
+  // observe the flag so the host can report VERBOSE distinctly from INFO.
+  std::vector<CapturedRecord> records;
+  tc::gLogger_.SetLogCallback([&records](
+                                  tc::Logger::Level level, bool is_verbose,
+                                  const char* file, int line, uint64_t ts,
+                                  const char* msg) {
+    records.push_back(
+        {level, is_verbose, file ? file : "", line, ts, msg ? msg : ""});
+  });
+
+  tc::LogMessage(__FILE__, __LINE__, tc::Logger::Level::kINFO)
+          .SetVerbose()
+          .stream()
+      << "verbose-callback-test";
+
+  ASSERT_EQ(records.size(), 1u);
+  EXPECT_EQ(records[0].level, tc::Logger::Level::kINFO);
+  EXPECT_TRUE(records[0].is_verbose);
 }
 
 TEST_F(LogCallbackTest, RegisteredCallbackBypassesDefaultSink)
@@ -91,10 +118,9 @@ TEST_F(LogCallbackTest, RegisteredCallbackBypassesDefaultSink)
   std::streambuf* prev = std::cout.rdbuf(captured.rdbuf());
 
   int count = 0;
-  tc::gLogger_.SetLogCallback(
-      [&count](tc::Logger::Level, const char*, int, uint64_t, const char*) {
-        ++count;
-      });
+  tc::gLogger_.SetLogCallback([&count](
+                                  tc::Logger::Level, bool, const char*, int,
+                                  uint64_t, const char*) { ++count; });
   tc::LogMessage(__FILE__, __LINE__, tc::Logger::Level::kINFO).stream()
       << "callback-only";
 
@@ -106,10 +132,9 @@ TEST_F(LogCallbackTest, RegisteredCallbackBypassesDefaultSink)
 TEST_F(LogCallbackTest, ClearRestoresDefaultSink)
 {
   int count = 0;
-  tc::gLogger_.SetLogCallback(
-      [&count](tc::Logger::Level, const char*, int, uint64_t, const char*) {
-        ++count;
-      });
+  tc::gLogger_.SetLogCallback([&count](
+                                  tc::Logger::Level, bool, const char*, int,
+                                  uint64_t, const char*) { ++count; });
   tc::gLogger_.SetLogCallback(tc::Logger::LogCallbackFn());  // clear
   EXPECT_FALSE(tc::gLogger_.HasLogCallback());
 
