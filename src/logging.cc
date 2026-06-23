@@ -142,6 +142,37 @@ LogMessage::LogPreamble(std::stringstream& stream)
 
 LogMessage::~LogMessage()
 {
+  // If a structured callback is registered, send the raw Triton log record to
+  // it and skip the default sink. This allows the host to route Triton logs
+  // through its own logging pipeline as a single, consistent stream.
+  // The callback receives the unformatted message and structured metadata, and
+  // is responsible for any formatting or escaping. Invoke it outside the logger
+  // output mutex so a slow callback does not block all logging. It must never
+  // throw.
+  if (gLogger_.HasLogCallback()) {
+    Logger::LogCallbackFn callback = gLogger_.GetLogCallback();
+
+    if (callback) {
+      uint64_t timestamp_us =
+          static_cast<uint64_t>(timestamp_.tv_sec) * 1000000ULL +
+          static_cast<uint64_t>(timestamp_.tv_usec);
+      const std::string message = message_.str();
+      const std::string raw_message =
+          (heading_ != nullptr) ? (std::string(heading_) + "\n" + message)
+                                : message;
+      try {
+        callback(
+            level_, is_verbose_, path_.c_str(), line_, timestamp_us,
+            raw_message.c_str());
+      }
+      catch (...) {
+        // Logging must not fail or terminate the server.
+      }
+      return;
+    }
+  }
+
+  // Default sink: format the log record and write it to the configured output.
   std::stringstream log_record;
   LogPreamble(log_record);
   std::string escaped_message =
