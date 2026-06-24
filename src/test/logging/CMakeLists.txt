@@ -1,4 +1,4 @@
-# Copyright 2023-2025, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# Copyright 2026, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
@@ -26,19 +26,31 @@
 
 cmake_minimum_required (VERSION 3.31.8)
 
-#
-# Unit tests
-#
-include(FetchContent)
+add_executable(triton-logging-test logging_test.cc ../../logging.cc ../../error.cc)
 
-FetchContent_Declare(
-  googletest
-  URL https://github.com/google/googletest/archive/9406a60c7839052e4944ea4dbc8344762a89f9bd.zip
+target_link_libraries(
+  triton-logging-test
+  GTest::gtest
+  GTest::gtest_main
 )
-FetchContent_MakeAvailable(googletest)
 
-if (TRITON_COMMON_ENABLE_JSON)
-    add_subdirectory(triton_json triton_json)
-    add_subdirectory(logging logging)
-endif()
+target_include_directories(
+  triton-logging-test
+  PUBLIC
+    $<INSTALL_INTERFACE:include>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../../include>
+    $<BUILD_INTERFACE:${RAPIDJSON_INCLUDE_DIRS}>
+  PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}
+)
 
+set_target_properties(
+  triton-logging-test
+  PROPERTIES
+    OUTPUT_NAME logging_test
+)
+
+install(
+    TARGETS triton-logging-test
+    RUNTIME DESTINATION bin
+  )
