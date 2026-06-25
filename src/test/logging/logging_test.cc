@@ -49,8 +49,8 @@ struct CapturedRecord {
 };
 
 // Returns a callback that appends each record it receives to `records`.
-tc::Logger::LogCallbackFn MakeCapturingCallback(
-    std::vector<CapturedRecord>& records)
+tc::Logger::LogCallbackFn
+MakeCapturingCallback(std::vector<CapturedRecord>& records)
 {
   return [&records](
              tc::Logger::Level level, bool is_verbose, const char* file,
@@ -63,7 +63,8 @@ tc::Logger::LogCallbackFn MakeCapturingCallback(
 // Runs `fn` with std::cout redirected to `buf`, restores cout even if `fn`
 // throws.
 template <typename Fn>
-void WithCapturedStdout(std::ostringstream& buf, Fn&& fn)
+void
+WithCapturedStdout(std::ostringstream& buf, Fn&& fn)
 {
   std::streambuf* prev = std::cout.rdbuf(buf.rdbuf());
   try {
@@ -111,8 +112,8 @@ TEST_F(LogCallbackTest, ReceivesCorrectRecordFields)
 
   // INFO with the verbose flag set is reported as verbose.
   tc::LogMessage(__FILE__, __LINE__, tc::Logger::Level::kINFO)
-      .SetVerbose()
-      .stream()
+          .SetVerbose()
+          .stream()
       << "verbose-callback-test";
 
   ASSERT_EQ(records.size(), 2u);
@@ -127,9 +128,9 @@ TEST_F(LogCallbackTest, CallbackAndDefaultSinkAreMutuallyExclusive)
 {
   // Registered: the record goes only to the callback, never to std::cout.
   int count = 0;
-  tc::gLogger_.SetLogCallback(
-      [&count](tc::Logger::Level, bool, const char*, int, uint64_t,
-               const char*) { ++count; });
+  tc::gLogger_.SetLogCallback([&count](
+                                  tc::Logger::Level, bool, const char*, int,
+                                  uint64_t, const char*) { ++count; });
 
   std::ostringstream captured;
   WithCapturedStdout(captured, [&] {
