@@ -149,9 +149,10 @@ class Logger {
   // The callback is invoked on the producing thread, outside the output mutex.
   // It must be lightweight, thread-safe, and must never throw.
   // Register before the server starts serving, registration is process-global.
-  using LogCallbackFn = std::function<void(
+  typedef std::function<void(
       Level level, bool is_verbose, const char* file, int line,
-      uint64_t timestamp_us, const char* message)>;
+      uint64_t timestamp_us, const char* message)>
+      LogCallbackFn;
 
   // Registers or clears (pass empty function) the log callback.
   // While set, all records are routed exclusively to the callback.
