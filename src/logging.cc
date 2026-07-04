@@ -38,6 +38,10 @@
 
 namespace triton { namespace common {
 
+namespace {
+constexpr uint64_t kMicrosecondsPerSecond = 1000000ULL;
+}  // namespace
+
 Logger gLogger_;
 
 Logger::Logger()
@@ -154,7 +158,7 @@ LogMessage::~LogMessage()
 
     if (callback) {
       uint64_t timestamp_us =
-          static_cast<uint64_t>(timestamp_.tv_sec) * 1000000ULL +
+          static_cast<uint64_t>(timestamp_.tv_sec) * kMicrosecondsPerSecond +
           static_cast<uint64_t>(timestamp_.tv_usec);
       const std::string message = message_.str();
       const std::string raw_message =
