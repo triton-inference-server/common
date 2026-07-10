@@ -26,7 +26,6 @@
 #pragma once
 
 #include <array>
-#include <atomic>
 #include <cerrno>
 #include <cstdint>
 #include <cstring>
@@ -154,26 +153,14 @@ class Logger {
       uint64_t timestamp_us, const char* message)>
       LogCallbackFn;
 
-  // Registers or clears (pass empty function) the log callback.
+  // Registers or clears (pass an empty function) the log callback.
   // While set, all records are routed exclusively to the callback.
   void SetLogCallback(LogCallbackFn callback)
   {
-    const std::lock_guard<std::mutex> lock(callback_mutex_);
     callback_ = std::move(callback);
-    has_callback_.store(
-        static_cast<bool>(callback_), std::memory_order_release);
   }
 
-  bool HasLogCallback() const
-  {
-    return has_callback_.load(std::memory_order_acquire);
-  }
-
-  LogCallbackFn GetLogCallback()
-  {
-    const std::lock_guard<std::mutex> lock(callback_mutex_);
-    return callback_;
-  }
+  const LogCallbackFn& LogCallback() const { return callback_; }
 
   // Log a message.
   void Log(const std::string& msg, const Logger::Level level);
@@ -191,9 +178,7 @@ class Logger {
   std::mutex mutex_;
   std::string filename_;
   std::ofstream file_stream_;
-  std::atomic<bool> has_callback_{false};
   LogCallbackFn callback_;
-  std::mutex callback_mutex_;
 };
 
 extern Logger gLogger_;

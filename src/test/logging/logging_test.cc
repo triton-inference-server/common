@@ -91,7 +91,7 @@ TEST_F(LogCallbackTest, ReceivesCorrectRecordFields)
 {
   std::vector<CapturedRecord> records;
   tc::gLogger_.SetLogCallback(MakeCapturingCallback(records));
-  EXPECT_TRUE(tc::gLogger_.HasLogCallback());
+  EXPECT_TRUE(tc::gLogger_.LogCallback() != nullptr);
 
   // ERROR, non-verbose: every structured field is forwarded correctly.
   const int emit_line = __LINE__ + 1;
@@ -143,7 +143,7 @@ TEST_F(LogCallbackTest, CallbackAndDefaultSinkAreMutuallyExclusive)
 
   // Cleared: records return to the default sink and the callback stops firing.
   tc::gLogger_.SetLogCallback(tc::Logger::LogCallbackFn());
-  EXPECT_FALSE(tc::gLogger_.HasLogCallback());
+  EXPECT_FALSE(tc::gLogger_.LogCallback() != nullptr);
 
   captured.str("");
   WithCapturedStdout(captured, [&] {
