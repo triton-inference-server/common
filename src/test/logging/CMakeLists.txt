@@ -26,22 +26,14 @@
 
 cmake_minimum_required (VERSION 3.31.8)
 
-add_executable(triton-logging-test logging_test.cc ../../logging.cc ../../error.cc)
+add_executable(triton-logging-test logging_test.cc)
 
 target_link_libraries(
   triton-logging-test
-  GTest::gtest
-  GTest::gtest_main
-)
-
-target_include_directories(
-  triton-logging-test
-  PUBLIC
-    $<INSTALL_INTERFACE:include>
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../../include>
-    $<BUILD_INTERFACE:${RAPIDJSON_INCLUDE_DIRS}>
   PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}
+    triton-common-logging
+    GTest::gtest
+    GTest::gtest_main
 )
 
 set_target_properties(
