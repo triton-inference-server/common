@@ -147,19 +147,21 @@ class Logger {
   //
   // The callback is invoked on the producing thread, outside the output mutex.
   // It must be lightweight, thread-safe, and must never throw.
-  // Register before the server starts serving, registration is process-global.
   typedef std::function<void(
       Level level, bool is_verbose, const char* file, int line,
       uint64_t timestamp_us, const char* message)>
       LogCallbackFn;
 
-  // Registers or clears (pass an empty function) the log callback.
-  // While set, all records are routed exclusively to the callback.
+  // Registers or clears (pass an empty function) the log callback. When set,
+  // all log records are routed exclusively to the callback instead of
+  // the default stdout/stderr/file sink.
+  //
+  // This is set exactly once by TRITONSERVER_ServerNew, before any worker
+  // or logging threads start, and is never modified afterward.
   void SetLogCallback(LogCallbackFn callback)
   {
     callback_ = std::move(callback);
   }
-
   const LogCallbackFn& LogCallback() const { return callback_; }
 
   // Log a message.
