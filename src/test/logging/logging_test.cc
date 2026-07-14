@@ -87,6 +87,8 @@ class LogCallbackTest : public ::testing::Test {
 };
 
 
+// Validate that a registered callback receives all structured log fields
+// (level, verbose flag, file, line, raw message) intact.
 TEST_F(LogCallbackTest, ReceivesCorrectRecordFields)
 {
   std::vector<CapturedRecord> records;
@@ -124,6 +126,9 @@ TEST_F(LogCallbackTest, ReceivesCorrectRecordFields)
   }
 }
 
+// Validate that when a callback is registered, log records are sent only
+// to the callback (not to the default stdout/stderr sink), once the callback is
+// cleared, records return to the default sink.
 TEST_F(LogCallbackTest, CallbackAndDefaultSinkAreMutuallyExclusive)
 {
   // Registered: the record goes only to the callback, never to std::cout.
@@ -155,6 +160,8 @@ TEST_F(LogCallbackTest, CallbackAndDefaultSinkAreMutuallyExclusive)
   EXPECT_NE(captured.str().find("after-clear"), std::string::npos);
 }
 
+// Validate that any exception thrown by the callback does not escape
+// LogMessage's destructor, ensuring logging can never crash the process.
 TEST_F(LogCallbackTest, ThrowingCallbackDoesNotEscapeDestructor)
 {
   // A callback that throws must never propagate out of LogMessage's destructor.
