@@ -67,6 +67,8 @@ if(${TRITON_COMMON_ENABLE_PROTOBUF})
     proto-library
     PRIVATE
       common-compile-settings
+    PUBLIC
+      protobuf::libprotobuf
   )
 
   set_target_properties(
@@ -139,6 +141,8 @@ if(${TRITON_COMMON_ENABLE_GRPC})
     grpc-service-library
     PRIVATE
       common-compile-settings
+    PUBLIC
+      protobuf::libprotobuf
   )
 
   set_target_properties(
