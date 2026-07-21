@@ -156,11 +156,10 @@ class Logger {
   // While set, log records are delivered only to the callback and the default
   // stdout/stderr/file sink is bypassed.
   //
-  // The read on the logging path is lock-free and this class enforces no
-  // set-once policy, so the callback must be installed before any worker or
-  // logging thread starts and must not change while logging can run
-  // concurrently. In the Triton server, TRITONSERVER_ServerNew owns this and
-  // installs the callback during server initialization.
+  // Access to the callback is not thread-safe and this class enforces no
+  // set-once policy, so it must be set before any thread that logs is started.
+  // In the Triton server, TRITONSERVER_ServerNew sets it during server
+  // initialization.
   void SetLogCallback(LogCallbackFn callback)
   {
     callback_ = std::move(callback);
