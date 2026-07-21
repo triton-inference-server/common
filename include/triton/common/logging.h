@@ -152,12 +152,15 @@ class Logger {
       uint64_t timestamp_us, const char* message)>
       LogCallbackFn;
 
-  // Registers or clears (pass an empty function) the log callback. When set,
-  // all log records are routed exclusively to the callback instead of
-  // the default stdout/stderr/file sink.
+  // Registers the log callback, or clears it when passed an empty function.
+  // While set, log records are delivered only to the callback and the default
+  // stdout/stderr/file sink is bypassed.
   //
-  // This is set exactly once by TRITONSERVER_ServerNew, before any worker
-  // or logging threads start, and is never modified afterward.
+  // The read on the logging path is lock-free and this class enforces no
+  // set-once policy, so the callback must be installed before any worker or
+  // logging thread starts and must not change while logging can run
+  // concurrently. In the Triton server, TRITONSERVER_ServerNew owns this and
+  // installs the callback during server initialization.
   void SetLogCallback(LogCallbackFn callback)
   {
     callback_ = std::move(callback);
