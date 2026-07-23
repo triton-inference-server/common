@@ -1,4 +1,4 @@
-# Copyright (c) 2021-2025, NVIDIA CORPORATION. All rights reserved.
+# Copyright (c) 2021-2026, NVIDIA CORPORATION. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
@@ -67,6 +67,8 @@ if(${TRITON_COMMON_ENABLE_PROTOBUF})
     proto-library
     PRIVATE
       common-compile-settings
+    PUBLIC
+      protobuf::libprotobuf
   )
 
   set_target_properties(
@@ -139,6 +141,8 @@ if(${TRITON_COMMON_ENABLE_GRPC})
     grpc-service-library
     PRIVATE
       common-compile-settings
+    PUBLIC
+      protobuf::libprotobuf
   )
 
   set_target_properties(
