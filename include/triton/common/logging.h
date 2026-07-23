@@ -1,4 +1,4 @@
-// Copyright 2018-2025, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// Copyright 2018-2026, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions
@@ -27,8 +27,10 @@
 
 #include <array>
 #include <cerrno>
+#include <cstdint>
 #include <cstring>
 #include <fstream>
+#include <functional>
 #include <mutex>
 #include <sstream>
 #include <string>
@@ -140,6 +142,30 @@ class Logger {
     return std::string();
   }
 
+  // Delivers each enabled log record as structured fields to an embedding host
+  // (e.g. Dynamo), bypassing Triton's default stderr/file sink entirely.
+  //
+  // The callback is invoked on the producing thread, outside the output mutex.
+  // It must be lightweight, thread-safe, and must never throw.
+  typedef std::function<void(
+      Level level, bool is_verbose, const char* file, int line,
+      uint64_t timestamp_us, const char* message)>
+      LogCallbackFn;
+
+  // Registers the log callback, or clears it when passed an empty function.
+  // While set, log records are delivered only to the callback and the default
+  // stdout/stderr/file sink is bypassed.
+  //
+  // Access to the callback is not thread-safe and this class enforces no
+  // set-once policy, so it must be set before any thread that logs is started.
+  // In the Triton server, TRITONSERVER_ServerNew sets it during server
+  // initialization.
+  void SetLogCallback(LogCallbackFn callback)
+  {
+    callback_ = std::move(callback);
+  }
+  const LogCallbackFn& LogCallback() const { return callback_; }
+
   // Log a message.
   void Log(const std::string& msg, const Logger::Level level);
 
@@ -156,6 +182,7 @@ class Logger {
   std::mutex mutex_;
   std::string filename_;
   std::ofstream file_stream_;
+  LogCallbackFn callback_;
 };
 
 extern Logger gLogger_;
@@ -178,6 +205,14 @@ class LogMessage {
   }
 
   ~LogMessage();
+
+  // Marks this record as verbose so a structured callback can distinguish
+  // LOG_VERBOSE from plain INFO. Has no effect on the default sink.
+  LogMessage& SetVerbose()
+  {
+    is_verbose_ = true;
+    return *this;
+  }
 
   std::stringstream& stream() { return message_; }
 
@@ -204,6 +239,7 @@ class LogMessage {
   std::stringstream message_;
   const char* heading_;
   bool escape_log_messages_;
+  bool is_verbose_ = false;
 };
 
 #define LOG_ENABLE_INFO(E) \
@@ -219,6 +255,7 @@ class LogMessage {
       static_cast<uint32_t>(std::max(0, (L))))
 #define LOG_SET_OUT_FILE(FN) triton::common::gLogger_.SetLogFile((FN))
 #define LOG_SET_FORMAT(F) triton::common::gLogger_.SetLogFormat((F))
+#define LOG_SET_CALLBACK(CB) triton::common::gLogger_.SetLogCallback((CB))
 
 #define LOG_VERBOSE_LEVEL triton::common::gLogger_.VerboseLevel()
 #define LOG_FORMAT triton::common::gLogger_.LogFormat()
@@ -265,6 +302,7 @@ class LogMessage {
   if (LOG_VERBOSE_IS_ON(L))                                  \
   triton::common::LogMessage(                                \
       (char*)(FN), LN, triton::common::Logger::Level::kINFO) \
+      .SetVerbose()                                          \
       .stream()
 
 // Macros that use current filename and line number.
@@ -286,6 +324,7 @@ class LogMessage {
       triton::common::LogMessage(                                            \
           __FILE__, __LINE__, triton::common::Logger::Level::kINFO, nullptr, \
           false)                                                             \
+              .SetVerbose()                                                  \
               .stream()                                                      \
           << TABLE.PrintTable();                                             \
   } while (false)
@@ -312,6 +351,7 @@ class LogMessage {
       triton::common::LogMessage(                                            \
           __FILE__, __LINE__, triton::common::Logger::Level::kINFO, HEADING, \
           false)                                                             \
+              .SetVerbose()                                                  \
               .stream()                                                      \
           << PB_MESSAGE.DebugString();                                       \
   } while (false)
