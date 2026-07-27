@@ -1,4 +1,4 @@
-# Copyright 2020-2025, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# Copyright 2020-2026, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
@@ -46,6 +46,14 @@ option(TRITON_COMMON_ENABLE_JSON "Build json-related libs" ON)
 
 if(TRITON_COMMON_ENABLE_JSON)
   find_package(RapidJSON CONFIG REQUIRED)
+  # RapidJSON's own config exports the all-caps RAPIDJSON_INCLUDE_DIRS, which is
+  # what the targets below consume. ConanCenter's packaging generates its config
+  # from the package name and exports RapidJSON_INCLUDE_DIRS instead, leaving the
+  # all-caps spelling empty -- the headers then silently drop off the include
+  # path. Normalize on the spelling this project already uses.
+  if(NOT RAPIDJSON_INCLUDE_DIRS)
+    set(RAPIDJSON_INCLUDE_DIRS ${RapidJSON_INCLUDE_DIRS})
+  endif()
   message(STATUS "RapidJSON found. Headers: ${RAPIDJSON_INCLUDE_DIRS}")
 endif()
 

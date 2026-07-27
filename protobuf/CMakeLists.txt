@@ -199,6 +199,12 @@ if(${TRITON_COMMON_ENABLE_GRPC})
     grpc-health-library
     PRIVATE
       common-compile-settings
+    PUBLIC
+      # health.grpc.pb.cc includes the generated health.pb.h, which in turn
+      # includes google/protobuf/. grpc-service-library has always named this;
+      # health omitted it and only got away with it because the third_party
+      # build left protobuf's headers on a shared include prefix.
+      protobuf::libprotobuf
   )
 
   set_target_properties(
