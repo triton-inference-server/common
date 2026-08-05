@@ -113,7 +113,7 @@ if(${TRITON_COMMON_ENABLE_GRPC})
   )
 
   if(TRITON_COMMON_ENABLE_PROTOBUF_PYTHON)
-    find_package(Python REQUIRED COMPONENTS Interpreter)
+    find_package(Python3 REQUIRED COMPONENTS Interpreter)
     add_custom_command(
       OUTPUT "${GRPC_PY}"
       COMMAND ${Python_EXECUTABLE}
