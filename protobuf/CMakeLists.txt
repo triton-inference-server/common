@@ -116,7 +116,7 @@ if(${TRITON_COMMON_ENABLE_GRPC})
     find_package(Python3 REQUIRED COMPONENTS Interpreter)
     add_custom_command(
       OUTPUT "${GRPC_PY}"
-      COMMAND ${Python_EXECUTABLE}
+      COMMAND ${Python3_EXECUTABLE}
       ARGS
         -m grpc_tools.protoc
         -I "${grpc_service_proto_dir}"
