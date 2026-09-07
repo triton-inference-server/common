@@ -31,12 +31,15 @@ target_link_libraries(
 	GTest::gtest
   GTest::gtest_main)
 
+message(STATUS "CMAKE_TOOLCHAIN_FILE: ${CMAKE_TOOLCHAIN_FILE}")
+find_package(RapidJSON CONFIG REQUIRED)
+message(STATUS "RapidJSON found. Headers: ${rapidjson_INCLUDE_DIRS}")
 target_include_directories(
   triton-json-test
   PUBLIC
     $<INSTALL_INTERFACE:include>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../../include>
-    $<BUILD_INTERFACE:${RAPIDJSON_INCLUDE_DIRS}>
+    $<BUILD_INTERFACE:${RapidJSON_INCLUDE_DIRS}>
   PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}
 )
