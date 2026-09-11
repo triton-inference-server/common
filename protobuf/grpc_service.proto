@@ -429,6 +429,13 @@ message ModelMetadataResponse
   //@@     The model's outputs.
   //@@
   repeated TensorMetadata outputs = 5;
+
+  //@@
+  //@@  .. cpp:var:: string card
+  //@@
+  //@@     The model card.
+  //@@
+  string card = 6;
 }
 
 //@@
