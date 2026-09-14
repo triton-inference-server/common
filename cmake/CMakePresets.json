@@ -1,0 +1,53 @@
+{
+  "version": 6,
+  "cmakeMinimumRequired": { "major": 3, "minor": 31, "patch": 8 },
+  "$comment": "Standalone build presets for triton-common. For integrated server builds use server/cmake/CMakePresets.json — it includes common via add_subdirectory and its variables take precedence.",
+  "configurePresets": [
+    {
+      "name": "conan-base",
+      "hidden": true,
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/${presetName}",
+      "toolchainFile": "${sourceDir}/build/${presetName}/conan/conan_toolchain.cmake",
+      "cacheVariables": { "CMAKE_EXPORT_COMPILE_COMMANDS": "ON" }
+    },
+    {
+      "name": "release",
+      "inherits": "conan-base",
+      "displayName": "Release (gRPC + Metrics)",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE":             "Release",
+        "TRITON_COMMON_ENABLE_GRPC":    "ON",
+        "TRITON_COMMON_ENABLE_PROTOBUF": "ON",
+        "TRITON_COMMON_ENABLE_JSON":    "ON"
+      }
+    },
+    {
+      "name": "debug",
+      "inherits": "conan-base",
+      "displayName": "Debug (gRPC + Metrics)",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE":             "Debug",
+        "TRITON_COMMON_ENABLE_GRPC":    "ON",
+        "TRITON_COMMON_ENABLE_PROTOBUF": "ON",
+        "TRITON_COMMON_ENABLE_JSON":    "ON"
+      }
+    },
+    {
+      "name": "json-only",
+      "inherits": "conan-base",
+      "displayName": "Release JSON-only (no gRPC)",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE":             "Release",
+        "TRITON_COMMON_ENABLE_GRPC":    "OFF",
+        "TRITON_COMMON_ENABLE_PROTOBUF": "OFF",
+        "TRITON_COMMON_ENABLE_JSON":    "ON"
+      }
+    }
+  ],
+  "buildPresets": [
+    { "name": "release",   "configurePreset": "release" },
+    { "name": "debug",     "configurePreset": "debug" },
+    { "name": "json-only", "configurePreset": "json-only" }
+  ]
+}
