@@ -29,13 +29,33 @@ cmake_minimum_required (VERSION 3.31.8)
 #
 # Unit tests
 #
-include(FetchContent)
+# GoogleTest may already have been supplied by whoever is building us -- the
+# server resolves it through Conan and publishes GTest_DIR before descending
+# here. Fetching a second copy in that case puts two googletests in one build,
+# at different versions: the pinned archive below reports GOOGLETEST_VERSION
+# 1.11.0, while the server pins 1.14.0.
+#
+# The tests link the namespaced GTest::gtest / GTest::gtest_main targets, which
+# both the Conan package and a fetched googletest provide, so either source
+# satisfies them.
+if(NOT TARGET GTest::gtest_main)
+  find_package(GTest CONFIG QUIET)
+endif()
 
-FetchContent_Declare(
-  googletest
-  URL https://github.com/google/googletest/archive/9406a60c7839052e4944ea4dbc8344762a89f9bd.zip
-)
-FetchContent_MakeAvailable(googletest)
+if(NOT TARGET GTest::gtest_main)
+  # Nothing supplied it -- fall back to fetching, which keeps a standalone
+  # `common` build working on its own.
+  include(FetchContent)
+
+  FetchContent_Declare(
+    googletest
+    URL https://github.com/google/googletest/archive/9406a60c7839052e4944ea4dbc8344762a89f9bd.zip
+  )
+  FetchContent_MakeAvailable(googletest)
+  message(STATUS "GoogleTest: fetched (no copy was provided)")
+else()
+  message(STATUS "GoogleTest: using the copy already provided")
+endif()
 
 if (TRITON_COMMON_ENABLE_JSON)
     add_subdirectory(triton_json triton_json)
