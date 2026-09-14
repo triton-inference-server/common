@@ -211,6 +211,7 @@ if(${TRITON_COMMON_ENABLE_GRPC})
     TARGETS
       grpc-health-library
       grpc-service-library
+      grpccallback-service-library
 #      grpc-service-py-library
     EXPORT
       triton-common-targets
