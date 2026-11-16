@@ -67,6 +67,80 @@
 
 namespace triton { namespace common {
 
+template <typename StatusType>
+class TritonJsonImpl;
+
+//
+// RapidJSON base allocator of TritonJson documents. It provides the memory
+// pool chunks of a document and the stacks used while parsing. It is
+// rapidjson::CrtAllocator, except that while a TritonJson
+// Value::ParseWithMemoryLimit() runs on a thread, the bytes allocated on
+// that thread are counted and the parse is stopped before the count goes
+// over the limit. A parse frees nothing before it ends, so the count is the
+// most memory the parse holds at any one time.
+//
+class TritonJsonAllocator : public rapidjson::CrtAllocator {
+ public:
+  void* Malloc(const size_t size)
+  {
+    Count(size);
+    return CrtAllocator::Malloc(size);
+  }
+
+  void* Realloc(
+      void* original_ptr, const size_t original_size, const size_t new_size)
+  {
+    if (new_size > original_size) {
+      Count(new_size - original_size);
+    }
+    return CrtAllocator::Realloc(original_ptr, original_size, new_size);
+  }
+
+ private:
+  template <typename StatusType>
+  friend class TritonJsonImpl;
+
+  // Thrown to stop a parse that would go over its memory limit.
+  struct LimitExceeded {};
+
+  // Counts the memory allocated on this thread against 'max_bytes' for as
+  // long as it exists.
+  class LimitScope {
+   public:
+    explicit LimitScope(const size_t max_bytes)
+        : remaining_bytes_(max_bytes), previous_(RemainingBytes())
+    {
+      RemainingBytes() = &remaining_bytes_;
+    }
+    ~LimitScope() { RemainingBytes() = previous_; }
+    LimitScope(const LimitScope&) = delete;
+    LimitScope& operator=(const LimitScope&) = delete;
+
+   private:
+    size_t remaining_bytes_;
+    size_t* const previous_;
+  };
+
+  static void Count(const size_t size)
+  {
+    size_t* remaining_bytes = RemainingBytes();
+    if (RAPIDJSON_UNLIKELY(remaining_bytes != nullptr)) {
+      if (size > *remaining_bytes) {
+        throw LimitExceeded();
+      }
+      *remaining_bytes -= size;
+    }
+  }
+
+  // Bytes left under the limit of the parse running on this thread, or
+  // nullptr if no parse with a limit is running on it.
+  static size_t*& RemainingBytes()
+  {
+    static thread_local size_t* remaining_bytes = nullptr;
+    return remaining_bytes;
+  }
+};
+
 //
 // A JSON parser/writer. Currently based on rapidjson but the intent
 // is to provide an abstraction for JSON functions that make it easy
@@ -129,6 +203,16 @@ class TritonJsonImpl {
     return writebuffer.Contents();
   }
 
+ private:
+  // RapidJSON types of TritonJson documents. Their memory comes from
+  // TritonJsonAllocator, so that Value::ParseWithMemoryLimit() can limit it.
+  using RapidJsonAllocator =
+      rapidjson::MemoryPoolAllocator<TritonJsonAllocator>;
+  using RapidJsonDocument = rapidjson::GenericDocument<
+      rapidjson::UTF8<>, RapidJsonAllocator, TritonJsonAllocator>;
+  using RapidJsonValue = RapidJsonDocument::ValueType;
+
+ public:
   //
   // Value representing the entire document or an element within a
   // document.
@@ -151,8 +235,8 @@ class TritonJsonImpl {
     explicit Value(TritonJsonImpl::Value& document, const ValueType type)
     {
       allocator_ = &document.document_.GetAllocator();
-      value_ = new (allocator_->Malloc(sizeof(rapidjson::Value)))
-          rapidjson::Value(static_cast<rapidjson::Type>(type));
+      value_ = new (allocator_->Malloc(sizeof(RapidJsonValue)))
+          RapidJsonValue(static_cast<rapidjson::Type>(type));
     }
 
     // Move constructor.
@@ -196,6 +280,68 @@ class TritonJsonImpl {
     StatusType Parse(const std::string& json)
     {
       return Parse(json.data(), json.size());
+    }
+
+    // Parse JSON into document like Parse(base, size), but stop the parse
+    // if it would use more than 'max_memory_bytes' bytes of memory. All the
+    // memory the parse allocates is counted: the document, and the stacks
+    // that hold the elements of an array or object until it ends and a
+    // string until it is complete. So a parse needs more memory than the
+    // parsed document keeps, and a document with a non-empty array or
+    // object needs at least one 64 KiB memory pool chunk. Memory the
+    // document already holds and changes made to it after the parse are not
+    // counted.
+    //
+    // If the parse is stopped, an error is returned and the document is
+    // left empty, so values taken from it before must not be used.
+    // 'limit_exceeded' may be nullptr. Otherwise it is set to true if the
+    // parse is stopped and to false in every other case, including the
+    // errors that Parse(base, size) returns.
+    StatusType ParseWithMemoryLimit(
+        const char* base, const size_t size, const size_t max_memory_bytes,
+        bool* limit_exceeded)
+    {
+      if (limit_exceeded != nullptr) {
+        *limit_exceeded = false;
+      }
+      if (value_ != nullptr) {
+        TRITONJSON_STATUSRETURN(
+            std::string("JSON parsing only available for top-level document"));
+      }
+      // Use iterative parsing so deeply nested JSON does not consume call
+      // stack.
+      const unsigned int parseFlags =
+          rapidjson::kParseNanAndInfFlag | rapidjson::kParseIterativeFlag;
+      bool stopped = false;
+      try {
+        // Only the parse itself runs under the limit.
+        TritonJsonAllocator::LimitScope limit(max_memory_bytes);
+        document_.Parse<parseFlags>(base, size);
+      }
+      catch (const TritonJsonAllocator::LimitExceeded&) {
+        stopped = true;
+      }
+      if (stopped) {
+        // Free the partly parsed document.
+        document_.SetNull();
+        document_.GetAllocator().Clear();
+        if (limit_exceeded != nullptr) {
+          *limit_exceeded = true;
+        }
+        TRITONJSON_STATUSRETURN(
+            std::string(
+                "failed to parse the request JSON buffer: it needs more "
+                "than ") +
+            std::to_string(max_memory_bytes) + " bytes of memory");
+      }
+      if (document_.HasParseError()) {
+        TRITONJSON_STATUSRETURN(std::string(
+            "failed to parse the request JSON buffer: " +
+            std::string(GetParseError_En(document_.GetParseError())) + " at " +
+            std::to_string(document_.GetErrorOffset())));
+      }
+      allocator_ = &document_.GetAllocator();
+      return TRITONJSON_STATUSSUCCESS;
     }
 
     // Write JSON representation into a 'buffer' in a compact
@@ -247,7 +393,7 @@ class TritonJsonImpl {
     // Swap a value with another.
     StatusType Swap(TritonJsonImpl::Value& other)
     {
-      rapidjson::Value& value = AsMutableValue();
+      RapidJsonValue& value = AsMutableValue();
       value.Swap(other.AsMutableValue());
       return TRITONJSON_STATUSSUCCESS;
     }
@@ -256,7 +402,7 @@ class TritonJsonImpl {
     // type of the value to boolean.
     StatusType SetBool(const bool value)
     {
-      rapidjson::Value& v = AsMutableValue();
+      RapidJsonValue& v = AsMutableValue();
       v.SetBool(value);
       return TRITONJSON_STATUSSUCCESS;
     }
@@ -265,7 +411,7 @@ class TritonJsonImpl {
     // type of the value to signed int.
     StatusType SetInt(const int64_t value)
     {
-      rapidjson::Value& v = AsMutableValue();
+      RapidJsonValue& v = AsMutableValue();
       v.SetInt64(value);
       return TRITONJSON_STATUSSUCCESS;
     }
@@ -274,7 +420,7 @@ class TritonJsonImpl {
     // type of the value to unsigned int.
     StatusType SetUInt(const uint64_t value)
     {
-      rapidjson::Value& v = AsMutableValue();
+      RapidJsonValue& v = AsMutableValue();
       v.SetUint64(value);
       return TRITONJSON_STATUSSUCCESS;
     }
@@ -283,7 +429,7 @@ class TritonJsonImpl {
     // type of the value to double.
     StatusType SetDouble(const double value)
     {
-      rapidjson::Value& v = AsMutableValue();
+      RapidJsonValue& v = AsMutableValue();
       v.SetDouble(value);
       return TRITONJSON_STATUSSUCCESS;
     }
@@ -292,7 +438,7 @@ class TritonJsonImpl {
     // type of the value to string
     StatusType SetString(const std::string& value)
     {
-      rapidjson::Value& v = AsMutableValue();
+      RapidJsonValue& v = AsMutableValue();
       v.SetString(value.c_str(), value.length(), *allocator_);
       return TRITONJSON_STATUSSUCCESS;
     }
@@ -300,7 +446,7 @@ class TritonJsonImpl {
     // Set/overwrite a string member with provided name and value in this object
     StatusType SetStringObject(const char* name, const std::string& value)
     {
-      rapidjson::Value& object = AsMutableValue();
+      RapidJsonValue& object = AsMutableValue();
       if (!object.IsObject()) {
         TRITONJSON_STATUSRETURN(
             std::string("attempt to add/replace JSON member '") + name +
@@ -312,8 +458,8 @@ class TritonJsonImpl {
       } else {
         object.RemoveMember(itr);
         object.AddMember(
-            rapidjson::Value(rapidjson::StringRef(name)).Move(),
-            rapidjson::Value(value.c_str(), value.size(), *allocator_),
+            RapidJsonValue(rapidjson::StringRef(name)).Move(),
+            RapidJsonValue(value.c_str(), value.size(), *allocator_),
             *allocator_);
       }
 
@@ -327,21 +473,21 @@ class TritonJsonImpl {
     // extends at least as long as the object.
     StatusType Add(const char* name, TritonJsonImpl::Value&& value)
     {
-      rapidjson::Value& object = AsMutableValue();
+      RapidJsonValue& object = AsMutableValue();
       if (!object.IsObject()) {
         TRITONJSON_STATUSRETURN(
             std::string("attempt to add JSON member '") + name +
             "' to non-object");
       }
       if (value.value_ == nullptr) {
-        rapidjson::Value v2;
+        RapidJsonValue v2;
         v2.CopyFrom(value.document_, *allocator_);
         object.AddMember(
-            rapidjson::Value(rapidjson::StringRef(name)).Move(), v2.Move(),
+            RapidJsonValue(rapidjson::StringRef(name)).Move(), v2.Move(),
             *allocator_);
       } else {
         object.AddMember(
-            rapidjson::Value(rapidjson::StringRef(name)).Move(),
+            RapidJsonValue(rapidjson::StringRef(name)).Move(),
             value.value_->Move(), *allocator_);
       }
       value.Release();
@@ -354,15 +500,15 @@ class TritonJsonImpl {
     // extends at least as long as the object.
     StatusType AddString(const char* name, const std::string& value)
     {
-      rapidjson::Value& object = AsMutableValue();
+      RapidJsonValue& object = AsMutableValue();
       if (!object.IsObject()) {
         TRITONJSON_STATUSRETURN(
             std::string("attempt to add JSON member '") + name +
             "' to non-object");
       }
       object.AddMember(
-          rapidjson::Value(rapidjson::StringRef(name)).Move(),
-          rapidjson::Value(value.c_str(), value.size(), *allocator_).Move(),
+          RapidJsonValue(rapidjson::StringRef(name)).Move(),
+          RapidJsonValue(value.c_str(), value.size(), *allocator_).Move(),
           *allocator_);
       return TRITONJSON_STATUSSUCCESS;
     }
@@ -373,15 +519,15 @@ class TritonJsonImpl {
     // 'name' extends at least as long as the object.
     StatusType AddString(const char* name, const char* value, const size_t len)
     {
-      rapidjson::Value& object = AsMutableValue();
+      RapidJsonValue& object = AsMutableValue();
       if (!object.IsObject()) {
         TRITONJSON_STATUSRETURN(
             std::string("attempt to add JSON member '") + name +
             "' to non-object");
       }
       object.AddMember(
-          rapidjson::Value(rapidjson::StringRef(name)).Move(),
-          rapidjson::Value(value, len, *allocator_).Move(), *allocator_);
+          RapidJsonValue(rapidjson::StringRef(name)).Move(),
+          RapidJsonValue(value, len, *allocator_).Move(), *allocator_);
       return TRITONJSON_STATUSSUCCESS;
     }
 
@@ -391,14 +537,14 @@ class TritonJsonImpl {
     // 'name' and 'value' extend at least as long as the object.
     StatusType AddStringRef(const char* name, const char* value)
     {
-      rapidjson::Value& object = AsMutableValue();
+      RapidJsonValue& object = AsMutableValue();
       if (!object.IsObject()) {
         TRITONJSON_STATUSRETURN(
             std::string("attempt to add JSON member '") + name +
             "' to non-object");
       }
       object.AddMember(
-          rapidjson::Value(rapidjson::StringRef(name)).Move(),
+          RapidJsonValue(rapidjson::StringRef(name)).Move(),
           rapidjson::StringRef(value), *allocator_);
       return TRITONJSON_STATUSSUCCESS;
     }
@@ -411,14 +557,14 @@ class TritonJsonImpl {
     StatusType AddStringRef(
         const char* name, const char* value, const size_t len)
     {
-      rapidjson::Value& object = AsMutableValue();
+      RapidJsonValue& object = AsMutableValue();
       if (!object.IsObject()) {
         TRITONJSON_STATUSRETURN(
             std::string("attempt to add JSON member '") + name +
             "' to non-object");
       }
       object.AddMember(
-          rapidjson::Value(rapidjson::StringRef(name)).Move(),
+          RapidJsonValue(rapidjson::StringRef(name)).Move(),
           rapidjson::StringRef(value, len), *allocator_);
       return TRITONJSON_STATUSSUCCESS;
     }
@@ -429,15 +575,15 @@ class TritonJsonImpl {
     // least as long as the object.
     StatusType AddBool(const char* name, const bool value)
     {
-      rapidjson::Value& object = AsMutableValue();
+      RapidJsonValue& object = AsMutableValue();
       if (!object.IsObject()) {
         TRITONJSON_STATUSRETURN(
             std::string("attempt to add JSON member '") + name +
             "' to non-object");
       }
       object.AddMember(
-          rapidjson::Value(rapidjson::StringRef(name)).Move(),
-          rapidjson::Value(value).Move(), *allocator_);
+          RapidJsonValue(rapidjson::StringRef(name)).Move(),
+          RapidJsonValue(value).Move(), *allocator_);
       return TRITONJSON_STATUSSUCCESS;
     }
 
@@ -447,15 +593,15 @@ class TritonJsonImpl {
     // extends at least as long as the object.
     StatusType AddInt(const char* name, const int64_t value)
     {
-      rapidjson::Value& object = AsMutableValue();
+      RapidJsonValue& object = AsMutableValue();
       if (!object.IsObject()) {
         TRITONJSON_STATUSRETURN(
             std::string("attempt to add JSON member '") + name +
             "' to non-object");
       }
       object.AddMember(
-          rapidjson::Value(rapidjson::StringRef(name)).Move(),
-          rapidjson::Value(value).Move(), *allocator_);
+          RapidJsonValue(rapidjson::StringRef(name)).Move(),
+          RapidJsonValue(value).Move(), *allocator_);
       return TRITONJSON_STATUSSUCCESS;
     }
 
@@ -465,15 +611,15 @@ class TritonJsonImpl {
     // extends at least as long as the object.
     StatusType AddUInt(const char* name, const uint64_t value)
     {
-      rapidjson::Value& object = AsMutableValue();
+      RapidJsonValue& object = AsMutableValue();
       if (!object.IsObject()) {
         TRITONJSON_STATUSRETURN(
             std::string("attempt to add JSON member '") + name +
             "' to non-object");
       }
       object.AddMember(
-          rapidjson::Value(rapidjson::StringRef(name)).Move(),
-          rapidjson::Value(value).Move(), *allocator_);
+          RapidJsonValue(rapidjson::StringRef(name)).Move(),
+          RapidJsonValue(value).Move(), *allocator_);
       return TRITONJSON_STATUSSUCCESS;
     }
 
@@ -483,15 +629,15 @@ class TritonJsonImpl {
     // least as long as the object.
     StatusType AddDouble(const char* name, const double value)
     {
-      rapidjson::Value& object = AsMutableValue();
+      RapidJsonValue& object = AsMutableValue();
       if (!object.IsObject()) {
         TRITONJSON_STATUSRETURN(
             std::string("attempt to add JSON member '") + name +
             "' to non-object");
       }
       object.AddMember(
-          rapidjson::Value(rapidjson::StringRef(name)).Move(),
-          rapidjson::Value(value).Move(), *allocator_);
+          RapidJsonValue(rapidjson::StringRef(name)).Move(),
+          RapidJsonValue(value).Move(), *allocator_);
       return TRITONJSON_STATUSSUCCESS;
     }
 
@@ -500,13 +646,13 @@ class TritonJsonImpl {
     // 'value' should not be used.
     StatusType Append(TritonJsonImpl::Value&& value)
     {
-      rapidjson::Value& array = AsMutableValue();
+      RapidJsonValue& array = AsMutableValue();
       if (!array.IsArray()) {
         TRITONJSON_STATUSRETURN(
             std::string("attempt to append JSON member to non-array"));
       }
       if (value.value_ == nullptr) {
-        rapidjson::Value v2;
+        RapidJsonValue v2;
         v2.CopyFrom(value.document_, *allocator_);
         array.PushBack(v2.Move(), *allocator_);
       } else {
@@ -521,13 +667,13 @@ class TritonJsonImpl {
     // array.
     StatusType AppendString(const std::string& value)
     {
-      rapidjson::Value& array = AsMutableValue();
+      RapidJsonValue& array = AsMutableValue();
       if (!array.IsArray()) {
         TRITONJSON_STATUSRETURN(
             std::string("attempt to append JSON member to non-array"));
       }
       array.PushBack(
-          rapidjson::Value(value.c_str(), value.size(), *allocator_).Move(),
+          RapidJsonValue(value.c_str(), value.size(), *allocator_).Move(),
           *allocator_);
       return TRITONJSON_STATUSSUCCESS;
     }
@@ -536,13 +682,13 @@ class TritonJsonImpl {
     // must be an array.
     StatusType AppendString(const char* value, const size_t len)
     {
-      rapidjson::Value& array = AsMutableValue();
+      RapidJsonValue& array = AsMutableValue();
       if (!array.IsArray()) {
         TRITONJSON_STATUSRETURN(
             std::string("attempt to append JSON member to non-array"));
       }
       array.PushBack(
-          rapidjson::Value(value, len, *allocator_).Move(), *allocator_);
+          RapidJsonValue(value, len, *allocator_).Move(), *allocator_);
       return TRITONJSON_STATUSSUCCESS;
     }
 
@@ -552,7 +698,7 @@ class TritonJsonImpl {
     // 'value' extends at least as long as the object.
     StatusType AppendStringRef(const char* value)
     {
-      rapidjson::Value& array = AsMutableValue();
+      RapidJsonValue& array = AsMutableValue();
       if (!array.IsArray()) {
         TRITONJSON_STATUSRETURN(
             std::string("attempt to append JSON member to non-array"));
@@ -567,7 +713,7 @@ class TritonJsonImpl {
     // the lifetime of 'value' extends at least as long as the object.
     StatusType AppendStringRef(const char* value, const size_t len)
     {
-      rapidjson::Value& array = AsMutableValue();
+      RapidJsonValue& array = AsMutableValue();
       if (!array.IsArray()) {
         TRITONJSON_STATUSRETURN(
             std::string("attempt to append JSON member to non-array"));
@@ -579,26 +725,26 @@ class TritonJsonImpl {
     // Append a boolean to this value, which must be an array.
     StatusType AppendBool(const bool value)
     {
-      rapidjson::Value& array = AsMutableValue();
+      RapidJsonValue& array = AsMutableValue();
       if (!array.IsArray()) {
         TRITONJSON_STATUSRETURN(
             std::string("attempt to append JSON member to non-array"));
       }
 
-      array.PushBack(rapidjson::Value(value).Move(), *allocator_);
+      array.PushBack(RapidJsonValue(value).Move(), *allocator_);
       return TRITONJSON_STATUSSUCCESS;
     }
 
     // Append a signed integer to this value, which must be an array.
     StatusType AppendInt(const int64_t value)
     {
-      rapidjson::Value& array = AsMutableValue();
+      RapidJsonValue& array = AsMutableValue();
       if (!array.IsArray()) {
         TRITONJSON_STATUSRETURN(
             std::string("attempt to append JSON member to non-array"));
       }
 
-      array.PushBack(rapidjson::Value(value).Move(), *allocator_);
+      array.PushBack(RapidJsonValue(value).Move(), *allocator_);
       return TRITONJSON_STATUSSUCCESS;
     }
 
@@ -606,33 +752,33 @@ class TritonJsonImpl {
     // array.
     StatusType AppendUInt(const uint64_t value)
     {
-      rapidjson::Value& array = AsMutableValue();
+      RapidJsonValue& array = AsMutableValue();
       if (!array.IsArray()) {
         TRITONJSON_STATUSRETURN(
             std::string("attempt to append JSON member to non-array"));
       }
 
-      array.PushBack(rapidjson::Value(value).Move(), *allocator_);
+      array.PushBack(RapidJsonValue(value).Move(), *allocator_);
       return TRITONJSON_STATUSSUCCESS;
     }
 
     // Append a double to this value, which must be an array.
     StatusType AppendDouble(const double value)
     {
-      rapidjson::Value& array = AsMutableValue();
+      RapidJsonValue& array = AsMutableValue();
       if (!array.IsArray()) {
         TRITONJSON_STATUSRETURN(
             std::string("attempt to append JSON member to non-array"));
       }
 
-      array.PushBack(rapidjson::Value(value).Move(), *allocator_);
+      array.PushBack(RapidJsonValue(value).Move(), *allocator_);
       return TRITONJSON_STATUSSUCCESS;
     }
 
     // Remove member from this object
     StatusType Remove(const char* name)
     {
-      rapidjson::Value& object = AsMutableValue();
+      RapidJsonValue& object = AsMutableValue();
       if (!object.IsObject()) {
         TRITONJSON_STATUSRETURN(
             std::string("attempt to remove JSON member '") + name +
@@ -659,7 +805,7 @@ class TritonJsonImpl {
     // Get the size of an array. If called on non-array returns zero.
     size_t ArraySize() const
     {
-      const rapidjson::Value& array = AsValue();
+      const RapidJsonValue& array = AsValue();
       if (!array.IsArray()) {
         return 0;
       }
@@ -669,7 +815,7 @@ class TritonJsonImpl {
     // Return the specified index contained in this array.
     StatusType At(const size_t idx, TritonJsonImpl::Value* value = nullptr)
     {
-      rapidjson::Value& array = AsMutableValue();
+      RapidJsonValue& array = AsMutableValue();
       if (!array.IsArray() || (idx >= array.GetArray().Size())) {
         TRITONJSON_STATUSRETURN(
             std::string("attempt to access non-existing array index '") +
@@ -683,7 +829,7 @@ class TritonJsonImpl {
     // not an object.
     StatusType Members(std::vector<std::string>* names) const
     {
-      const rapidjson::Value& object = AsValue();
+      const RapidJsonValue& object = AsValue();
       if (!object.IsObject()) {
         TRITONJSON_STATUSRETURN(
             std::string("attempt to get members for non-object"));
@@ -698,7 +844,7 @@ class TritonJsonImpl {
     // contained in this object.
     bool Find(const char* name) const
     {
-      const rapidjson::Value& object = AsValue();
+      const RapidJsonValue& object = AsValue();
       return object.IsObject() && object.HasMember(name);
     }
 
@@ -706,7 +852,7 @@ class TritonJsonImpl {
     // contained in this object. Return the member in 'value'.
     bool Find(const char* name, TritonJsonImpl::Value* value)
     {
-      rapidjson::Value& object = AsMutableValue();
+      RapidJsonValue& object = AsMutableValue();
       if (object.IsObject() && object.HasMember(name)) {
         if (value != nullptr) {
           *value = TritonJsonImpl::Value(object[name], allocator_);
@@ -725,7 +871,7 @@ class TritonJsonImpl {
     // false otherwise.
     bool IsEmpty() const
     {
-      const rapidjson::Value& object = AsValue();
+      const RapidJsonValue& object = AsValue();
       if (object.IsObject() && object.MemberCount() == 0) {
         return true;
       }
@@ -807,7 +953,7 @@ class TritonJsonImpl {
     // Get named array member contained in this object.
     StatusType MemberAsArray(const char* name, TritonJsonImpl::Value* value)
     {
-      rapidjson::Value& object = AsMutableValue();
+      RapidJsonValue& object = AsMutableValue();
       if (!object.IsObject() || !object.HasMember(name)) {
         TRITONJSON_STATUSRETURN(
             std::string("attempt to access non-existing object member '") +
@@ -825,7 +971,7 @@ class TritonJsonImpl {
     // Get named object member contained in this object.
     StatusType MemberAsObject(const char* name, TritonJsonImpl::Value* value)
     {
-      rapidjson::Value& object = AsMutableValue();
+      RapidJsonValue& object = AsMutableValue();
       if (!object.IsObject() || !object.HasMember(name)) {
         TRITONJSON_STATUSRETURN(
             std::string("attempt to access non-existing object member '") +
@@ -846,7 +992,7 @@ class TritonJsonImpl {
     StatusType MemberAsString(
         const char* name, const char** value, size_t* len) const
     {
-      const rapidjson::Value& object = AsValue();
+      const RapidJsonValue& object = AsValue();
       if (!object.IsObject() || !object.HasMember(name)) {
         TRITONJSON_STATUSRETURN(
             std::string("attempt to access non-existing object member '") +
@@ -867,7 +1013,7 @@ class TritonJsonImpl {
     // the member is not a string.
     StatusType MemberAsString(const char* name, std::string* str) const
     {
-      const rapidjson::Value& object = AsValue();
+      const RapidJsonValue& object = AsValue();
       if (!object.IsObject() || !object.HasMember(name)) {
         TRITONJSON_STATUSRETURN(
             std::string("attempt to access non-existing object member '") +
@@ -886,7 +1032,7 @@ class TritonJsonImpl {
     // or if the member is not a boolean.
     StatusType MemberAsBool(const char* name, bool* value) const
     {
-      const rapidjson::Value& object = AsValue();
+      const RapidJsonValue& object = AsValue();
       if (!object.IsObject() || !object.HasMember(name)) {
         TRITONJSON_STATUSRETURN(
             std::string("attempt to access non-existing object member '") +
@@ -905,7 +1051,7 @@ class TritonJsonImpl {
     // or if the member is not a signed integer.
     StatusType MemberAsInt(const char* name, int64_t* value) const
     {
-      const rapidjson::Value& object = AsValue();
+      const RapidJsonValue& object = AsValue();
       if (!object.IsObject() || !object.HasMember(name)) {
         TRITONJSON_STATUSRETURN(
             std::string("attempt to access non-existing object member '") +
@@ -924,7 +1070,7 @@ class TritonJsonImpl {
     // or if the member is not an unsigned integer.
     StatusType MemberAsUInt(const char* name, uint64_t* value) const
     {
-      const rapidjson::Value& object = AsValue();
+      const RapidJsonValue& object = AsValue();
       if (!object.IsObject() || !object.HasMember(name)) {
         TRITONJSON_STATUSRETURN(
             std::string("attempt to access non-existing object member '") +
@@ -943,7 +1089,7 @@ class TritonJsonImpl {
     // or if the member is not a double.
     StatusType MemberAsDouble(const char* name, double* value) const
     {
-      const rapidjson::Value& object = AsValue();
+      const RapidJsonValue& object = AsValue();
       if (!object.IsObject() || !object.HasMember(name)) {
         TRITONJSON_STATUSRETURN(
             std::string("attempt to access non-existing object member '") +
@@ -960,7 +1106,7 @@ class TritonJsonImpl {
 
     bool MemberIsArray(const char* name) const
     {
-      const rapidjson::Value& object = AsValue();
+      const RapidJsonValue& object = AsValue();
       if (!object.IsObject() || !object.HasMember(name)) {
         return false;
       }
@@ -975,7 +1121,7 @@ class TritonJsonImpl {
 
     bool MemberIsNull(const char* name) const
     {
-      const rapidjson::Value& object = AsValue();
+      const RapidJsonValue& object = AsValue();
       if (!object.IsObject() || !object.HasMember(name)) {
         return false;
       }
@@ -990,7 +1136,7 @@ class TritonJsonImpl {
 
     bool MemberIsObject(const char* name) const
     {
-      const rapidjson::Value& object = AsValue();
+      const RapidJsonValue& object = AsValue();
       if (!object.IsObject() || !object.HasMember(name))
         return false;
       const auto& v = object[name];
@@ -1004,7 +1150,7 @@ class TritonJsonImpl {
 
     bool MemberIsString(const char* name) const
     {
-      const rapidjson::Value& object = AsValue();
+      const RapidJsonValue& object = AsValue();
       if (!object.IsObject() || !object.HasMember(name)) {
         return false;
       }
@@ -1019,44 +1165,44 @@ class TritonJsonImpl {
 
     bool IsString()
     {
-      const rapidjson::Value& object = AsValue();
+      const RapidJsonValue& object = AsValue();
       return object.IsString();
     }
 
     bool IsArray()
     {
-      const rapidjson::Value& object = AsValue();
+      const RapidJsonValue& object = AsValue();
       return object.IsArray();
     }
 
     bool IsObject()
     {
-      const rapidjson::Value& object = AsValue();
+      const RapidJsonValue& object = AsValue();
       return object.IsObject();
     }
 
     bool IsInt()
     {
-      const rapidjson::Value& object = AsValue();
+      const RapidJsonValue& object = AsValue();
       return object.IsInt64();
     }
 
     bool IsBool()
     {
-      const rapidjson::Value& object = AsValue();
+      const RapidJsonValue& object = AsValue();
       return object.IsBool();
     }
 
     bool IsNumber()
     {
-      const rapidjson::Value& object = AsValue();
+      const RapidJsonValue& object = AsValue();
       return object.IsNumber();
     }
 
     // Get array element at a given index within this array.
     StatusType IndexAsArray(const size_t idx, TritonJsonImpl::Value* value)
     {
-      rapidjson::Value& array = AsMutableValue();
+      RapidJsonValue& array = AsMutableValue();
       if (!array.IsArray() || (idx >= array.GetArray().Size())) {
         TRITONJSON_STATUSRETURN(
             std::string("attempt to access non-existing array index '") +
@@ -1074,7 +1220,7 @@ class TritonJsonImpl {
     // Get object element at a given index within this array.
     StatusType IndexAsObject(const size_t idx, TritonJsonImpl::Value* value)
     {
-      rapidjson::Value& array = AsMutableValue();
+      RapidJsonValue& array = AsMutableValue();
       if (!array.IsArray() || (idx >= array.GetArray().Size())) {
         TRITONJSON_STATUSRETURN(
             std::string("attempt to access non-existing array index '") +
@@ -1096,7 +1242,7 @@ class TritonJsonImpl {
     StatusType IndexAsString(
         const size_t idx, const char** value, size_t* len) const
     {
-      const rapidjson::Value& array = AsValue();
+      const RapidJsonValue& array = AsValue();
       if (!array.IsArray() || (idx >= array.GetArray().Size())) {
         TRITONJSON_STATUSRETURN(
             std::string("attempt to access non-existing array index '") +
@@ -1117,7 +1263,7 @@ class TritonJsonImpl {
     // the index element is not a string.
     StatusType IndexAsString(const size_t idx, std::string* str) const
     {
-      const rapidjson::Value& array = AsValue();
+      const RapidJsonValue& array = AsValue();
       if (!array.IsArray() || (idx >= array.GetArray().Size())) {
         TRITONJSON_STATUSRETURN(
             std::string("attempt to access non-existing array index '") +
@@ -1136,7 +1282,7 @@ class TritonJsonImpl {
     // if the index element is not a boolean.
     StatusType IndexAsBool(const size_t idx, bool* value) const
     {
-      const rapidjson::Value& array = AsValue();
+      const RapidJsonValue& array = AsValue();
       if (!array.IsArray() || (idx >= array.GetArray().Size())) {
         TRITONJSON_STATUSRETURN(
             std::string("attempt to access non-existing array index '") +
@@ -1155,7 +1301,7 @@ class TritonJsonImpl {
     // if the index element is not a signed integer.
     StatusType IndexAsInt(const size_t idx, int64_t* value) const
     {
-      const rapidjson::Value& array = AsValue();
+      const RapidJsonValue& array = AsValue();
       if (!array.IsArray() || (idx >= array.GetArray().Size())) {
         TRITONJSON_STATUSRETURN(
             std::string("attempt to access non-existing array index '") +
@@ -1174,7 +1320,7 @@ class TritonJsonImpl {
     // if the index element is not an unsigned integer.
     StatusType IndexAsUInt(const size_t idx, uint64_t* value) const
     {
-      const rapidjson::Value& array = AsValue();
+      const RapidJsonValue& array = AsValue();
       if (!array.IsArray() || (idx >= array.GetArray().Size())) {
         TRITONJSON_STATUSRETURN(
             std::string("attempt to access non-existing array index '") +
@@ -1193,7 +1339,7 @@ class TritonJsonImpl {
     // if the index element is not a double.
     StatusType IndexAsDouble(const size_t idx, double* value) const
     {
-      const rapidjson::Value& array = AsValue();
+      const RapidJsonValue& array = AsValue();
       if (!array.IsArray() || (idx >= array.GetArray().Size())) {
         TRITONJSON_STATUSRETURN(
             std::string("attempt to access non-existing array index '") +
@@ -1219,15 +1365,14 @@ class TritonJsonImpl {
    private:
     // Construct a non-top-level JSON value that references an
     // existing element in a document.
-    explicit Value(
-        rapidjson::Value& v, rapidjson::Document::AllocatorType* allocator)
+    explicit Value(RapidJsonValue& v, RapidJsonAllocator* allocator)
         : value_(&v), allocator_(allocator)
     {
     }
 
     // Return a value object that can be used for both a top-level
     // document as well as an element within a document.
-    const rapidjson::Value& AsValue() const
+    const RapidJsonValue& AsValue() const
     {
       if (value_ == nullptr) {
         return document_;
@@ -1235,7 +1380,7 @@ class TritonJsonImpl {
       return *value_;
     }
 
-    rapidjson::Value& AsMutableValue()
+    RapidJsonValue& AsMutableValue()
     {
       if (value_ == nullptr) {
         return document_;
@@ -1245,9 +1390,9 @@ class TritonJsonImpl {
 
     // If this object a document or value. Based on this only one or
     // document_ or value_ is valid.
-    rapidjson::Document document_;
-    rapidjson::Value* value_;
-    rapidjson::Document::AllocatorType* allocator_;
+    RapidJsonDocument document_;
+    RapidJsonValue* value_;
+    RapidJsonAllocator* allocator_;
   };
 };
 
